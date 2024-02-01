@@ -27,6 +27,12 @@ std::shared_ptr<spdlog::logger>& GetLogger();
 	}									\
 }										\
 
+#define PSET_EXIT_AND_LOG(...)			\
+{										\
+	GetLogger()->error(__VA_ARGS__);	\
+		exit(-1);						\
+}										\
+
 #else
 
 #define PSET_LOG_TRACE(...)    
@@ -34,7 +40,9 @@ std::shared_ptr<spdlog::logger>& GetLogger();
 #define PSET_LOG_WARN(...)     
 #define PSET_LOG_ERROR(...)    
 #define PSET_LOG_CRITICAL(...) 
+
 #define PSET_EXIT_IF(expr)
 #define PSET_EXIT_AND_LOG_IF(expr,log)
+#define PSET_EXIT_AND_LOG(...)	
 
 #endif

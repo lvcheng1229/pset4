@@ -1,12 +1,12 @@
 #pragma once
 #include <string>
-#include "Elf.h"
-class CProgram
+#include "PsetElf.h"
+class CPsetApplication
 {
 public:
 	std::string m_app0File;
 	std::string m_app0Path;
 	void LoadProgram();
 private:
-	CElf m_elf;
+	CPsetElf m_program;
 };
