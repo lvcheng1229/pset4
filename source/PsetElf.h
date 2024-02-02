@@ -15,15 +15,15 @@ class CPsetElf
 public:
 	~CPsetElf();
 	void LoadFromFile(const std::string& elfPath, CPsetModule* psetModule);
-	bool PrePare();
 
 	void MapImageIntoMemory();
-
-private:
 	void PrepareProgramHeader();
 	void PrepreDynamicTables();
 
-	void PrepareTables(Elf64_Dyn& elf64Dyn);
+	std::vector<std::string>& GetNeededFiles();
+private:
+
+	void PrepareTablesDynSections(Elf64_Dyn& elf64Dyn);
 	void ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn);
 
 	void LoadSymbolExport();
@@ -52,7 +52,7 @@ private:
 	Elf64_Dyn* m_pDynamicEntry;
 	uint32_t m_nDynamicEntryCount = 0;
 	
-	SMemoryChrunk m_pSceDynamicLib;
+	
 
 	STLSBlock m_tlsBlock;
 

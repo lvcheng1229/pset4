@@ -134,18 +134,12 @@ void CPsetElf::LoadFromFile(const std::string& elfPath, CPsetModule* psetModule)
 	}
 }
 
-bool CPsetElf::PrePare()
-{
-	PrepareProgramHeader();
-	return false;
-}
-
 void CPsetElf::MapImageIntoMemory()
 {
-	m_moduleToLoad->m_moduleInfo.m_mappedMemory.m_size =CalculateTotalLoadableSize();
-	m_moduleToLoad->m_moduleInfo.m_mappedMemory.m_pAddress = VirtualAlloc(
-		m_moduleToLoad->m_moduleInfo.m_mappedMemory.m_pAddress, 
-		m_moduleToLoad->m_moduleInfo.m_mappedMemory.m_size, 
+	m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_size =CalculateTotalLoadableSize();
+	m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_pAddress = VirtualAlloc(
+		m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_pAddress, 
+		m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_size, 
 		MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
 	for (auto const& phdr : m_moduleToLoad->m_aSegmentHeaders)
@@ -164,6 +158,8 @@ void CPsetElf::MapImageIntoMemory()
 
 void CPsetElf::PrepareProgramHeader()
 {
+	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
+
 	m_moduleInfo.m_size = sizeof(SSceKernelModuleInfo);
 	elf64_hdr* pElfHdr = (elf64_hdr*)(m_elf.m_pAddress);
 	elf64_phdr* pElfpHdr = (elf64_phdr*)(pElfHdr + 1);
@@ -191,8 +187,8 @@ void CPsetElf::PrepareProgramHeader()
 			PSET_EXIT_AND_LOG_IF(m_nDynamicEntryCount == 0, "empty dynamic entry");
 			break;
 		case PT_SCE_DYNLIBDATA:
-			m_pSceDynamicLib.m_pAddress = (uint8_t*)m_elf.m_pAddress + pElfpHdr[index].p_offset;
-			m_pSceDynamicLib.m_size = pElfpHdr[index].p_filesz;
+			moduleInfo.m_pSceDynamicLib.m_pAddress = (uint8_t*)m_elf.m_pAddress + pElfpHdr[index].p_offset;
+			moduleInfo.m_pSceDynamicLib.m_size = pElfpHdr[index].p_filesz;
 			break;
 		case PT_TLS:
 			m_tlsBlock.m_tmpStatrt = pElfpHdr[index].p_paddr;
@@ -216,7 +212,7 @@ void CPsetElf::PrepreDynamicTables()
 {
 	for (uint32_t index = 0; index < m_nDynamicEntryCount; index++)
 	{
-		PrepareTables(m_pDynamicEntry[index]);
+		PrepareTablesDynSections(m_pDynamicEntry[index]);
 	}
 
 	for (uint32_t index = 0; index < m_nDynamicEntryCount; index++)
@@ -225,8 +221,14 @@ void CPsetElf::PrepreDynamicTables()
 	}
 }
 
-void CPsetElf::PrepareTables(Elf64_Dyn& elf64Dyn)
+std::vector<std::string>& CPsetElf::GetNeededFiles()
 {
+	return m_moduleToLoad->m_aNeededFiles;
+}
+
+void CPsetElf::PrepareTablesDynSections(Elf64_Dyn& elf64Dyn)
+{
+	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 	switch (elf64Dyn.d_tag)
 	{
 	case DT_NULL:
@@ -258,11 +260,24 @@ void CPsetElf::PrepareTables(Elf64_Dyn& elf64Dyn)
 
 	case DT_INIT:
 		break;
+	case DT_SCE_STRTAB:
+		moduleInfo.m_sceStrTable.m_pAddress = (uint8_t*)moduleInfo.m_pSceDynamicLib.m_pAddress + elf64Dyn.d_un.d_ptr;
+		break;
 	}
 }
 
 void CPsetElf::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
 {
+	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
+	uint8_t* sceStrTable = (uint8_t*)moduleInfo.m_sceStrTable.m_pAddress;
+	switch (elf64Dyn.d_tag)
+	{
+	case DT_NEEDED:
+		//COMMONT:PAGE205
+		char* fileName = (char*)&sceStrTable[elf64Dyn.d_un.d_ptr];
+		m_moduleToLoad->m_aNeededFiles.push_back(fileName);
+		break;
+	}
 
 }
 
@@ -276,7 +291,7 @@ bool CPsetElf::mapCodeSegment(Elf64_Phdr const& hdr)
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 	if (m_moduleToLoad->m_elf64Ehdr.e_entry != 0)
 	{
-		moduleInfo.pEntryPoint = (uint8_t*)moduleInfo.m_mappedMemory.m_pAddress + m_moduleToLoad->m_elf64Ehdr.e_entry;
+		moduleInfo.pEntryPoint = (uint8_t*)moduleInfo.m_mappedCodeMemory.m_pAddress + m_moduleToLoad->m_elf64Ehdr.e_entry;
 	}
 	else
 	{
