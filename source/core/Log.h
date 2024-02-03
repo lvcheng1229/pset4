@@ -9,6 +9,7 @@ std::shared_ptr<spdlog::logger>& GetLogger();
 #define PSET_LOG_WARN(...)     GetLogger()->warn(__VA_ARGS__)
 #define PSET_LOG_ERROR(...)    GetLogger()->error(__VA_ARGS__)
 #define PSET_LOG_CRITICAL(...) GetLogger()->critical(__VA_ARGS__)
+#define PSET_LOG_UNIMPLEMENTED(...)     GetLogger()->info(__VA_ARGS__)
 
 #define PSET_EXIT_AND_LOG_IF(expr,log)	\
 {										\

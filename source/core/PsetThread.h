@@ -2,8 +2,8 @@
 #include <include/pthread.h>
 #include "Common.h"
 
-typedef void (PS4API* PsetExitFunction)();
-typedef void* (PS4API* PsetMainFunction)(void*, PsetExitFunction pExit);
+typedef void (PSET_SYSV_ABI* PsetExitFunction)();
+typedef void* (PSET_SYSV_ABI* PsetMainFunction)(void*, PsetExitFunction pExit);
 
 class CPsetThread
 {
@@ -12,7 +12,7 @@ public:
 	void Run();
 	static void* RunThreadFunction(void* args);
 private:
-	static void PS4API DefaultExitFunction(void);
+	static void PSET_SYSV_ABI DefaultExitFunction(void);
 
 	void* m_pMainFunction;
 };

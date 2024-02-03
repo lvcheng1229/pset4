@@ -8,6 +8,7 @@
 #include "core/PsetModule.h"
 #include "core/PsetModuleLoader.h"
 
+
 cxxopts::ParseResult ParseCmd(int argc, char* argv[])
 {
 	cxxopts::Options opts("PSET4", "Open Source PlayStation 4 Emulator");
@@ -34,21 +35,22 @@ int main(int argc, char* argv[])
 	cxxopts::ParseResult parseResult = ParseCmd(argc, argv);
 	PSET_EXIT_AND_LOG_IF(parseResult["e"].count() <= 0, "couldn't find app0 file");
 
-	//CPsetApplication psetApp;
-	//psetApp.m_app0File = parseResult["e"].as<std::string>();
-	//if (parseResult["f"].count() > 0)
-	//{
-	//	psetApp.m_app0Path = parseResult["f"].as<std::string>();
-	//}
-	//else
-	//{
-	//	size_t posDir = psetApp.m_app0File.find_last_of("/\\");
-	//	psetApp.m_app0Path = psetApp.m_app0File.substr(0, posDir);
-	//}
-	//psetApp.LoadProgram();
+	CPsetApplication psetApp;
+	psetApp.m_app0File = parseResult["e"].as<std::string>();
+	if (parseResult["f"].count() > 0)
+	{
+		psetApp.m_app0Path = parseResult["f"].as<std::string>();
+	}
+	else
+	{
+		size_t posDir = psetApp.m_app0File.find_last_of("/\\");
+		psetApp.m_app0Path = psetApp.m_app0File.substr(0, posDir);
+	}
 
+	
+	CPsetDynamicLinker* dynamicLinker = GetDynamicLinker();
 	CPsetModule* psetModule = nullptr;
-	CPestModuleLoader psetModuleLoader;
+	CPestModuleLoader psetModuleLoader(dynamicLinker,&psetApp);
 	psetModuleLoader.LoadModule(parseResult["e"].as<std::string>(), psetModule);
 
 	CPsetThread psetThread(psetModule->GetEntryPoint());

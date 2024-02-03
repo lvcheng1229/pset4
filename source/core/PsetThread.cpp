@@ -35,7 +35,7 @@ void* CPsetThread::RunThreadFunction(void* args)
 	return nullptr;
 }
 
-void PS4API CPsetThread::DefaultExitFunction(void)
+void PSET_SYSV_ABI CPsetThread::DefaultExitFunction(void)
 {
 	PSET_LOG_INFO("default exit function");
 }

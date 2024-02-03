@@ -208,11 +208,12 @@ void CPsetElf::PrepareProgramHeader()
 	}
 }
 
-void CPsetElf::PrepreDynamicTables()
+//COMMONT:PAGE204
+void CPsetElf::PrepreDynamicSegments()
 {
 	for (uint32_t index = 0; index < m_nDynamicEntryCount; index++)
 	{
-		PrepareTablesDynSections(m_pDynamicEntry[index]);
+		PrepareTables(m_pDynamicEntry[index]);
 	}
 
 	for (uint32_t index = 0; index < m_nDynamicEntryCount; index++)
@@ -226,9 +227,11 @@ std::vector<std::string>& CPsetElf::GetNeededFiles()
 	return m_moduleToLoad->m_aNeededFiles;
 }
 
-void CPsetElf::PrepareTablesDynSections(Elf64_Dyn& elf64Dyn)
+//TODO: Rename TO PrePareDynamic Segments SUB 0
+void CPsetElf::PrepareTables(Elf64_Dyn& elf64Dyn)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
+	uint8_t* baseAddress = (uint8_t*)moduleInfo.m_pSceDynamicLib.m_pAddress;
 	switch (elf64Dyn.d_tag)
 	{
 	case DT_NULL:
@@ -261,11 +264,29 @@ void CPsetElf::PrepareTablesDynSections(Elf64_Dyn& elf64Dyn)
 	case DT_INIT:
 		break;
 	case DT_SCE_STRTAB:
-		moduleInfo.m_sceStrTable.m_pAddress = (uint8_t*)moduleInfo.m_pSceDynamicLib.m_pAddress + elf64Dyn.d_un.d_ptr;
+		moduleInfo.m_sceStrTable.m_pAddress = baseAddress + elf64Dyn.d_un.d_ptr;
+	case DT_SCE_STRSZ:
+		moduleInfo.m_sceStrTable.m_size = elf64Dyn.d_un.d_val;
+		break;
+
+
+	case DT_SCE_RELA:
+		moduleInfo.m_relocationTable.m_pAddress = baseAddress + elf64Dyn.d_un.d_ptr;;
+		break;
+	case DT_SCE_RELASZ:
+		moduleInfo.m_relocationTable.m_size = elf64Dyn.d_un.d_val / sizeof(Elf64_Rela);
+		break;
+
+	case DT_SCE_SYMTAB:
+		moduleInfo.m_symbleTable.m_pAddress = baseAddress + elf64Dyn.d_un.d_ptr;
+		break;
+	case DT_SCE_SYMTABSZ:
+		moduleInfo.m_symbleTable.m_size = elf64Dyn.d_un.d_val;
 		break;
 	}
 }
 
+//TODO: Rename TO PrePareDynamic Segments SUB 1
 void CPsetElf::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;

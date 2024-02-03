@@ -18,12 +18,12 @@ public:
 
 	void MapImageIntoMemory();
 	void PrepareProgramHeader();
-	void PrepreDynamicTables();
+	void PrepreDynamicSegments();
 
 	std::vector<std::string>& GetNeededFiles();
 private:
 
-	void PrepareTablesDynSections(Elf64_Dyn& elf64Dyn);
+	void PrepareTables(Elf64_Dyn& elf64Dyn);
 	void ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn);
 
 	void LoadSymbolExport();

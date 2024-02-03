@@ -12,7 +12,8 @@ struct SModuleInfo
 	SMemoryChrunk m_sceStrTable;
 	SMemoryChrunk m_pSceDynamicLib;
 	SMemoryChrunk m_mappedCodeMemory;
-
+	SMemoryChrunk m_relocationTable;
+	SMemoryChrunk m_symbleTable;
 };
 
 class CPsetModule
@@ -20,6 +21,11 @@ class CPsetModule
 	friend class CPsetElf;
 public:
 	void* GetEntryPoint()const;
+
+	inline SModuleInfo& GetModuleInfo()
+	{
+		return m_moduleInfo;
+	}
 private:
 	SModuleInfo m_moduleInfo;
 	std::vector<std::string>m_aNeededFiles;
