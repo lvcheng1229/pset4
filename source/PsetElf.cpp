@@ -4,6 +4,7 @@
 #include "PsetElf.h"
 
 #include "core/PsetModule.h"
+#include "core/PsetDynamicLinker.h"
 
 void ValidateElf(elf64_hdr* elf64)
 {
@@ -291,12 +292,24 @@ void CPsetElf::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 	uint8_t* sceStrTable = (uint8_t*)moduleInfo.m_sceStrTable.m_pAddress;
+	SPsetLibraryInfo libInfo;
+	SPsetLibrary lib;
 	switch (elf64Dyn.d_tag)
 	{
 	case DT_NEEDED:
 		//COMMONT:PAGE205
 		char* fileName = (char*)&sceStrTable[elf64Dyn.d_un.d_ptr];
 		m_moduleToLoad->m_aNeededFiles.push_back(fileName);
+		break;
+	case DT_SCE_IMPORT_LIB:
+		libInfo.value = elf64Dyn.d_un.d_val;
+		lib.m_libraryName = (const char*)(&sceStrTable[libInfo.name_offset]);
+		m_moduleToLoad->m_id2LibraryNameMap.emplace(std::make_pair(libInfo.id, lib));
+		break;
+	case DT_SCE_EXPORT_LIB:
+		libInfo.value = elf64Dyn.d_un.d_val;
+		lib.m_libraryName = (const char*)(&sceStrTable[libInfo.name_offset]);
+		m_moduleToLoad->m_id2LibraryNameMap.emplace(std::make_pair(libInfo.id, lib));
 		break;
 	}
 
