@@ -32,7 +32,7 @@ void CPsetDynamicLinker::InitializeOverrideModule(const char* moduleName, const 
 	while (pLibraries[moduleIndex].m_libName != nullptr && pLibraries[moduleIndex].m_pFunctionEntries != nullptr)
 	{
 		const std::string& libName = pLibraries[moduleIndex].m_libName;
-		const SPSET_LIB_EXPORT_FUNTCTION* pFunctionEntries = pLibraries[moduleIndex].m_pFunctionEntries;
+		const SPSET_LIB_EXPORT_SYSMBOL* pFunctionEntries = pLibraries[moduleIndex].m_pFunctionEntries;
 		uint32_t funcIndex = 0;
 		while (pFunctionEntries[funcIndex].m_nid != 0 && pFunctionEntries[funcIndex].m_pFunction != nullptr)
 		{
@@ -77,7 +77,10 @@ bool CPsetDynamicLinker::IsOverrideModule(std::string const& moduleName)
 
 bool CPsetDynamicLinker::RelocateModules(CPsetModule& module)
 {
-	return RelocateRelative(module);
+	SModuleInfo& moduleInfo = module.GetModuleInfo();
+	bool resultReloRelative = RelocateRelative(module, (Elf64_Rela*)moduleInfo.m_relocationTable.m_pAddress, moduleInfo.m_relocationTable.m_size);
+	bool resultReloPltRelative = RelocateRelative(module, (Elf64_Rela*)moduleInfo.m_relocationPltTable.m_pAddress, moduleInfo.m_relocationPltTable.m_size);
+	return resultReloRelative && resultReloPltRelative;
 }
 
 const void* CPsetDynamicLinker::GetOverrideSymbolAddress(const std::string& moduleName, const std::string& libraryName, const uint64_t nid)
@@ -97,6 +100,7 @@ const void* CPsetDynamicLinker::GetOverrideSymbolAddress(const std::string& modu
 void CPsetDynamicLinker::GetLibAndModuleName(CPsetModule& module,uint16_t libId, uint16_t moduleId, std::string& outlibName, std::string& outModulebName)
 {
 	outlibName = module.GetId2LibMap()[libId].m_libraryName;
+	outModulebName = module.GetId2ModuleMap()[moduleId].m_moduleName;
 }
 
 static bool DecodeValue16(const std::string& encodedValue, uint16_t& value)
@@ -190,38 +194,39 @@ static void DecodeSymbol(const std::string& encodedName, uint16_t& moduleId, uin
 	DecodeValue16(encodedSubNames[2], moduleId);
 }
 
-bool CPsetDynamicLinker::RelocateRelative(CPsetModule& module)
+bool CPsetDynamicLinker::RelocateRelative(CPsetModule& module, Elf64_Rela* pReallocateTable, uint32_t relaCount)
 {
 	SModuleInfo& moduleInfo = module.GetModuleInfo();
 	uint8_t* pCodeAddress = (uint8_t*)moduleInfo.m_mappedCodeMemory.m_pAddress;
 	uint8_t* pStrTable = (uint8_t*)moduleInfo.m_sceStrTable.m_pAddress;
-	Elf64_Rela* pReallocateTable = (Elf64_Rela*)moduleInfo.m_relocationTable.m_pAddress;
 	Elf64_Sym* pSymTable = (Elf64_Sym*)moduleInfo.m_symbleTable.m_pAddress;
 
-	for (uint32_t index = 0; index < moduleInfo.m_relocationTable.m_size; index++)
+	for (uint32_t index = 0; index < relaCount; index++)
 	{
 		//COMMONT:SYSVABI:PAGE69
 
 		Elf64_Rela* pRela = &pReallocateTable[index];
-		const uint64_t nType = ELF64_R_TYPE(pRela->r_info);
 		const uint64_t nSymIdx = ELF64_R_SYM(pRela->r_info);
 
-		uint64_t pCodeOffset = pRela->r_offset;
-
 		Elf64_Sym& symbol = pSymTable[nSymIdx];
+		auto nBinding = ELF64_ST_BIND(symbol.st_info);
 		const char* pEncodedName = (const char*)&pStrTable[symbol.st_name];
 		
-		uint64_t decodedNid;
-		uint16_t decodedModuleId;
-		uint16_t decodedLibId;
-		DecodeSymbol(pEncodedName, decodedModuleId, decodedLibId, decodedNid);
+		if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
+		{
+			uint64_t decodedNid = 0;
+			uint16_t decodedModuleId = 0;
+			uint16_t decodedLibId = 0;
+			DecodeSymbol(pEncodedName, decodedModuleId, decodedLibId, decodedNid);
 
-		std::string libName;
-		std::string moduleName;
-		GetLibAndModuleName(module, decodedLibId, decodedModuleId, libName, moduleName);
-		const void* symAddress = GetOverrideSymbolAddress(moduleName, libName, decodedLibId);
+			std::string libName;
+			std::string moduleName;
+			GetLibAndModuleName(module, decodedLibId, decodedModuleId, libName, moduleName);
+			const void* symAddress = GetOverrideSymbolAddress(moduleName, libName, decodedLibId);
+			uint64_t pCodeOffset = pRela->r_offset;
 
-		
+			*(uint64_t*)(pCodeAddress + pCodeOffset) = reinterpret_cast<uint64_t>(symAddress);
+		}
 	}
 
 	return false;

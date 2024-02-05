@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "PsetModule.h"
-#include "overridelib/PsetLibraryCommon.h"
+#include "overridemodule/PsetLibraryCommon.h"
 
 
 class CPsetDynamicLinker
@@ -23,7 +23,7 @@ public:
 
 	void GetLibAndModuleName(CPsetModule& module, uint16_t libId, uint16_t moduleId, std::string& outlibName, std::string& outModulebName);
 private:
-	bool RelocateRelative(CPsetModule& module);
+	bool RelocateRelative(CPsetModule& module, Elf64_Rela* pRelaEntries, uint32_t relaCount);
 	bool RelocatePlatformRelative(CPsetModule& module);
 private:
 	std::map<std::string, size_t>m_mapModuleNameToIndex;

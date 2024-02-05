@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "system/elf.h"
 
 #include "core/Log.h"
@@ -269,15 +271,18 @@ void CPsetElf::PrepareTables(Elf64_Dyn& elf64Dyn)
 	case DT_SCE_STRSZ:
 		moduleInfo.m_sceStrTable.m_size = elf64Dyn.d_un.d_val;
 		break;
-
-
 	case DT_SCE_RELA:
 		moduleInfo.m_relocationTable.m_pAddress = baseAddress + elf64Dyn.d_un.d_ptr;;
 		break;
 	case DT_SCE_RELASZ:
 		moduleInfo.m_relocationTable.m_size = elf64Dyn.d_un.d_val / sizeof(Elf64_Rela);
 		break;
-
+	case DT_SCE_PLTREL:
+		moduleInfo.m_relocationPltTable.m_pAddress = baseAddress + elf64Dyn.d_un.d_ptr;;
+		break;
+	case DT_SCE_PLTRELSZ:
+		moduleInfo.m_relocationPltTable.m_size = elf64Dyn.d_un.d_val / sizeof(Elf64_Rela);
+		break;
 	case DT_SCE_SYMTAB:
 		moduleInfo.m_symbleTable.m_pAddress = baseAddress + elf64Dyn.d_un.d_ptr;
 		break;
@@ -292,27 +297,42 @@ void CPsetElf::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 	uint8_t* sceStrTable = (uint8_t*)moduleInfo.m_sceStrTable.m_pAddress;
-	SPsetLibraryInfo libInfo;
-	SPsetLibrary lib;
+
 	switch (elf64Dyn.d_tag)
 	{
-	case DT_NEEDED:
-		//COMMONT:PAGE205
-		char* fileName = (char*)&sceStrTable[elf64Dyn.d_un.d_ptr];
-		m_moduleToLoad->m_aNeededFiles.push_back(fileName);
-		break;
-	case DT_SCE_IMPORT_LIB:
-		libInfo.value = elf64Dyn.d_un.d_val;
-		lib.m_libraryName = (const char*)(&sceStrTable[libInfo.name_offset]);
-		m_moduleToLoad->m_id2LibraryNameMap.emplace(std::make_pair(libInfo.id, lib));
-		break;
-	case DT_SCE_EXPORT_LIB:
-		libInfo.value = elf64Dyn.d_un.d_val;
-		lib.m_libraryName = (const char*)(&sceStrTable[libInfo.name_offset]);
-		m_moduleToLoad->m_id2LibraryNameMap.emplace(std::make_pair(libInfo.id, lib));
-		break;
-	}
+		case DT_NEEDED:
+		{
+			//COMMONT:PAGE205
+			char* fileName = (char*)&sceStrTable[elf64Dyn.d_un.d_ptr];
+			m_moduleToLoad->m_aNeededFiles.push_back(fileName);
+			break;
+		}
 
+		case DT_SCE_MODULE_INFO:
+		case DT_SCE_NEEDED_MODULE:
+		{
+			SModuleValue moduleValue;
+			SPsetModule module;
+			moduleValue.value = elf64Dyn.d_un.d_val;
+			module.m_moduleName = reinterpret_cast<char*>(&sceStrTable[moduleValue.name_offset]);
+			m_moduleToLoad->m_id2ModuleNameMap.emplace(std::make_pair(moduleValue.m_id, module));
+
+			std::cout << module.m_moduleName << std::endl;
+			break;
+		}
+
+		//TODO
+		case DT_SCE_IMPORT_LIB:
+		case DT_SCE_EXPORT_LIB:
+		{
+			SLibraryValue libValue;
+			SPsetLibrary lib;
+			libValue.m_value = elf64Dyn.d_un.d_val;
+			lib.m_libraryName = (const char*)(&sceStrTable[libValue.m_name_offset]);
+			m_moduleToLoad->m_id2LibraryNameMap.emplace(std::make_pair(libValue.m_id, lib));
+			break;
+		}
+	}
 }
 
 void CPsetElf::MapCodeInit()

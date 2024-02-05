@@ -1,0 +1,30 @@
+#pragma once
+#include "PsetLibraryCommon.h" 
+int PSET_SYSV_ABI Pset__ZN3sce16CommonDialogUtil12getSelfAppIdEv(void);
+int PSET_SYSV_ABI Pset__ZN3sce16CommonDialogUtil6Client11closeModuleEv(void);
+int PSET_SYSV_ABI Pset__ZN3sce16CommonDialogUtil6Client11updateStateEv(void);
+int PSET_SYSV_ABI Pset__ZN3sce16CommonDialogUtil6Client15launchCmnDialogEv(void);
+int PSET_SYSV_ABI Pset__ZN3sce16CommonDialogUtil6ClientD0Ev(void);
+int PSET_SYSV_ABI Pset__ZN3sce16CommonDialogUtil6ClientD1Ev(void);
+int PSET_SYSV_ABI Pset__ZN3sce16CommonDialogUtil6ClientD2Ev(void);
+int PSET_SYSV_ABI Pset__ZNK3sce16CommonDialogUtil6Client10isCloseReqEv(void);
+int PSET_SYSV_ABI Pset__ZNK3sce16CommonDialogUtil6Client13getFinishDataEPvm(void);
+int PSET_SYSV_ABI Pset__ZNK3sce16CommonDialogUtil6Client14getClientStateEv(void);
+int PSET_SYSV_ABI Pset__ZNK3sce16CommonDialogUtil6Client19isInitializedStatusEv(void);
+int PSET_SYSV_ABI Pset__ZNK3sce16CommonDialogUtil6Client8getAppIdEv(void);
+int PSET_SYSV_ABI Pset__ZNK3sce16CommonDialogUtil6Client8isFinishEv(void);
+int PSET_SYSV_ABI Pset__ZNK3sce16CommonDialogUtil6Client9getResultEv(void);
+int PSET_SYSV_ABI Pset__ZTVN3sce16CommonDialogUtil6ClientE(void);
+int PSET_SYSV_ABI Pset_sceCommonDialogInitialize(void);
+int PSET_SYSV_ABI Pset_sceCommonDialogIsUsed(void);
+int PSET_SYSV_ABI NullNameFunc0FF577E4E8457883(void);
+int PSET_SYSV_ABI NullNameFunc41716C2CE379416C(void);
+int PSET_SYSV_ABI NullNameFunc483A427D8F6E0748(void);
+int PSET_SYSV_ABI NullNameFunc6944B83E02727BDF(void);
+int PSET_SYSV_ABI NullNameFunc69F2DD23A8B4950C(void);
+int PSET_SYSV_ABI NullNameFunc9954673DEAC170AD(void);
+int PSET_SYSV_ABI NullNameFuncA7D4D3AB86CB7455(void);
+int PSET_SYSV_ABI NullNameFuncADE4C51256B8350C(void);
+int PSET_SYSV_ABI NullNameFuncB71349CF15FACAB0(void);
+int PSET_SYSV_ABI NullNameFuncCB18E00EFA946C64(void);
+int PSET_SYSV_ABI NullNameFuncF2AEE270605622B0(void);

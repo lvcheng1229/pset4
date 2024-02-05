@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.19 FATAL_ERROR)
+
+set(CMAKE_GENERATOR_TOOLSET "ClangCL")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+project(SceModuleGenerator VERSION 0.1.0)
+
+# source file
+file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
+file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${HEADER_FILES} ${SOURCE_FILES})
+
+add_definitions( -DSCE_LIBS_PATH="${CMAKE_CURRENT_SOURCE_DIR}/ps4libdoc-5.05/system/common/lib/" )
+add_definitions( -DSCE_MOUDLE_OUTPUT_DIR="${CMAKE_CURRENT_BINARY_DIR}/OverrideModuleOut/" )
+
+# executable
+add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})

@@ -1,0 +1,29 @@
+#pragma once
+#include "PsetLibraryCommon.h" 
+int PSET_SYSV_ABI Pset_sceAvPlayerAddSource(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerAddSourceEx(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerChangeStream(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerClose(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerCurrentTime(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerDisableStream(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerEnableStream(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerGetAudioData(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerGetStreamInfo(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerGetVideoData(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerGetVideoDataEx(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerInit(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerInitEx(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerIsActive(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerJumpToTime(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerPause(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerPostInit(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerPrintf(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerResume(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerSetAvSyncMode(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerSetLogCallback(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerSetLooping(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerSetTrickSpeed(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerStart(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerStop(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerStreamCount(void);
+int PSET_SYSV_ABI Pset_sceAvPlayerVprintf(void);

@@ -27,3 +27,5 @@ add_definitions(-DPSET_DEBUG)
 
 # executable
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SOURCE_FILES_CC} ${SOURCE_FILES_C})
+
+add_subdirectory(${CMAKE_SOURCE_DIR}/tools/SceModuleGenerator)
