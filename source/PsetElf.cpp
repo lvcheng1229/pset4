@@ -147,13 +147,14 @@ void CPsetElf::MapImageIntoMemory()
 
 	for (auto const& phdr : m_moduleToLoad->m_aSegmentHeaders)
 	{
-		if (phdr.p_flags & PF_X)
+		bool result = true;
+		if (phdr.p_flags == PF_X)
 		{
-			mapCodeSegment(phdr);
+			result = MapCodeSegment(phdr);
 		}
-		else
+		else if (phdr.p_flags == PT_SCE_RELRO)
 		{
-			PSET_EXIT_AND_LOG("unimplmentation");
+			result = mapSecReloSegment(phdr);
 		}
 	}
 	
@@ -340,7 +341,7 @@ void CPsetElf::MapCodeInit()
 
 }
 
-bool CPsetElf::mapCodeSegment(Elf64_Phdr const& hdr)
+bool CPsetElf::MapCodeSegment(Elf64_Phdr const& hdr)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 	if (m_moduleToLoad->m_elf64Ehdr.e_entry != 0)
@@ -352,6 +353,11 @@ bool CPsetElf::mapCodeSegment(Elf64_Phdr const& hdr)
 		moduleInfo.pEntryPoint = nullptr;
 	}
 	
+	return false;
+}
+
+bool CPsetElf::MapSceRelocateSegement()
+{
 	return false;
 }
 

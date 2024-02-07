@@ -32,7 +32,8 @@ private:
 	void MapCodeInit();
 	void ModuleStart();
 
-	bool mapCodeSegment(Elf64_Phdr const& hdr);
+	bool MapCodeSegment(Elf64_Phdr const& hdr);
+	bool MapSceRelocateSegement();;
 
 	size_t CalculateTotalLoadableSize();
 	bool IsSegmentLoadable(Elf64_Phdr const& hdr);
