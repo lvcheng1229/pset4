@@ -88,20 +88,20 @@ int PSET_SYSV_ABI Pset_sceVideoRecordingTerm(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceVideoRecording_libSceVideoRecording[] =
 {
- { 0x287BE43D024330B9, (void*)Pset_sceVideoRecordingClose },
- { 0x40D83C2868B1AF38, (void*)Pset_sceVideoRecordingCopyBGRAtoNV12 },
- { 0xB00EBEE5775BA8C0, (void*)Pset_sceVideoRecordingGetInfo },
- { 0x7D9250CC52B81AFE, (void*)Pset_sceVideoRecordingGetStatus },
- { 0x4575C197AFE28A6A, (void*)Pset_sceVideoRecordingInit },
- { 0xED0A1363356ECEDA, (void*)Pset_sceVideoRecordingOpen },
- { 0xB36F1D6A5070A768, (void*)Pset_sceVideoRecordingOpen2 },
- { 0xA8E9A1E87BC7852B, (void*)Pset_sceVideoRecordingQueryHddSize2 },
- { 0x66F5B34B6C1320C7, (void*)Pset_sceVideoRecordingQueryMemSize },
- { 0x6C662463AAB76C8C, (void*)Pset_sceVideoRecordingQueryMemSize2 },
- { 0x15CF2AC652883584, (void*)Pset_sceVideoRecordingSetInfo },
- { 0xB56A1EF48946021B, (void*)Pset_sceVideoRecordingStart },
- { 0x38E171ACC63E99F2, (void*)Pset_sceVideoRecordingStop },
- { 0x81666292847E83D8, (void*)Pset_sceVideoRecordingTerm },
+ { 0x287BE43D024330B9,"Pset_sceVideoRecordingClose", (void*)Pset_sceVideoRecordingClose },
+ { 0x40D83C2868B1AF38,"Pset_sceVideoRecordingCopyBGRAtoNV12", (void*)Pset_sceVideoRecordingCopyBGRAtoNV12 },
+ { 0xB00EBEE5775BA8C0,"Pset_sceVideoRecordingGetInfo", (void*)Pset_sceVideoRecordingGetInfo },
+ { 0x7D9250CC52B81AFE,"Pset_sceVideoRecordingGetStatus", (void*)Pset_sceVideoRecordingGetStatus },
+ { 0x4575C197AFE28A6A,"Pset_sceVideoRecordingInit", (void*)Pset_sceVideoRecordingInit },
+ { 0xED0A1363356ECEDA,"Pset_sceVideoRecordingOpen", (void*)Pset_sceVideoRecordingOpen },
+ { 0xB36F1D6A5070A768,"Pset_sceVideoRecordingOpen2", (void*)Pset_sceVideoRecordingOpen2 },
+ { 0xA8E9A1E87BC7852B,"Pset_sceVideoRecordingQueryHddSize2", (void*)Pset_sceVideoRecordingQueryHddSize2 },
+ { 0x66F5B34B6C1320C7,"Pset_sceVideoRecordingQueryMemSize", (void*)Pset_sceVideoRecordingQueryMemSize },
+ { 0x6C662463AAB76C8C,"Pset_sceVideoRecordingQueryMemSize2", (void*)Pset_sceVideoRecordingQueryMemSize2 },
+ { 0x15CF2AC652883584,"Pset_sceVideoRecordingSetInfo", (void*)Pset_sceVideoRecordingSetInfo },
+ { 0xB56A1EF48946021B,"Pset_sceVideoRecordingStart", (void*)Pset_sceVideoRecordingStart },
+ { 0x38E171ACC63E99F2,"Pset_sceVideoRecordingStop", (void*)Pset_sceVideoRecordingStop },
+ { 0x81666292847E83D8,"Pset_sceVideoRecordingTerm", (void*)Pset_sceVideoRecordingTerm },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

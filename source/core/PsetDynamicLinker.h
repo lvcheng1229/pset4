@@ -10,7 +10,8 @@
 class CPsetDynamicLinker
 {
 public:
-	void AddNeededModule(std::string const& moduleName, CPsetModule&& module);;
+	CPsetModule* AddNativeModule(std::string const& moduleName);
+	CPsetModule* GetNativeModule(const std::string& moduleName);
 
 	void InitializeOverrideModule(const char* moduleName, const SPSET_EXPORT_LIB* pLibraries);
 	void AddOverrideModule(const std::string& moduleName);
@@ -27,7 +28,7 @@ private:
 	bool RelocatePlatformRelative(CPsetModule& module);
 private:
 	std::map<std::string, size_t>m_mapModuleNameToIndex;
-	std::vector<CPsetModule> m_aGloabalModules;
+	std::vector<CPsetModule> m_aNativeModules;
 
 
 	using SNid2FunctionMap = std::unordered_map<uint64_t, const void*>;

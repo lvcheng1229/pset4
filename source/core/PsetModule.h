@@ -3,19 +3,21 @@
 #include <string>
 #include <unordered_map>
 
-#include "../system/elf.h"
-#include "../system/SystemTypes.h"
+#include "system/elf.h"
+#include "system/SystemTypes.h"
 
 struct SModuleInfo
 {
 	void* pEntryPoint;
 
+	SMemoryChrunk m_mappedMemory;
+
 	SMemoryChrunk m_sceStrTable;
 	SMemoryChrunk m_pSceDynamicLib;
-	SMemoryChrunk m_mappedCodeMemory;
 	SMemoryChrunk m_relocationTable;
 	SMemoryChrunk m_relocationPltTable;
 	SMemoryChrunk m_symbleTable;
+
 };
 
 struct SModuleValue
@@ -58,7 +60,7 @@ struct SPsetLibrary
 
 class CPsetModule
 {
-	friend class CPsetElf;
+	friend class CElfProcessor;
 public:
 	void* GetEntryPoint()const;
 
@@ -78,7 +80,7 @@ public:
 	}
 private:
 	SModuleInfo m_moduleInfo;
-	std::vector<std::string>m_aNeededFiles;
+	
 
 	Elf64_Ehdr m_elf64Ehdr;
 	std::vector<Elf64_Phdr> m_aSegmentHeaders;

@@ -64,16 +64,16 @@ int PSET_SYSV_ABI Pset_sceMsgDialogUpdateStatus(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceMsgDialog_libSceMsgDialog[] =
 {
- { 0x1D3ADC0CA9452AE3, (void*)Pset_sceMsgDialogClose },
- { 0x2EBF28BC71FD97A0, (void*)Pset_sceMsgDialogGetResult },
- { 0x096556EFC41CDDF2, (void*)Pset_sceMsgDialogGetStatus },
- { 0x943AB1698D546C4A, (void*)Pset_sceMsgDialogInitialize },
- { 0x6F4E878740CF11A1, (void*)Pset_sceMsgDialogOpen },
- { 0x19CE64D6A70AE1FB, (void*)Pset_sceMsgDialogProgressBarInc },
- { 0xE87FFBD4E76BA573, (void*)Pset_sceMsgDialogProgressBarSetMsg },
- { 0xC13A5F825926BF7E, (void*)Pset_sceMsgDialogProgressBarSetValue },
- { 0x78FC3F92A6667A5A, (void*)Pset_sceMsgDialogTerminate },
- { 0xE9F202DD72ADDA4D, (void*)Pset_sceMsgDialogUpdateStatus },
+ { 0x1D3ADC0CA9452AE3,"Pset_sceMsgDialogClose", (void*)Pset_sceMsgDialogClose },
+ { 0x2EBF28BC71FD97A0,"Pset_sceMsgDialogGetResult", (void*)Pset_sceMsgDialogGetResult },
+ { 0x096556EFC41CDDF2,"Pset_sceMsgDialogGetStatus", (void*)Pset_sceMsgDialogGetStatus },
+ { 0x943AB1698D546C4A,"Pset_sceMsgDialogInitialize", (void*)Pset_sceMsgDialogInitialize },
+ { 0x6F4E878740CF11A1,"Pset_sceMsgDialogOpen", (void*)Pset_sceMsgDialogOpen },
+ { 0x19CE64D6A70AE1FB,"Pset_sceMsgDialogProgressBarInc", (void*)Pset_sceMsgDialogProgressBarInc },
+ { 0xE87FFBD4E76BA573,"Pset_sceMsgDialogProgressBarSetMsg", (void*)Pset_sceMsgDialogProgressBarSetMsg },
+ { 0xC13A5F825926BF7E,"Pset_sceMsgDialogProgressBarSetValue", (void*)Pset_sceMsgDialogProgressBarSetValue },
+ { 0x78FC3F92A6667A5A,"Pset_sceMsgDialogTerminate", (void*)Pset_sceMsgDialogTerminate },
+ { 0xE9F202DD72ADDA4D,"Pset_sceMsgDialogUpdateStatus", (void*)Pset_sceMsgDialogUpdateStatus },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

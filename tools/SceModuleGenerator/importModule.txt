@@ -1,3 +1,4 @@
+libSceLibcInternal
 libSceGnmDriver
 libScePad
 libSceVideoOut

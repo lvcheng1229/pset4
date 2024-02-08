@@ -4,10 +4,11 @@
 #include "core/Log.h"
 #include "core/PsetThread.h"
 
-#include "PsetApplication.h"
+#include "core/PsetApplication.h"
 #include "core/PsetModule.h"
 #include "core/PsetModuleLoader.h"
 
+#include "core\PtApplication.h"
 
 cxxopts::ParseResult ParseCmd(int argc, char* argv[])
 {
@@ -32,6 +33,13 @@ cxxopts::ParseResult ParseCmd(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+	CPtApplication ptApp;
+	ptApp.ParseCommnadLine(argc, argv);
+	ptApp.Init();
+	ptApp.Run();
+
+	
+
 	cxxopts::ParseResult parseResult = ParseCmd(argc, argv);
 	PSET_EXIT_AND_LOG_IF(parseResult["e"].count() <= 0, "couldn't find app0 file");
 
@@ -46,14 +54,12 @@ int main(int argc, char* argv[])
 		size_t posDir = psetApp.m_app0File.find_last_of("/\\");
 		psetApp.m_app0Path = psetApp.m_app0File.substr(0, posDir);
 	}
-
 	
 	CPsetDynamicLinker* dynamicLinker = GetDynamicLinker();
-	CPsetModule* psetModule = nullptr;
 	CPestModuleLoader psetModuleLoader(dynamicLinker,&psetApp);
-	psetModuleLoader.LoadModule(parseResult["e"].as<std::string>(), psetModule);
+	psetModuleLoader.LoadModule(psetApp.m_app0File, "eboot.bin");
 
-	CPsetThread psetThread(psetModule->GetEntryPoint());
+	CPsetThread psetThread(dynamicLinker->GetNativeModule("eboot.bin")->GetEntryPoint());
 	psetThread.Run();
 
     return 1;

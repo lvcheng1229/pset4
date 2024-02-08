@@ -24,7 +24,7 @@ uint32_t FlagsId(uint64_t flag)
 	return (flag >> 20) & 0xFFF; 
 }
 
-CPsetElf::~CPsetElf()
+CElfProcessor::~CElfProcessor()
 {
 	if (m_elf.m_pAddress)
 	{
@@ -32,10 +32,10 @@ CPsetElf::~CPsetElf()
 	}
 }
 
-void CPsetElf::LoadFromFile(const std::string& elfPath, CPsetModule* psetModule)
+void CElfProcessor::LoadFromFile(const std::string& elfPath, CPsetModule* psetModule, bool bEBootModule)
 {
 	m_moduleToLoad = psetModule;
-
+	bEbootModule = bEBootModule;
 
 	std::ifstream fin(elfPath, std::ifstream::in | std::ifstream::ate | std::ifstream::binary);
 	PSET_EXIT_AND_LOG_IF(!fin.is_open(), "couldn't open app");
@@ -56,21 +56,6 @@ void CPsetElf::LoadFromFile(const std::string& elfPath, CPsetModule* psetModule)
 	}
 	else if ((*(uint32_t*)(pHeaderSelf->m_magic)) == uint32_t(PSET_SELFMAG))
 	{
-		// SELF File Format
-		// SELF Header Structure
-		// ELF Segment Structure
-		// ELF Segment Structure
-		// ......
-		// ELF Header
-		// Program Header
-		// SELF segment
-		// SELF segment
-		// ......
-		// Program Identification Header
-		// ......
-
-		// we only want to load the data that from ELF Header to the end of the SELF segments
-
 		uint16_t numSegments = *(uint16_t*)(&pHeaderSelf->m_numberOfSegments);
 		
 		SSegStructureSelf* pSegStructureSelfs = (SSegStructureSelf*)((uint8_t*)pHeaderSelf + sizeof(SHeaderSelf));
@@ -137,34 +122,82 @@ void CPsetElf::LoadFromFile(const std::string& elfPath, CPsetModule* psetModule)
 	}
 }
 
-void CPsetElf::MapImageIntoMemory()
-{
-	m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_size =CalculateTotalLoadableSize();
-	m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_pAddress = VirtualAlloc(
-		m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_pAddress, 
-		m_moduleToLoad->m_moduleInfo.m_mappedCodeMemory.m_size, 
-		MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
 
+void CElfProcessor::MapImageIntoMemory()
+{
+	SMemoryChrunk& mappedMemory = m_moduleToLoad->m_moduleInfo.m_mappedMemory;
+	mappedMemory.m_size =CalculateTotalLoadableSize();
+
+	mappedMemory.m_pAddress = (void*)0x000000000;
+	if (bEbootModule)
+	{
+		mappedMemory.m_pAddress = (void*)0x800000000;
+		mappedMemory.m_pAddress = VirtualAlloc(mappedMemory.m_pAddress, mappedMemory.m_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	}
+	else
+	{
+		mappedMemory.m_pAddress = VirtualAlloc(mappedMemory.m_pAddress, mappedMemory.m_size,MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	}
+
+	
+	assert(mappedMemory.m_pAddress != nullptr);
 	for (auto const& phdr : m_moduleToLoad->m_aSegmentHeaders)
 	{
 		bool result = true;
-		if (phdr.p_flags == PF_X)
+		switch (phdr.p_type)
 		{
-			result = MapCodeSegment(phdr);
+			case PT_LOAD:
+			{
+				if (phdr.p_flags & PF_X)
+				{
+					result = MapSegment(phdr);
+				}
+				else if (phdr.p_flags & PF_W)
+				{
+					result = MapSegment(phdr);
+				}
+				break;
+			}
+			case PT_SCE_RELRO:
+			{
+				result = MapSegment(phdr);
+				break;
+			}
+			case PT_DYNAMIC:
+			{
+				//TODO
+				break;
+			}
+			case PT_SCE_PROCPARAM:
+			case PT_TLS:
+			{
+				//TODO:
+				break;
+			}
+			case PT_GNU_EH_FRAME:
+			{
+				//TODO:
+				break;
+			}
 		}
-		else if (phdr.p_flags == PT_SCE_RELRO)
-		{
-			result = mapSecReloSegment(phdr);
-		}
+	}
+
+	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
+	if (m_moduleToLoad->m_elf64Ehdr.e_entry != 0)
+	{
+		moduleInfo.pEntryPoint = (uint8_t*)moduleInfo.m_mappedMemory.m_pAddress + m_moduleToLoad->m_elf64Ehdr.e_entry;
+	}
+	else
+	{
+		moduleInfo.pEntryPoint = nullptr;
 	}
 	
 }
 
-void CPsetElf::PrepareProgramHeader()
+void CElfProcessor::PrepareProgramHeader()
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 
-	m_moduleInfo.m_size = sizeof(SSceKernelModuleInfo);
 	elf64_hdr* pElfHdr = (elf64_hdr*)(m_elf.m_pAddress);
 	elf64_phdr* pElfpHdr = (elf64_phdr*)(pElfHdr + 1);
 	for (uint32_t index = 0; index < pElfHdr->e_phnum; index++)
@@ -213,7 +246,7 @@ void CPsetElf::PrepareProgramHeader()
 }
 
 //COMMONT:PAGE204
-void CPsetElf::PrepreDynamicSegments()
+void CElfProcessor::PrepreDynamicSegments()
 {
 	for (uint32_t index = 0; index < m_nDynamicEntryCount; index++)
 	{
@@ -226,13 +259,13 @@ void CPsetElf::PrepreDynamicSegments()
 	}
 }
 
-std::vector<std::string>& CPsetElf::GetNeededFiles()
+std::vector<std::string>& CElfProcessor::GetNeededFiles()
 {
-	return m_moduleToLoad->m_aNeededFiles;
+	return m_aNeededFiles;
 }
 
 //TODO: Rename TO PrePareDynamic Segments SUB 0
-void CPsetElf::PrepareTables(Elf64_Dyn& elf64Dyn)
+void CElfProcessor::PrepareTables(Elf64_Dyn& elf64Dyn)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 	uint8_t* baseAddress = (uint8_t*)moduleInfo.m_pSceDynamicLib.m_pAddress;
@@ -294,7 +327,7 @@ void CPsetElf::PrepareTables(Elf64_Dyn& elf64Dyn)
 }
 
 //TODO: Rename TO PrePareDynamic Segments SUB 1
-void CPsetElf::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
+void CElfProcessor::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
 	uint8_t* sceStrTable = (uint8_t*)moduleInfo.m_sceStrTable.m_pAddress;
@@ -305,7 +338,9 @@ void CPsetElf::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
 		{
 			//COMMONT:PAGE205
 			char* fileName = (char*)&sceStrTable[elf64Dyn.d_un.d_ptr];
-			m_moduleToLoad->m_aNeededFiles.push_back(fileName);
+			m_aNeededFiles.push_back(fileName);
+
+			PSET_LOG_INFO(std::string("DT_NEEDED:") + fileName);
 			break;
 		}
 
@@ -333,35 +368,34 @@ void CPsetElf::ParseSingleDynamicEntry(Elf64_Dyn& elf64Dyn)
 			m_moduleToLoad->m_id2LibraryNameMap.emplace(std::make_pair(libValue.m_id, lib));
 			break;
 		}
+
+		case DT_SCE_ORIGINAL_FILENAME:
+		{
+			SLibraryValue libValue;
+			libValue.m_value = elf64Dyn.d_un.d_val;
+			PSET_LOG_INFO(std::string("DT_SCE_ORIGINAL_FILENAME:") + (char*)&sceStrTable[libValue.m_name_offset]);
+			break;
+		}
 	}
 }
 
-void CPsetElf::MapCodeInit()
+void CElfProcessor::MapCodeInit()
 {
 
 }
 
-bool CPsetElf::MapCodeSegment(Elf64_Phdr const& hdr)
+bool CElfProcessor::MapSegment(Elf64_Phdr const& hdr)
 {
 	SModuleInfo& moduleInfo = m_moduleToLoad->m_moduleInfo;
-	if (m_moduleToLoad->m_elf64Ehdr.e_entry != 0)
-	{
-		moduleInfo.pEntryPoint = (uint8_t*)moduleInfo.m_mappedCodeMemory.m_pAddress + m_moduleToLoad->m_elf64Ehdr.e_entry;
-	}
-	else
-	{
-		moduleInfo.pEntryPoint = nullptr;
-	}
-	
-	return false;
+	uint8_t* pDstAddr = reinterpret_cast<uint8_t*>(AlignUp(size_t(moduleInfo.m_mappedMemory.m_pAddress) + hdr.p_vaddr, hdr.p_align));
+	uint8_t* pSrcData = (uint8_t*)m_elf.m_pAddress + hdr.p_offset;
+	memcpy(pDstAddr, pSrcData, hdr.p_filesz);
+	return true;
 }
 
-bool CPsetElf::MapSceRelocateSegement()
-{
-	return false;
-}
 
-size_t CPsetElf::CalculateTotalLoadableSize()
+
+size_t CElfProcessor::CalculateTotalLoadableSize()
 {
 	size_t loadAddrBegin = 0;
 	size_t loadAddrEnd = 0;
@@ -374,7 +408,6 @@ size_t CPsetElf::CalculateTotalLoadableSize()
 			{
 				loadAddrBegin = phdr.p_vaddr;
 			}
-
 			
 			size_t alignedAddr = AlignUp(phdr.p_vaddr + phdr.p_memsz, phdr.p_align);
 			if (alignedAddr > loadAddrEnd)
@@ -387,7 +420,7 @@ size_t CPsetElf::CalculateTotalLoadableSize()
 	return (loadAddrEnd - loadAddrBegin);
 }
 
-bool CPsetElf::IsSegmentLoadable(Elf64_Phdr const& hdr)
+bool CElfProcessor::IsSegmentLoadable(Elf64_Phdr const& hdr)
 {
 	bool retVal;
 

@@ -1,7 +1,7 @@
 #include <filesystem>
 
 #include "PsetModuleLoader.h"
-#include "../PsetApplication.h"
+#include "PsetApplication.h"
 
 CPestModuleLoader::CPestModuleLoader(CPsetDynamicLinker* pDynamicLinker, CPsetApplication* psetApp)
 {
@@ -9,20 +9,35 @@ CPestModuleLoader::CPestModuleLoader(CPsetDynamicLinker* pDynamicLinker, CPsetAp
 	m_psetApp = psetApp;
 }
 
-bool CPestModuleLoader::LoadModule(std::string const& fileName, CPsetModule*& pesetModule)
+bool CPestModuleLoader::LoadModule(const std::string& modulePath, const std::string& moduleName)
 {
-	CPsetModule outModule;
-	m_psetElf.LoadFromFile(fileName, &outModule);
+	CPsetModule* nativeModule = m_pDynamicLinker->AddNativeModule(moduleName);
+
+	bool bEbootModule = moduleName == "eboot.bin";
+
+	m_psetElf.LoadFromFile(modulePath, nativeModule, bEbootModule);
 	m_psetElf.PrepareProgramHeader();
 	m_psetElf.PrepreDynamicSegments();
 	m_psetElf.MapImageIntoMemory();
 
-	for (auto& file : m_psetElf.GetNeededFiles())
+	if (bEbootModule)
 	{
-		m_penddingFileToLoad.push(file);
+		m_loadedModuleNames.insert(moduleName);
+
+		for (auto& file : m_psetElf.GetNeededFiles())
+		{
+			size_t pos = file.find('.');
+			const std::string moduleNameRemoveStr = file.substr(0, pos);
+
+			auto iter = m_loadedModuleNames.find(file);
+			if (iter == m_loadedModuleNames.end() && !m_pDynamicLinker->IsOverrideModule(moduleNameRemoveStr))
+			{
+				m_penddingFileToLoad.push(file);
+			}
+		}
+		LoadDependencies();
 	}
 
-	LoadDependencies();
 
 	return false;
 }
@@ -51,14 +66,13 @@ void CPestModuleLoader::LoadDependencies()
 		if (m_pDynamicLinker->IsOverrideModule(fileToLoad))
 		{
 			//TODO:
+			continue;
 		}
 
 		std::string outPath;
 		if (GetPathFromModuleName(fileToLoad, outPath))
 		{
-			//TODO:
-			CPsetModule* tempModule;
-			LoadModule(outPath, tempModule);
+			LoadModule(outPath, fileToLoad);
 		}
 	}
 }

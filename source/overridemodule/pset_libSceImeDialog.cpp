@@ -94,21 +94,21 @@ int PSET_SYSV_ABI Pset_sceImeDialogTerm(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceImeDialog_libSceImeDialog[] =
 {
- { 0xA019B0E31AE67CAB, (void*)Pset_sceImeDialogAbort },
- { 0x6D7E07FACC4F23FA, (void*)Pset_sceImeDialogForceClose },
- { 0x5057326037FE7BCF, (void*)Pset_sceImeDialogForTestFunction },
- { 0x7F2EA7B4CDB9A447, (void*)Pset_sceImeDialogGetCurrentStarState },
- { 0xF23AB3CCF8A8625F, (void*)Pset_sceImeDialogGetPanelPositionAndForm },
- { 0xC2AB09BD15F0979F, (void*)Pset_sceImeDialogGetPanelSize },
- { 0x0910FE8D212B1094, (void*)Pset_sceImeDialogGetPanelSizeExtended },
- { 0xC74D63C6EFAFC657, (void*)Pset_sceImeDialogGetResult },
- { 0x2000E60F8B527016, (void*)Pset_sceImeDialogGetStatus },
- { 0x354781ACDEE1CDFD, (void*)Pset_sceImeDialogInit },
- { 0x291E900DAB2E29CA, (void*)Pset_sceImeDialogInitInternal },
- { 0xA1EF76727250F471, (void*)Pset_sceImeDialogInitInternal2 },
- { 0x228288A4D7FD10AD, (void*)Pset_sceImeDialogInitInternal3 },
- { 0xFF65AA07CECA2868, (void*)Pset_sceImeDialogSetPanelPosition },
- { 0x8324F2567F9B5CCC, (void*)Pset_sceImeDialogTerm },
+ { 0xA019B0E31AE67CAB,"Pset_sceImeDialogAbort", (void*)Pset_sceImeDialogAbort },
+ { 0x6D7E07FACC4F23FA,"Pset_sceImeDialogForceClose", (void*)Pset_sceImeDialogForceClose },
+ { 0x5057326037FE7BCF,"Pset_sceImeDialogForTestFunction", (void*)Pset_sceImeDialogForTestFunction },
+ { 0x7F2EA7B4CDB9A447,"Pset_sceImeDialogGetCurrentStarState", (void*)Pset_sceImeDialogGetCurrentStarState },
+ { 0xF23AB3CCF8A8625F,"Pset_sceImeDialogGetPanelPositionAndForm", (void*)Pset_sceImeDialogGetPanelPositionAndForm },
+ { 0xC2AB09BD15F0979F,"Pset_sceImeDialogGetPanelSize", (void*)Pset_sceImeDialogGetPanelSize },
+ { 0x0910FE8D212B1094,"Pset_sceImeDialogGetPanelSizeExtended", (void*)Pset_sceImeDialogGetPanelSizeExtended },
+ { 0xC74D63C6EFAFC657,"Pset_sceImeDialogGetResult", (void*)Pset_sceImeDialogGetResult },
+ { 0x2000E60F8B527016,"Pset_sceImeDialogGetStatus", (void*)Pset_sceImeDialogGetStatus },
+ { 0x354781ACDEE1CDFD,"Pset_sceImeDialogInit", (void*)Pset_sceImeDialogInit },
+ { 0x291E900DAB2E29CA,"Pset_sceImeDialogInitInternal", (void*)Pset_sceImeDialogInitInternal },
+ { 0xA1EF76727250F471,"Pset_sceImeDialogInitInternal2", (void*)Pset_sceImeDialogInitInternal2 },
+ { 0x228288A4D7FD10AD,"Pset_sceImeDialogInitInternal3", (void*)Pset_sceImeDialogInitInternal3 },
+ { 0xFF65AA07CECA2868,"Pset_sceImeDialogSetPanelPosition", (void*)Pset_sceImeDialogSetPanelPosition },
+ { 0x8324F2567F9B5CCC,"Pset_sceImeDialogTerm", (void*)Pset_sceImeDialogTerm },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

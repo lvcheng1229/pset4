@@ -52,19 +52,20 @@ int PSET_SYSV_ABI Pset_sceNpProfileDialogUpdateStatus(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceNpProfileDialog_libSceNpProfileDialog[] =
 {
- { 0xC24C23CF45DDA360, (void*)Pset_sceNpProfileDialogClose },
- { 0xF2B84B975FF45BFA, (void*)Pset_sceNpProfileDialogGetResult },
- { 0xDC1AA88853A34AC9, (void*)Pset_sceNpProfileDialogGetStatus },
- { 0x2E0F8D084EA94F04, (void*)Pset_sceNpProfileDialogInitialize },
- { 0xBA3F42CFB4E4D1C7, (void*)Pset_sceNpProfileDialogOpen },
- { 0x9EB41194B2B37701, (void*)Pset_sceNpProfileDialogOpenA },
- { 0xD12A7DBC9701D7FC, (void*)Pset_sceNpProfileDialogTerminate },
- { 0x85A55913D1602AA1, (void*)Pset_sceNpProfileDialogUpdateStatus },
+ { 0xC24C23CF45DDA360,"Pset_sceNpProfileDialogClose", (void*)Pset_sceNpProfileDialogClose },
+ { 0xF2B84B975FF45BFA,"Pset_sceNpProfileDialogGetResult", (void*)Pset_sceNpProfileDialogGetResult },
+ { 0xDC1AA88853A34AC9,"Pset_sceNpProfileDialogGetStatus", (void*)Pset_sceNpProfileDialogGetStatus },
+ { 0x2E0F8D084EA94F04,"Pset_sceNpProfileDialogInitialize", (void*)Pset_sceNpProfileDialogInitialize },
+ { 0xBA3F42CFB4E4D1C7,"Pset_sceNpProfileDialogOpen", (void*)Pset_sceNpProfileDialogOpen },
+ { 0x9EB41194B2B37701,"Pset_sceNpProfileDialogOpenA", (void*)Pset_sceNpProfileDialogOpenA },
+ { 0xD12A7DBC9701D7FC,"Pset_sceNpProfileDialogTerminate", (void*)Pset_sceNpProfileDialogTerminate },
+ { 0x85A55913D1602AA1,"Pset_sceNpProfileDialogUpdateStatus", (void*)Pset_sceNpProfileDialogUpdateStatus },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceNpProfileDialogCompat_libSceNpProfileDialog[] =
 {
+ { 0xBA3F42CFB4E4D1C7,"Pset_sceNpProfileDialogOpen", (void*)Pset_sceNpProfileDialogOpen },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

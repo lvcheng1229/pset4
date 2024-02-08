@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include "PsetElf.h"
 class CPsetApplication
 {
 public:

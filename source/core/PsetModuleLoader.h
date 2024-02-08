@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <queue>
+#include <set>
 
 #include "PsetModule.h"
 #include "PsetElf.h"
@@ -11,13 +12,15 @@ class CPestModuleLoader
 {
 public:
 	CPestModuleLoader(CPsetDynamicLinker* pDynamicLinker, CPsetApplication* pPsetApp);
-	bool LoadModule(std::string const& fileName, CPsetModule*& module);
+	bool LoadModule(const std::string& modulePath, const std::string& moduleName);
 	void LoadDependencies();
 private:
 	bool GetPathFromModuleName(const std::string& moduleName, std::string& outPath);
 private:
-	CPsetElf m_psetElf;
+	CElfProcessor m_psetElf;
 	std::queue<std::string> m_penddingFileToLoad;
+
+	std::set<std::string> m_loadedModuleNames;
 
 	CPsetDynamicLinker* m_pDynamicLinker;
 	CPsetApplication* m_psetApp;

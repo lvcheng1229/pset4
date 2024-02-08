@@ -6,9 +6,10 @@
 struct SPSET_LIB_EXPORT_SYSMBOL
 {
 	const uint64_t m_nid;
+	const char* m_funcName;
 	const void* m_pFunction;
 };
-#define SPSET_LIB_EXPORT_FUNTCTION_END {0,nullptr}
+#define SPSET_LIB_EXPORT_FUNTCTION_END {0,nullptr,nullptr}
 
 struct SPSET_EXPORT_LIB
 {

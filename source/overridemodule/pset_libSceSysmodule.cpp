@@ -94,21 +94,21 @@ int PSET_SYSV_ABI Pset_sceSysmoduleUnloadModuleInternalWithArg(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceSysmodule_libSceSysmodule[] =
 {
- { 0x0FC72E53877BDB13, (void*)Pset_sceSysmoduleGetModuleHandleInternal },
- { 0x72D7CEEDD43B81E8, (void*)Pset_sceSysmoduleIsCalledFromSysModule },
- { 0x9E8E93DC47E24B71, (void*)Pset_sceSysmoduleIsCameraPreloaded },
- { 0x7CC3F934750E68C9, (void*)Pset_sceSysmoduleIsLoaded },
- { 0xCA714A4396DF1A4B, (void*)Pset_sceSysmoduleIsLoadedInternal },
- { 0x83C70CDFD11467AA, (void*)Pset_sceSysmoduleLoadModule },
- { 0x094F26F90B3E1CDE, (void*)Pset_sceSysmoduleLoadModuleByNameInternal },
- { 0xDFD895E44D47A029, (void*)Pset_sceSysmoduleLoadModuleInternal },
- { 0x847AC6A06A0D7FEB, (void*)Pset_sceSysmoduleLoadModuleInternalWithArg },
- { 0x959E91BD5974BE8D, (void*)Pset_sceSysmoduleMapLibcForLibkernel },
- { 0x0CE3BECEE5B596B1, (void*)Pset_sceSysmodulePreloadModuleForLibkernel },
- { 0x791D9B6450005344, (void*)Pset_sceSysmoduleUnloadModule },
- { 0xBE94C7980E8A9EF8, (void*)Pset_sceSysmoduleUnloadModuleByNameInternal },
- { 0xBD7661AED2719067, (void*)Pset_sceSysmoduleUnloadModuleInternal },
- { 0x68A6BA61F04A66CE, (void*)Pset_sceSysmoduleUnloadModuleInternalWithArg },
+ { 0x0FC72E53877BDB13,"Pset_sceSysmoduleGetModuleHandleInternal", (void*)Pset_sceSysmoduleGetModuleHandleInternal },
+ { 0x72D7CEEDD43B81E8,"Pset_sceSysmoduleIsCalledFromSysModule", (void*)Pset_sceSysmoduleIsCalledFromSysModule },
+ { 0x9E8E93DC47E24B71,"Pset_sceSysmoduleIsCameraPreloaded", (void*)Pset_sceSysmoduleIsCameraPreloaded },
+ { 0x7CC3F934750E68C9,"Pset_sceSysmoduleIsLoaded", (void*)Pset_sceSysmoduleIsLoaded },
+ { 0xCA714A4396DF1A4B,"Pset_sceSysmoduleIsLoadedInternal", (void*)Pset_sceSysmoduleIsLoadedInternal },
+ { 0x83C70CDFD11467AA,"Pset_sceSysmoduleLoadModule", (void*)Pset_sceSysmoduleLoadModule },
+ { 0x094F26F90B3E1CDE,"Pset_sceSysmoduleLoadModuleByNameInternal", (void*)Pset_sceSysmoduleLoadModuleByNameInternal },
+ { 0xDFD895E44D47A029,"Pset_sceSysmoduleLoadModuleInternal", (void*)Pset_sceSysmoduleLoadModuleInternal },
+ { 0x847AC6A06A0D7FEB,"Pset_sceSysmoduleLoadModuleInternalWithArg", (void*)Pset_sceSysmoduleLoadModuleInternalWithArg },
+ { 0x959E91BD5974BE8D,"Pset_sceSysmoduleMapLibcForLibkernel", (void*)Pset_sceSysmoduleMapLibcForLibkernel },
+ { 0x0CE3BECEE5B596B1,"Pset_sceSysmodulePreloadModuleForLibkernel", (void*)Pset_sceSysmodulePreloadModuleForLibkernel },
+ { 0x791D9B6450005344,"Pset_sceSysmoduleUnloadModule", (void*)Pset_sceSysmoduleUnloadModule },
+ { 0xBE94C7980E8A9EF8,"Pset_sceSysmoduleUnloadModuleByNameInternal", (void*)Pset_sceSysmoduleUnloadModuleByNameInternal },
+ { 0xBD7661AED2719067,"Pset_sceSysmoduleUnloadModuleInternal", (void*)Pset_sceSysmoduleUnloadModuleInternal },
+ { 0x68A6BA61F04A66CE,"Pset_sceSysmoduleUnloadModuleInternalWithArg", (void*)Pset_sceSysmoduleUnloadModuleInternalWithArg },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

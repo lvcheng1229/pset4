@@ -64,16 +64,16 @@ int PSET_SYSV_ABI Pset_sceSaveDataDialogUpdateStatus(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceSaveDataDialog_libSceSaveDataDialog[] =
 {
- { 0x7C7E3A2DA83CF176, (void*)Pset_sceSaveDataDialogClose },
- { 0xC84889FEAAABE828, (void*)Pset_sceSaveDataDialogGetResult },
- { 0x1112B392C6AE0090, (void*)Pset_sceSaveDataDialogGetStatus },
- { 0xB3D7B7F98A519F3C, (void*)Pset_sceSaveDataDialogInitialize },
- { 0x7A7EE03559E1F3BF, (void*)Pset_sceSaveDataDialogIsReadyToDisplay },
- { 0xE2D3E1B0FE85A432, (void*)Pset_sceSaveDataDialogOpen },
- { 0x57FB847852804495, (void*)Pset_sceSaveDataDialogProgressBarInc },
- { 0x85ACB509F4E62F20, (void*)Pset_sceSaveDataDialogProgressBarSetValue },
- { 0x62E1F6140EDACEA4, (void*)Pset_sceSaveDataDialogTerminate },
- { 0x28ADC1760D5158AD, (void*)Pset_sceSaveDataDialogUpdateStatus },
+ { 0x7C7E3A2DA83CF176,"Pset_sceSaveDataDialogClose", (void*)Pset_sceSaveDataDialogClose },
+ { 0xC84889FEAAABE828,"Pset_sceSaveDataDialogGetResult", (void*)Pset_sceSaveDataDialogGetResult },
+ { 0x1112B392C6AE0090,"Pset_sceSaveDataDialogGetStatus", (void*)Pset_sceSaveDataDialogGetStatus },
+ { 0xB3D7B7F98A519F3C,"Pset_sceSaveDataDialogInitialize", (void*)Pset_sceSaveDataDialogInitialize },
+ { 0x7A7EE03559E1F3BF,"Pset_sceSaveDataDialogIsReadyToDisplay", (void*)Pset_sceSaveDataDialogIsReadyToDisplay },
+ { 0xE2D3E1B0FE85A432,"Pset_sceSaveDataDialogOpen", (void*)Pset_sceSaveDataDialogOpen },
+ { 0x57FB847852804495,"Pset_sceSaveDataDialogProgressBarInc", (void*)Pset_sceSaveDataDialogProgressBarInc },
+ { 0x85ACB509F4E62F20,"Pset_sceSaveDataDialogProgressBarSetValue", (void*)Pset_sceSaveDataDialogProgressBarSetValue },
+ { 0x62E1F6140EDACEA4,"Pset_sceSaveDataDialogTerminate", (void*)Pset_sceSaveDataDialogTerminate },
+ { 0x28ADC1760D5158AD,"Pset_sceSaveDataDialogUpdateStatus", (void*)Pset_sceSaveDataDialogUpdateStatus },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

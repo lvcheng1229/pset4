@@ -52,14 +52,14 @@ int PSET_SYSV_ABI Pset_sceErrorDialogUpdateStatus(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceErrorDialog_libSceErrorDialog[] =
 {
- { 0x7A45C76F5903065D, (void*)Pset_sceErrorDialogClose },
- { 0xB7616F1D15F382A9, (void*)Pset_sceErrorDialogGetStatus },
- { 0x23CF0A0A19729D2B, (void*)Pset_sceErrorDialogInitialize },
- { 0x336645FC294B8606, (void*)Pset_sceErrorDialogOpen },
- { 0x8EBA675507C96204, (void*)Pset_sceErrorDialogOpenDetail },
- { 0xC24B428B25A80D32, (void*)Pset_sceErrorDialogOpenWithReport },
- { 0xF570312B63CCC24F, (void*)Pset_sceErrorDialogTerminate },
- { 0x596886BA1F577E04, (void*)Pset_sceErrorDialogUpdateStatus },
+ { 0x7A45C76F5903065D,"Pset_sceErrorDialogClose", (void*)Pset_sceErrorDialogClose },
+ { 0xB7616F1D15F382A9,"Pset_sceErrorDialogGetStatus", (void*)Pset_sceErrorDialogGetStatus },
+ { 0x23CF0A0A19729D2B,"Pset_sceErrorDialogInitialize", (void*)Pset_sceErrorDialogInitialize },
+ { 0x336645FC294B8606,"Pset_sceErrorDialogOpen", (void*)Pset_sceErrorDialogOpen },
+ { 0x8EBA675507C96204,"Pset_sceErrorDialogOpenDetail", (void*)Pset_sceErrorDialogOpenDetail },
+ { 0xC24B428B25A80D32,"Pset_sceErrorDialogOpenWithReport", (void*)Pset_sceErrorDialogOpenWithReport },
+ { 0xF570312B63CCC24F,"Pset_sceErrorDialogTerminate", (void*)Pset_sceErrorDialogTerminate },
+ { 0x596886BA1F577E04,"Pset_sceErrorDialogUpdateStatus", (void*)Pset_sceErrorDialogUpdateStatus },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

@@ -88,25 +88,25 @@ int PSET_SYSV_ABI Pset_sceScreenShotSetDrcParam(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceScreenShot_libSceScreenShot[] =
 {
- { 0x012E394286078DCE, (void*)Pset__Z5dummyv },
- { 0x26E30B2E69AF4609, (void*)Pset_sceScreenShotCapture },
- { 0xB4861FD16E554E2F, (void*)Pset_sceScreenShotDisable },
- { 0xCAC7F36BBD6B9BD3, (void*)Pset_sceScreenShotDisableNotification },
- { 0xDB1C54B6E0BF4731, (void*)Pset_sceScreenShotEnable },
- { 0x04351AAA555D4806, (void*)Pset_sceScreenShotEnableNotification },
- { 0x84D98AE127613D3D, (void*)Pset_sceScreenShotGetAppInfo },
- { 0x5650102205DAD91D, (void*)Pset_sceScreenShotGetDrcParam },
- { 0xFD257FA133461509, (void*)Pset_sceScreenShotIsDisabled },
- { 0x202349FF53CEB3CE, (void*)Pset_sceScreenShotIsVshScreenCaptureDisabled },
- { 0x6A11E139FF903644, (void*)Pset_sceScreenShotSetOverlayImage },
- { 0xEF7590E098F49C92, (void*)Pset_sceScreenShotSetOverlayImageWithOrigin },
- { 0x1BB2A59886052197, (void*)Pset_sceScreenShotSetParam },
+ { 0x012E394286078DCE,"Pset__Z5dummyv", (void*)Pset__Z5dummyv },
+ { 0x26E30B2E69AF4609,"Pset_sceScreenShotCapture", (void*)Pset_sceScreenShotCapture },
+ { 0xB4861FD16E554E2F,"Pset_sceScreenShotDisable", (void*)Pset_sceScreenShotDisable },
+ { 0xCAC7F36BBD6B9BD3,"Pset_sceScreenShotDisableNotification", (void*)Pset_sceScreenShotDisableNotification },
+ { 0xDB1C54B6E0BF4731,"Pset_sceScreenShotEnable", (void*)Pset_sceScreenShotEnable },
+ { 0x04351AAA555D4806,"Pset_sceScreenShotEnableNotification", (void*)Pset_sceScreenShotEnableNotification },
+ { 0x84D98AE127613D3D,"Pset_sceScreenShotGetAppInfo", (void*)Pset_sceScreenShotGetAppInfo },
+ { 0x5650102205DAD91D,"Pset_sceScreenShotGetDrcParam", (void*)Pset_sceScreenShotGetDrcParam },
+ { 0xFD257FA133461509,"Pset_sceScreenShotIsDisabled", (void*)Pset_sceScreenShotIsDisabled },
+ { 0x202349FF53CEB3CE,"Pset_sceScreenShotIsVshScreenCaptureDisabled", (void*)Pset_sceScreenShotIsVshScreenCaptureDisabled },
+ { 0x6A11E139FF903644,"Pset_sceScreenShotSetOverlayImage", (void*)Pset_sceScreenShotSetOverlayImage },
+ { 0xEF7590E098F49C92,"Pset_sceScreenShotSetOverlayImageWithOrigin", (void*)Pset_sceScreenShotSetOverlayImageWithOrigin },
+ { 0x1BB2A59886052197,"Pset_sceScreenShotSetParam", (void*)Pset_sceScreenShotSetParam },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceScreenShotDrc_libSceScreenShot[] =
 {
- { 0x8AD9561565774F37, (void*)Pset_sceScreenShotSetDrcParam },
+ { 0x8AD9561565774F37,"Pset_sceScreenShotSetDrcParam", (void*)Pset_sceScreenShotSetDrcParam },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

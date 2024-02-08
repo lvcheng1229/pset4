@@ -58,20 +58,22 @@ int PSET_SYSV_ABI Pset_sceInvitationDialogUpdateStatus(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceInvitationDialog_libSceInvitationDialog[] =
 {
- { 0x596B422F99738BB6, (void*)Pset_sceInvitationDialogClose },
- { 0xF17291EB06BAE224, (void*)Pset_sceInvitationDialogGetResult },
- { 0x5AEB9486E28EC704, (void*)Pset_sceInvitationDialogGetResultA },
- { 0x12217DD980CD1D10, (void*)Pset_sceInvitationDialogGetStatus },
- { 0x5EF039292E7AC1CB, (void*)Pset_sceInvitationDialogInitialize },
- { 0xD335341BEC2254B0, (void*)Pset_sceInvitationDialogOpen },
- { 0xB00C5B1E10163173, (void*)Pset_sceInvitationDialogOpenA },
- { 0x07A1D526D0D8C441, (void*)Pset_sceInvitationDialogTerminate },
- { 0xF7E83D88EABEEE48, (void*)Pset_sceInvitationDialogUpdateStatus },
+ { 0x596B422F99738BB6,"Pset_sceInvitationDialogClose", (void*)Pset_sceInvitationDialogClose },
+ { 0xF17291EB06BAE224,"Pset_sceInvitationDialogGetResult", (void*)Pset_sceInvitationDialogGetResult },
+ { 0x5AEB9486E28EC704,"Pset_sceInvitationDialogGetResultA", (void*)Pset_sceInvitationDialogGetResultA },
+ { 0x12217DD980CD1D10,"Pset_sceInvitationDialogGetStatus", (void*)Pset_sceInvitationDialogGetStatus },
+ { 0x5EF039292E7AC1CB,"Pset_sceInvitationDialogInitialize", (void*)Pset_sceInvitationDialogInitialize },
+ { 0xD335341BEC2254B0,"Pset_sceInvitationDialogOpen", (void*)Pset_sceInvitationDialogOpen },
+ { 0xB00C5B1E10163173,"Pset_sceInvitationDialogOpenA", (void*)Pset_sceInvitationDialogOpenA },
+ { 0x07A1D526D0D8C441,"Pset_sceInvitationDialogTerminate", (void*)Pset_sceInvitationDialogTerminate },
+ { 0xF7E83D88EABEEE48,"Pset_sceInvitationDialogUpdateStatus", (void*)Pset_sceInvitationDialogUpdateStatus },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceInvitationDialogCompat_libSceInvitationDialog[] =
 {
+ { 0xF17291EB06BAE224,"Pset_sceInvitationDialogGetResult", (void*)Pset_sceInvitationDialogGetResult },
+ { 0xD335341BEC2254B0,"Pset_sceInvitationDialogOpen", (void*)Pset_sceInvitationDialogOpen },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

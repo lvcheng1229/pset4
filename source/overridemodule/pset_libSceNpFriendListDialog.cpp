@@ -58,20 +58,22 @@ int PSET_SYSV_ABI Pset_sceNpFriendListDialogUpdateStatus(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceNpFriendListDialog_libSceNpFriendListDialog[] =
 {
- { 0xF98D5A7071A89864, (void*)Pset_sceNpFriendListDialogClose },
- { 0x6782498570A722F6, (void*)Pset_sceNpFriendListDialogGetResult },
- { 0x84AD020A58F32666, (void*)Pset_sceNpFriendListDialogGetResultA },
- { 0xF0154FE7A24866E0, (void*)Pset_sceNpFriendListDialogGetStatus },
- { 0xD8BFD6FD9627D90A, (void*)Pset_sceNpFriendListDialogInitialize },
- { 0xCD433F446E479B27, (void*)Pset_sceNpFriendListDialogOpen },
- { 0xBCDF6C4CFEB7593F, (void*)Pset_sceNpFriendListDialogOpenA },
- { 0x10213393E2BD2F69, (void*)Pset_sceNpFriendListDialogTerminate },
- { 0x7EBC33DDECAE03AC, (void*)Pset_sceNpFriendListDialogUpdateStatus },
+ { 0xF98D5A7071A89864,"Pset_sceNpFriendListDialogClose", (void*)Pset_sceNpFriendListDialogClose },
+ { 0x6782498570A722F6,"Pset_sceNpFriendListDialogGetResult", (void*)Pset_sceNpFriendListDialogGetResult },
+ { 0x84AD020A58F32666,"Pset_sceNpFriendListDialogGetResultA", (void*)Pset_sceNpFriendListDialogGetResultA },
+ { 0xF0154FE7A24866E0,"Pset_sceNpFriendListDialogGetStatus", (void*)Pset_sceNpFriendListDialogGetStatus },
+ { 0xD8BFD6FD9627D90A,"Pset_sceNpFriendListDialogInitialize", (void*)Pset_sceNpFriendListDialogInitialize },
+ { 0xCD433F446E479B27,"Pset_sceNpFriendListDialogOpen", (void*)Pset_sceNpFriendListDialogOpen },
+ { 0xBCDF6C4CFEB7593F,"Pset_sceNpFriendListDialogOpenA", (void*)Pset_sceNpFriendListDialogOpenA },
+ { 0x10213393E2BD2F69,"Pset_sceNpFriendListDialogTerminate", (void*)Pset_sceNpFriendListDialogTerminate },
+ { 0x7EBC33DDECAE03AC,"Pset_sceNpFriendListDialogUpdateStatus", (void*)Pset_sceNpFriendListDialogUpdateStatus },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceNpFriendListDialogCompat_libSceNpFriendListDialog[] =
 {
+ { 0x6782498570A722F6,"Pset_sceNpFriendListDialogGetResult", (void*)Pset_sceNpFriendListDialogGetResult },
+ { 0xCD433F446E479B27,"Pset_sceNpFriendListDialogOpen", (void*)Pset_sceNpFriendListDialogOpen },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

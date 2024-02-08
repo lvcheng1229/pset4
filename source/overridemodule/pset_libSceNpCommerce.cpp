@@ -70,17 +70,17 @@ int PSET_SYSV_ABI Pset_sceNpCommerceShowPsStoreIcon(void)
 
 static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libSceNpCommerce_libSceNpCommerce[] =
 {
- { 0x354DDC9061CC157A, (void*)Pset_sceNpCommerceDialogClose },
- { 0xAF8D9B59C41BB596, (void*)Pset_sceNpCommerceDialogGetResult },
- { 0x0826C2FA5AAABC5D, (void*)Pset_sceNpCommerceDialogGetStatus },
- { 0xD1A4766969906A5E, (void*)Pset_sceNpCommerceDialogInitialize },
- { 0xF5988B5C0186E6B8, (void*)Pset_sceNpCommerceDialogInitializeInternal },
- { 0x0DF4820D10371236, (void*)Pset_sceNpCommerceDialogOpen },
- { 0x9BF23DD806F9D16F, (void*)Pset_sceNpCommerceDialogTerminate },
- { 0x2D1E5CC0530C0951, (void*)Pset_sceNpCommerceDialogUpdateStatus },
- { 0x76CA8256C34CD198, (void*)Pset_sceNpCommerceHidePsStoreIcon },
- { 0xB8A4C35BC864FEDB, (void*)Pset_sceNpCommerceSetPsStoreIconLayout },
- { 0x0C79B0B1AE92F137, (void*)Pset_sceNpCommerceShowPsStoreIcon },
+ { 0x354DDC9061CC157A,"Pset_sceNpCommerceDialogClose", (void*)Pset_sceNpCommerceDialogClose },
+ { 0xAF8D9B59C41BB596,"Pset_sceNpCommerceDialogGetResult", (void*)Pset_sceNpCommerceDialogGetResult },
+ { 0x0826C2FA5AAABC5D,"Pset_sceNpCommerceDialogGetStatus", (void*)Pset_sceNpCommerceDialogGetStatus },
+ { 0xD1A4766969906A5E,"Pset_sceNpCommerceDialogInitialize", (void*)Pset_sceNpCommerceDialogInitialize },
+ { 0xF5988B5C0186E6B8,"Pset_sceNpCommerceDialogInitializeInternal", (void*)Pset_sceNpCommerceDialogInitializeInternal },
+ { 0x0DF4820D10371236,"Pset_sceNpCommerceDialogOpen", (void*)Pset_sceNpCommerceDialogOpen },
+ { 0x9BF23DD806F9D16F,"Pset_sceNpCommerceDialogTerminate", (void*)Pset_sceNpCommerceDialogTerminate },
+ { 0x2D1E5CC0530C0951,"Pset_sceNpCommerceDialogUpdateStatus", (void*)Pset_sceNpCommerceDialogUpdateStatus },
+ { 0x76CA8256C34CD198,"Pset_sceNpCommerceHidePsStoreIcon", (void*)Pset_sceNpCommerceHidePsStoreIcon },
+ { 0xB8A4C35BC864FEDB,"Pset_sceNpCommerceSetPsStoreIconLayout", (void*)Pset_sceNpCommerceSetPsStoreIconLayout },
+ { 0x0C79B0B1AE92F137,"Pset_sceNpCommerceShowPsStoreIcon", (void*)Pset_sceNpCommerceShowPsStoreIcon },
  SPSET_LIB_EXPORT_FUNTCTION_END
 };
 

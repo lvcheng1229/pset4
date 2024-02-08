@@ -10,11 +10,23 @@ CPsetDynamicLinker* GetDynamicLinker()
 	return pDynamicLinker;
 }
 
-void CPsetDynamicLinker::AddNeededModule(std::string const& moduleName, CPsetModule&& module)
+CPsetModule* CPsetDynamicLinker::AddNativeModule(std::string const& moduleName)
 {
-	size_t index = m_aGloabalModules.size();
+	CPsetModule tempModule;
+	size_t index = m_aNativeModules.size();
 	m_mapModuleNameToIndex.emplace(std::make_pair(moduleName, index));
-	m_aGloabalModules.emplace_back(std::move(module));
+	m_aNativeModules.emplace_back(std::move(tempModule));
+	return &m_aNativeModules[m_aNativeModules.size() - 1];
+}
+
+CPsetModule* CPsetDynamicLinker::GetNativeModule(const std::string& moduleName)
+{
+	auto iter = m_mapModuleNameToIndex.find(moduleName);
+	if (iter != m_mapModuleNameToIndex.end())
+	{
+		return &m_aNativeModules[iter->second];
+	}
+	return nullptr;
 }
 
 void CPsetDynamicLinker::InitializeOverrideModule(const char* moduleName, const SPSET_EXPORT_LIB* pLibraries)
@@ -72,7 +84,8 @@ void CPsetDynamicLinker::AddOverrideSymbol(const std::string& moduleName, const 
 
 bool CPsetDynamicLinker::IsOverrideModule(std::string const& moduleName)
 {
-	return false;
+	auto moduleIter = m_str2ModuleMap.find(moduleName);
+	return moduleIter != m_str2ModuleMap.end();
 }
 
 bool CPsetDynamicLinker::RelocateModules(CPsetModule& module)
@@ -197,7 +210,7 @@ static void DecodeSymbol(const std::string& encodedName, uint16_t& moduleId, uin
 bool CPsetDynamicLinker::RelocateRelative(CPsetModule& module, Elf64_Rela* pReallocateTable, uint32_t relaCount)
 {
 	SModuleInfo& moduleInfo = module.GetModuleInfo();
-	uint8_t* pCodeAddress = (uint8_t*)moduleInfo.m_mappedCodeMemory.m_pAddress;
+	uint8_t* pCodeAddress = (uint8_t*)moduleInfo.m_mappedMemory.m_pAddress;
 	uint8_t* pStrTable = (uint8_t*)moduleInfo.m_sceStrTable.m_pAddress;
 	Elf64_Sym* pSymTable = (Elf64_Sym*)moduleInfo.m_symbleTable.m_pAddress;
 

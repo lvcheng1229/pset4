@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "core/Log.h"
 #include "PsetThread.h"
 
@@ -16,22 +17,27 @@ void CPsetThread::Run()
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_attr_setstacksize(&attr, defaultStackSize); //TODO: get stack size from program parameters
-	bool retRes = pthread_create(&retTid, &attr, CPsetThread::RunThreadFunction, this);
+	int retRes = pthread_create(&retTid, &attr, CPsetThread::RunThreadFunction, this);
 	PSET_EXIT_AND_LOG_IF(retRes != 0, "pthread create faild");
 	pthread_attr_destroy(&attr);
+	pthread_join(retTid, nullptr);
 }
 
 void* CPsetThread::RunThreadFunction(void* args)
 {
-	struct SPsetMainArgs
-	{
-		uint64_t    m_argc = 1;
-		const char* m_argv[1] = { "eboot.bin" };
-	};
+	CPsetThread::SysABIMainFuncttion(args);
+	
+}
 
-	SPsetMainArgs psetMainArg;
+void* PSET_SYSV_ABI CPsetThread::SysABIMainFuncttion(void* args)
+{
+	//asm("xor %rsi,%rsi;");
+	//asm("mov %0,%%rdi;"::"r"(pPsetMainArg): );
+	//asm("mov %rdi,%rbp;");
+	//asm("call qword ptr %eax;");
+
 	CPsetThread* psetThread = (CPsetThread*)args;
-	((PsetMainFunction)psetThread->m_pMainFunction)(&psetMainArg, CPsetThread::DefaultExitFunction);
+	((PsetMainFunction)psetThread->m_pMainFunction)(&psetThread->m_psetMainArg, CPsetThread::DefaultExitFunction);
 	return nullptr;
 }
 
