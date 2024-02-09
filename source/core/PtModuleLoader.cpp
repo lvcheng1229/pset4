@@ -43,6 +43,10 @@ void CPtModuleLoader::AddModuleDependencies()
 			{
 				m_pendingDependencies.push(t);
 			}
+			else if (!IsNativeModuleLoaded(t) && (t == "libc.prx" || t == "libSceLibcInternal.sprx" || t == "libSceLibcInternal.prx"))
+			{
+				m_pendingDependencies.push(t);
+			}
 		}
 	}
 }
@@ -87,7 +91,8 @@ void CPtModuleLoader::RelocateNativeModules()
 
 void CPtModuleLoader::InitNativeModules()
 {
-	assert(false);
+	PSET_LOG_ERROR("TODO:InitNativeModules");
+	//assert(false);
 }
 
 void* CPtModuleLoader::GetEbootEntryPoint()

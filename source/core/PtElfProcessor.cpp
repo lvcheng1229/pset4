@@ -266,6 +266,16 @@ void CPtElfProcessor::MapImageToMemory()
 			}
 		}
 	}
+
+	SPtModuleInfo& moduleInfo = m_module->m_moduleInfo;
+	if (m_module->m_self64Ehdr.e_entry != 0)
+	{
+		moduleInfo.m_pEntryPoint = (uint8_t*)moduleInfo.m_mappedMemory.m_pAddress + m_module->m_self64Ehdr.e_entry;
+	}
+	else
+	{
+		moduleInfo.m_pEntryPoint = nullptr;
+	}
 }
 
 void CPtElfProcessor::ParseAndExportNativeSymbol()
@@ -288,6 +298,8 @@ void CPtElfProcessor::ParseAndExportNativeSymbol()
 
 		if ((binding == STB_GLOBAL || binding == STB_WEAK) && symbol.st_shndx != SHN_UNDEF)
 		{
+
+
 			uint16_t moduleId = 0;
 			uint16_t libId = 0;
 			uint64_t nid = 0;

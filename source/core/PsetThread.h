@@ -13,8 +13,8 @@ public:
 	void Run();
 	static void* RunThreadFunction(void* args);
 	static void* PSET_SYSV_ABI SysABIMainFuncttion(void* args);
-private:
 	static void PSET_SYSV_ABI DefaultExitFunction(void);
+private:
 
 	void* m_pMainFunction;
 	struct SPsetMainArgs

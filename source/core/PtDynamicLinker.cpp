@@ -9,6 +9,12 @@ CPtDynamicLinker* GetPtDynamicLinker()
 	return g_pDynamicLinker;
 }
 
+static void LogInvalidFunc(void)
+{
+	PSET_LOG_ERROR("invalid function");
+	__debugbreak();
+}
+
 void CPtDynamicLinker::InitializeOverrideModule(const char* moduleName, const SPSET_EXPORT_LIB* pLibraries)
 {
 	const std::string moduleNameStr(moduleName);
@@ -191,12 +197,42 @@ void CPtDynamicLinker::RelocateRelativeSymbols(CPtNativeModule& nativeModule, El
 			std::string libName;
 			std::string moduleName;
 			nativeModule.GetLibAndModuleName(decodedLibId, decodedModuleId, libName, moduleName);
-			const void* symAddress = GetSymbolAddress(moduleName, libName, decodedNid);
-			uint64_t pCodeOffset = pRela->r_offset;
-
-			if (!symAddress)
+			
+			
+			if (decodedNid == 0xF06D8B07E037AF38)
 			{
-				*(uint64_t*)(pCodeAddress + pCodeOffset) = reinterpret_cast<uint64_t>(symAddress);
+				int aa = 1;
+			}
+
+			bool bInValidAddr = false;
+			if (libName == "libSceLibcInternal")
+			{
+				const void* symAddressLibc = GetSymbolAddress("libc", "libc", decodedNid);
+				if (symAddressLibc)
+				{
+					*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddressLibc);
+				}
+				else
+				{
+					bInValidAddr = true;
+				}
+			}
+			else
+			{
+				const void* symAddress = GetSymbolAddress(moduleName, libName, decodedNid);
+				if (symAddress)
+				{
+					*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddress);
+				}
+				else
+				{
+					bInValidAddr = true;
+				}
+			}
+
+			if (bInValidAddr)
+			{
+				*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(LogInvalidFunc);
 			}
 		}
 	}
@@ -207,6 +243,7 @@ const void* CPtDynamicLinker::GetSymbolAddress(const std::string& moduleName, co
 	auto lib2FunctionTableMap = m_str2ModuleMap.find(moduleName);
 	if (lib2FunctionTableMap == m_str2ModuleMap.end())
 	{
+		printf("%X", nid);
 		PSET_LOG_ERROR("invalid module name:" + moduleName);
 		return nullptr;
 	}
@@ -220,7 +257,8 @@ const void* CPtDynamicLinker::GetSymbolAddress(const std::string& moduleName, co
 	auto funcIter = nid2FunctionMap->second.find(nid);
 	if (funcIter == nid2FunctionMap->second.end())
 	{
-		PSET_LOG_ERROR("invalid override symbol address");
+		printf("%X", nid);
+		PSET_LOG_ERROR("invalid override symbol address,lib name:"+ libraryName);
 		return nullptr;
 	}
 

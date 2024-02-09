@@ -54,17 +54,54 @@ struct SNidFuncTable
 	std::string m_funcName;
 };
 
+static std::unordered_map<std::string, std::vector<SNidFuncTable>> gLibcMap;
+
 void GenerateCppFile(const std::unordered_map<std::string, std::vector<SNidFuncTable>>& libName2FuncTableMap, const std::string& moduleName)
 {
 	// Generate Header
 	std::string headerName("pset_" + moduleName + ".h");
 	std::string headerCode("#pragma once\n#include \"PsetLibraryCommon.h\" \n");
 
+	bool bSpecialCase = false;
+	if (gLibcMap.size() != 0)
+	{
+		if (moduleName == "libSceLibcInternal")
+		{
+			headerCode += "#include \"pset_libc.h\" \n";
+			bSpecialCase = true;
+		}
+		else if (moduleName == "libc")
+		{
+			headerCode += "#include \"pset_libSceLibcInternal.h\" \n";
+			bSpecialCase = true;
+		}
+	}
+
 	std::unordered_set<std::string> funcDeclares;
 	for (const auto& lib : libName2FuncTableMap)
 	{
 		for (const auto& func : lib.second)
 		{
+			bool bSkip = false;
+			if (bSpecialCase)
+			{
+				for (auto& libSub : gLibcMap)
+				{
+					for (auto& funcSub : libSub.second)
+					{
+						if (func.m_funcName == funcSub.m_funcName)
+						{
+							bSkip = true;;
+						}
+					}
+				}
+			}
+
+			if (bSkip)
+			{
+				continue;
+			}
+
 			if (funcDeclares.find(func.m_funcName) == funcDeclares.end())
 			{
 				const std::string funcDeclare("int PSET_SYSV_ABI " + func.m_funcName + "(void);\n");
@@ -88,6 +125,26 @@ void GenerateCppFile(const std::unordered_map<std::string, std::vector<SNidFuncT
 	{
 		for (const auto& func : lib.second)
 		{
+			bool bSkip = false;
+			if (bSpecialCase)
+			{
+				for (auto& libSub : gLibcMap)
+				{
+					for (auto& funcSub : libSub.second)
+					{
+						if (func.m_funcName == funcSub.m_funcName)
+						{
+							bSkip = true;;
+						}
+					}
+				}
+			}
+
+			if (bSkip)
+			{
+				continue;
+			}
+
 			if (funcImplementation.find(func.m_funcName) == funcImplementation.end())
 			{
 				const std::string funcDeclare(
@@ -148,6 +205,8 @@ const std::string ConvertFileName(std::string fileName)
 	return fileName;
 }
 
+
+
 void GetImportModuleSymbols(std::vector<std::string>& importModules)
 {
 	for (uint32_t index = 0; index < importModules.size(); index++)
@@ -192,6 +251,12 @@ void GetImportModuleSymbols(std::vector<std::string>& importModules)
 					}
 
 					GenerateCppFile(libName2FuncTableMap, subModuleName);
+
+					if ((subModuleName == "libSceLibcInternal" || subModuleName == "libc") && gLibcMap.size() == 0)
+					{
+						gLibcMap = libName2FuncTableMap;
+					}
+					
 					bFound = true;
 				}
 			}
