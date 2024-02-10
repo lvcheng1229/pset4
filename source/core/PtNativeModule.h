@@ -10,11 +10,15 @@ struct SPtModuleInfo
 {
 	void* m_pEntryPoint;
 
+	uint64_t m_nInitOffset;
+	void* m_pInitProc;
+
+	uint64_t m_nProcParamOffset;
+	void* m_pProcParamProc;
+
 	SMemoryChrunk m_mappedMemory;
 
 	// ParseProgramHeaders
-	void* m_pProcParam;
-	void* m_pModuleParam;
 	void* m_pInterProgram;
 	void* m_pDynamicEntry;
 	uint32_t m_nDynamicEntryCount;
@@ -64,7 +68,6 @@ public:
 private:
 	std::unordered_map<uint16_t, std::string> m_id2LibraryNameMap;
 	std::unordered_map<uint16_t, std::string> m_id2ModuleNameMap;
-
 
 	Elf64_Ehdr m_self64Ehdr;
 	std::vector<Elf64_Phdr> m_aSegmentHeaders;

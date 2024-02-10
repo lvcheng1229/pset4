@@ -20,6 +20,7 @@ public:
 	void ParseDynamicSegment();
 	void MapImageToMemory();
 	void ParseAndExportNativeSymbol();
+	void AddModuleDependencies();
 private:
 	size_t CalculateTotalLoadableSize();
 	void MapSegment(Elf64_Phdr const& hdr);

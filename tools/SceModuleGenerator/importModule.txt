@@ -1,4 +1,3 @@
-libSceLibcInternal
 libSceGnmDriver
 libScePad
 libSceVideoOut
@@ -42,4 +41,5 @@ libSceXml
 libSceSigninDialog
 libSceAvPlayer
 libc
+libSceLibcInternal
 PsetEnd

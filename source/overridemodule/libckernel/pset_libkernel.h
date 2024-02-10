@@ -1,5 +1,16 @@
 #pragma once
-#include "PsetLibraryCommon.h" 
+#include "overridemodule\PsetLibraryCommon.h" 
+#include "pset_libkernel_memory.h"
+
+struct SSceProcParam
+{
+	uint64_t m_size;
+	char m_magic[4];
+	uint32_t m_entryCount;
+	uint64_t m_sdkVersion;
+};
+SSceProcParam* PSET_SYSV_ABI Pset_sceKernelGetProcParam(void);
+
 int PSET_SYSV_ABI Pset___elf_phdr_match_addr(void);
 int PSET_SYSV_ABI Pset___error(void);
 int PSET_SYSV_ABI Pset___inet_ntop(void);
@@ -497,7 +508,7 @@ int PSET_SYSV_ABI Pset_sceKernelGetDataTransferMode(void);
 int PSET_SYSV_ABI Pset_sceKernelGetDebugMenuMiniModeForRcmgr(void);
 int PSET_SYSV_ABI Pset_sceKernelGetDebugMenuModeForRcmgr(void);
 int PSET_SYSV_ABI Pset_sceKernelGetdents(void);
-int PSET_SYSV_ABI Pset_sceKernelGetDirectMemorySize(void);
+
 int PSET_SYSV_ABI Pset_sceKernelGetDirectMemoryType(void);
 int PSET_SYSV_ABI Pset_sceKernelGetdirentries(void);
 int PSET_SYSV_ABI Pset_sceKernelGetEventData(void);
@@ -535,7 +546,6 @@ int PSET_SYSV_ABI Pset_sceKernelGetProcessTime(void);
 int PSET_SYSV_ABI Pset_sceKernelGetProcessTimeCounter(void);
 int PSET_SYSV_ABI Pset_sceKernelGetProcessTimeCounterFrequency(void);
 int PSET_SYSV_ABI Pset_sceKernelGetProcessType(void);
-int PSET_SYSV_ABI Pset_sceKernelGetProcParam(void);
 int PSET_SYSV_ABI Pset_sceKernelGetProductCode(void);
 int PSET_SYSV_ABI Pset_sceKernelGetProductStr(void);
 int PSET_SYSV_ABI Pset_sceKernelGetPrtAperture(void);

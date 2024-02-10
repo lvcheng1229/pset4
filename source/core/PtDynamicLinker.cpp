@@ -1,4 +1,6 @@
 #include "PtDynamicLinker.h"
+#include "PtInvalidFuncLogger.h"
+
 static CPtDynamicLinker* g_pDynamicLinker;
 CPtDynamicLinker* GetPtDynamicLinker()
 {
@@ -7,12 +9,6 @@ CPtDynamicLinker* GetPtDynamicLinker()
 		g_pDynamicLinker = new CPtDynamicLinker();
 	}
 	return g_pDynamicLinker;
-}
-
-static void LogInvalidFunc(void)
-{
-	PSET_LOG_ERROR("invalid function");
-	__debugbreak();
 }
 
 void CPtDynamicLinker::InitializeOverrideModule(const char* moduleName, const SPSET_EXPORT_LIB* pLibraries)
@@ -35,6 +31,7 @@ void CPtDynamicLinker::InitializeOverrideModule(const char* moduleName, const SP
 		while (pFunctionEntries[funcIndex].m_nid != 0 && pFunctionEntries[funcIndex].m_pFunction != nullptr)
 		{
 			const uint64_t nid = pFunctionEntries[funcIndex].m_nid;
+
 			AddSymbol(moduleNameStr, libName, nid, pFunctionEntries[funcIndex].m_pFunction, pFunctionEntries[funcIndex].m_funcName);
 			funcIndex++;
 		}
@@ -147,6 +144,25 @@ void CPtDynamicLinker::AddNativeModule(const std::string& moduleName)
 	}
 }
 
+static bool IsEncodedSymbol(std::string const& symbolName) 
+{
+	bool retVal = false;
+	if (symbolName.length() != 15)
+	{
+		retVal = false;
+	}
+	else if (symbolName[11] != '#' || symbolName[13] != '#')
+	{
+		retVal = false;
+	}
+	else
+	{
+		retVal = true;
+	}
+
+	return retVal;
+}
+
 void CPtDynamicLinker::DecodeSymbol(const std::string& encodedName, uint16_t& moduleId, uint16_t& libId, uint64_t& nid)
 {
 	moduleId = 0;
@@ -171,6 +187,9 @@ void CPtDynamicLinker::DecodeSymbol(const std::string& encodedName, uint16_t& mo
 	DecodeValue16(encodedSubNames[2], moduleId);
 }
 
+
+
+
 void CPtDynamicLinker::RelocateRelativeSymbols(CPtNativeModule& nativeModule, Elf64_Rela* pReallocateTable, uint32_t relaCount)
 {
 	SPtModuleInfo& moduleInfo = nativeModule.GetModuleInfo();
@@ -189,6 +208,10 @@ void CPtDynamicLinker::RelocateRelativeSymbols(CPtNativeModule& nativeModule, El
 
 		if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
 		{
+			if (!IsEncodedSymbol(pEncodedName))
+			{
+				continue;
+			}
 			uint64_t decodedNid = 0;
 			uint16_t decodedModuleId = 0;
 			uint16_t decodedLibId = 0;
@@ -198,41 +221,35 @@ void CPtDynamicLinker::RelocateRelativeSymbols(CPtNativeModule& nativeModule, El
 			std::string moduleName;
 			nativeModule.GetLibAndModuleName(decodedLibId, decodedModuleId, libName, moduleName);
 			
-			
-			if (decodedNid == 0xF06D8B07E037AF38)
+			bool bSymValid = IsSymbolValid(moduleName, libName, decodedNid);
+
+			std::string reDirlibName = libName;
+			std::string reDirmoduleName = moduleName;
+
+			if (!bSymValid)
 			{
-				int aa = 1;
+				reDirlibName = "libc";
+				reDirmoduleName = "libc";
 			}
 
-			bool bInValidAddr = false;
-			if (libName == "libSceLibcInternal")
+			const void* symAddress = GetSymbolAddress(reDirmoduleName, reDirlibName, decodedNid);
+			if (symAddress)
 			{
-				const void* symAddressLibc = GetSymbolAddress("libc", "libc", decodedNid);
-				if (symAddressLibc)
-				{
-					*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddressLibc);
-				}
-				else
-				{
-					bInValidAddr = true;
-				}
+				*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddress);
 			}
 			else
 			{
-				const void* symAddress = GetSymbolAddress(moduleName, libName, decodedNid);
-				if (symAddress)
-				{
-					*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddress);
-				}
-				else
-				{
-					bInValidAddr = true;
-				}
+				printf("NID:");
+				printf("%X", uint32_t((decodedNid >> 32) & 0xffffffff));
+				printf("%X", uint32_t(decodedNid & 0xffffffff));
+				PSET_LOG_ERROR("Invalid symbol Module name:" + moduleName + " LibName:" + libName);
+
+				bSymValid = false;
 			}
 
-			if (bInValidAddr)
+			if (!bSymValid)
 			{
-				*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(LogInvalidFunc);
+				*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(GenStubFunc(std::format("{:X}", decodedNid)));
 			}
 		}
 	}
@@ -243,26 +260,42 @@ const void* CPtDynamicLinker::GetSymbolAddress(const std::string& moduleName, co
 	auto lib2FunctionTableMap = m_str2ModuleMap.find(moduleName);
 	if (lib2FunctionTableMap == m_str2ModuleMap.end())
 	{
-		printf("%X", nid);
-		PSET_LOG_ERROR("invalid module name:" + moduleName);
 		return nullptr;
 	}
 
 	auto nid2FunctionMap = lib2FunctionTableMap->second.find(libraryName);
 	if (nid2FunctionMap == lib2FunctionTableMap->second.end())
 	{
-		PSET_LOG_ERROR("invalid lib name:" + libraryName);
 		return nullptr;
 	}
 	auto funcIter = nid2FunctionMap->second.find(nid);
 	if (funcIter == nid2FunctionMap->second.end())
 	{
-		printf("%X", nid);
-		PSET_LOG_ERROR("invalid override symbol address,lib name:"+ libraryName);
 		return nullptr;
 	}
 
 	return funcIter->second.m_pFunc;
+}
+
+bool CPtDynamicLinker::IsSymbolValid(const std::string& moduleName, const std::string& libraryName, const uint64_t nid)
+{
+	auto lib2FunctionTableMap = m_str2ModuleMap.find(moduleName);
+	if (lib2FunctionTableMap == m_str2ModuleMap.end())
+	{
+		return false;
+	}
+
+	auto nid2FunctionMap = lib2FunctionTableMap->second.find(libraryName);
+	if (nid2FunctionMap == lib2FunctionTableMap->second.end())
+	{
+		return false;
+	}
+	auto funcIter = nid2FunctionMap->second.find(nid);
+	if (funcIter == nid2FunctionMap->second.end())
+	{
+		return false;
+	}
+	return funcIter->second.m_pFunc != nullptr;
 }
 
 void CPtDynamicLinker::AddOverrideModule(const std::string& moduleName)

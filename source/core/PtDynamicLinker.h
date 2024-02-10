@@ -23,6 +23,7 @@ private:
 	void AddOverrideModule(const std::string& moduleName);
 	void RelocateRelativeSymbols(CPtNativeModule& nativeModule, Elf64_Rela* pReallocateTable, uint32_t relaCount);
 	const void* GetSymbolAddress(const std::string& moduleName, const std::string& libraryName, const uint64_t nid);
+	bool IsSymbolValid(const std::string& moduleName, const std::string& libraryName, const uint64_t nid);
 private:
 	using SNid2FunctionMap = std::unordered_map<uint64_t, SFunctionInfo>;
 	using SLib2FuncTableMap = std::unordered_map < std::string, SNid2FunctionMap>;

@@ -2,6 +2,7 @@
 
 #include "PtDynamicLinker.h"
 #include "PtElfProcessor.h"
+#include "PtModuleLoader.h"
 
 CPtElfProcessor::CPtElfProcessor(SElfProcessorCfg elfProcessorCfg)
 {
@@ -126,10 +127,7 @@ void CPtElfProcessor::ParseProgramHeaders()
 		case PT_SCE_COMMENT:
 			break;
 		case PT_SCE_PROCPARAM:
-			moduleInfo.m_pProcParam = (void*)pElfpHdr[index].p_paddr;
-			break;
-		case PT_SCE_MODULEPARAM:
-			moduleInfo.m_pModuleParam = (void*)pElfpHdr[index].p_paddr;
+			moduleInfo.m_nProcParamOffset = pElfpHdr[index].p_paddr;
 			break;
 		case PT_INTERP:
 			moduleInfo.m_pInterProgram = m_module->m_elfData.data() + pElfpHdr[index].p_offset;
@@ -159,6 +157,7 @@ void CPtElfProcessor::ParseDynamicSegment()
 		switch (elf64Dyn.d_tag)
 		{
 		case DT_INIT:
+			moduleInfo.m_nInitOffset = elf64Dyn.d_un.d_ptr;
 			break;
 		case DT_SCE_STRTAB:
 			moduleInfo.m_sceStrTable.m_pAddress = baseAddress + elf64Dyn.d_un.d_ptr;
@@ -241,8 +240,10 @@ void CPtElfProcessor::MapImageToMemory()
 		mappedMemory.m_pAddress = (void*)0x800000000;
 	}
 	mappedMemory.m_pAddress = VirtualAlloc(mappedMemory.m_pAddress, mappedMemory.m_size, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	
 	assert(mappedMemory.m_pAddress != nullptr);
-
+	assert(reinterpret_cast<uint64_t>(mappedMemory.m_pAddress) % (16 * 1024) == 0);
+	
 	for (auto const& phdr : m_module->m_aSegmentHeaders)
 	{
 		switch (phdr.p_type)
@@ -276,6 +277,9 @@ void CPtElfProcessor::MapImageToMemory()
 	{
 		moduleInfo.m_pEntryPoint = nullptr;
 	}
+
+	moduleInfo.m_pInitProc = moduleInfo.m_nInitOffset + (uint8_t*)moduleInfo.m_mappedMemory.m_pAddress;
+	moduleInfo.m_pProcParamProc = moduleInfo.m_nProcParamOffset +(uint8_t*)moduleInfo.m_mappedMemory.m_pAddress;
 }
 
 void CPtElfProcessor::ParseAndExportNativeSymbol()
@@ -298,8 +302,6 @@ void CPtElfProcessor::ParseAndExportNativeSymbol()
 
 		if ((binding == STB_GLOBAL || binding == STB_WEAK) && symbol.st_shndx != SHN_UNDEF)
 		{
-
-
 			uint16_t moduleId = 0;
 			uint16_t libId = 0;
 			uint64_t nid = 0;
@@ -329,6 +331,14 @@ void CPtElfProcessor::ParseAndExportNativeSymbol()
 			GetPtDynamicLinker()->AddNativeModule(moduleName);
 			GetPtDynamicLinker()->AddSymbol(moduleName, libName, nid, pCodeAddress + symbol.st_value, nullptr);
 		}
+	}
+}
+
+void CPtElfProcessor::AddModuleDependencies()
+{
+	for (auto& t : m_module->m_neededFiles)
+	{
+		GetElfModuleLoder()->AddModuleDependencies(t);
 	}
 }
 
@@ -415,7 +425,7 @@ void CPtElfProcessor::RelocateNativeLocalSymbol(Elf64_Rela* pReallocateTable, ui
 		}
 
 		int nBinding = ELF64_ST_BIND(symbol.st_info);
-		if (nBinding == STB_GLOBAL || nBinding == STB_WEAK)
+		if (nBinding == STB_LOCAL)
 		{
 			*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddress);
 		}

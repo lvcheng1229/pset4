@@ -7,15 +7,19 @@
 class CPtModuleLoader
 {
 public:
+	typedef int PSET_SYSV_ABI(*InitProc)(size_t argc, void* argv[], int (*PostInit)(size_t argc, void* argv[]));
+
 	CPtModuleLoader(std::string app0Dir);
 
 	void LoadAndParseElf(const std::string& modulePath, const std::string& fileName);
-	void AddModuleDependencies();
+	void AddModuleDependencies(std::string& fileName);
 	void LoadModuleDependencies();
 	void RelocateNativeModules();
+	void PtFlushInstructionCache();
 	void InitNativeModules();
 
 	void* GetEbootEntryPoint();
+	void* GetEbootProcParam();
 private:
 	bool IsNativeModuleLoaded(const std::string& fileName);
 	bool GetDirFromModuleName(const std::string& moduleName, std::string& outPath);

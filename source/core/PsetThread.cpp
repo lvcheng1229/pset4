@@ -31,11 +31,6 @@ void* CPsetThread::RunThreadFunction(void* args)
 
 void* PSET_SYSV_ABI CPsetThread::SysABIMainFuncttion(void* args)
 {
-	//asm("xor %rsi,%rsi;");
-	//asm("mov %0,%%rdi;"::"r"(pPsetMainArg): );
-	//asm("mov %rdi,%rbp;");
-	//asm("call qword ptr %eax;");
-
 	CPsetThread* psetThread = (CPsetThread*)args;
 	((PsetMainFunction)psetThread->m_pMainFunction)(&psetThread->m_psetMainArg, CPsetThread::DefaultExitFunction);
 	return nullptr;

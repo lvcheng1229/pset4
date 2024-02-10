@@ -30,24 +30,14 @@ void CPtModuleLoader::LoadAndParseElf(const std::string& modulePath, const std::
 	GetElfProcessor()->ParseDynamicSegment();
 	GetElfProcessor()->MapImageToMemory();
 	GetElfProcessor()->ParseAndExportNativeSymbol();
+	GetElfProcessor()->AddModuleDependencies();
 }
 
-void CPtModuleLoader::AddModuleDependencies()
+void CPtModuleLoader::AddModuleDependencies(std::string& fileName)
 {
-	for (uint32_t index = 0; index < m_nNativeModules; index++)
+	if (GetPtDynamicLinker()->IsNativeModule(fileName) && !IsNativeModuleLoaded(fileName))
 	{
-		CPtNativeModule* modu = &m_natveModules[index];
-		for (auto& t : modu->m_neededFiles)
-		{
-			if (!IsNativeModuleLoaded(t) && GetPtDynamicLinker()->IsNativeModule(t))
-			{
-				m_pendingDependencies.push(t);
-			}
-			else if (!IsNativeModuleLoaded(t) && (t == "libc.prx" || t == "libSceLibcInternal.sprx" || t == "libSceLibcInternal.prx"))
-			{
-				m_pendingDependencies.push(t);
-			}
-		}
+		m_pendingDependencies.push(fileName);
 	}
 }
 
@@ -89,15 +79,34 @@ void CPtModuleLoader::RelocateNativeModules()
 	GetPtDynamicLinker()->RelocateNativeModules(m_natveModules, m_nNativeModules);
 }
 
+void CPtModuleLoader::PtFlushInstructionCache()
+{
+	for (uint32_t index = 0; index < m_nNativeModules; index++)
+	{
+		FlushInstructionCache(GetCurrentProcess(), m_natveModules[index].m_moduleInfo.m_mappedMemory.m_pAddress, m_natveModules[index].m_moduleInfo.m_mappedMemory.m_size);
+	}
+}
+
 void CPtModuleLoader::InitNativeModules()
 {
-	PSET_LOG_ERROR("TODO:InitNativeModules");
-	//assert(false);
+	for (uint32_t index = 0; index < m_nNativeModules; index++)
+	{
+		if (m_natveModules[index].m_fileName != "eboot.bin")
+		{
+			auto initFunc = reinterpret_cast<InitProc>(m_natveModules[index].m_moduleInfo.m_pInitProc);
+			initFunc(0, nullptr, nullptr);
+		}
+	}
 }
 
 void* CPtModuleLoader::GetEbootEntryPoint()
 {
 	return m_natveModules[0].GetModuleInfo().m_pEntryPoint;
+}
+
+void* CPtModuleLoader::GetEbootProcParam()
+{
+	return m_natveModules[0].GetModuleInfo().m_pProcParamProc;
 }
 
 bool CPtModuleLoader::IsNativeModuleLoaded(const std::string& fileName)

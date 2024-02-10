@@ -63,6 +63,7 @@ void CPtApplication::Init()
 
 void CPtApplication::Run()
 {
+	PSET_LOG_INFO("run application");
 	CPsetThread psetThread(GetElfModuleLoder()->GetEbootEntryPoint());
 	psetThread.Run();
 }
@@ -70,9 +71,9 @@ void CPtApplication::Run()
 void CPtApplication::LoadAndInitEbootModule()
 {
 	GetElfModuleLoder()->LoadAndParseElf(m_app0Dir, "eboot.bin");
-	GetElfModuleLoder()->AddModuleDependencies();
 	GetElfModuleLoder()->LoadModuleDependencies();
 	GetElfModuleLoder()->RelocateNativeModules();
+	GetElfModuleLoder()->PtFlushInstructionCache();
 	GetElfModuleLoder()->InitNativeModules();
 }
 
