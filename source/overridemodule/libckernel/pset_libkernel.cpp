@@ -11,6 +11,21 @@ SSceProcParam* PSET_SYSV_ABI Pset_sceKernelGetProcParam(void)
 	return retProcParam;
 }
 
+int PSET_SYSV_ABI Pset__write(int fd, const void* buf, size_t size)
+{
+	PSET_LOG_IMPLEMENTED("implemented function: Pset__write");
+	_write(fd, buf, size);
+	return PSET_OK;
+}
+
+int PSET_SYSV_ABI Pset_sceKernelIsNeoMode(void)
+{
+	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelIsNeoMode");
+	// 0: dont support ps4 pro
+	return 0;
+}
+
+
 int PSET_SYSV_ABI Pset___elf_phdr_match_addr(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset___elf_phdr_match_addr");
@@ -455,10 +470,9 @@ int PSET_SYSV_ABI Pset__recvmsg(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset__sceKernelRtldSetApplicationHeapAPI(void)
+void PSET_SYSV_ABI Pset__sceKernelRtldSetApplicationHeapAPI(void*)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset__sceKernelRtldSetApplicationHeapAPI");
-	return PSET_OK;
 }
 
 int PSET_SYSV_ABI Pset__sceKernelRtldThreadAtexitDecrement(void)
@@ -545,11 +559,7 @@ int PSET_SYSV_ABI Pset__wait4(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset__write(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset__write");
-	return PSET_OK;
-}
+
 
 int PSET_SYSV_ABI Pset__writev(void)
 {
@@ -1529,12 +1539,6 @@ int PSET_SYSV_ABI Pset_pthread_cleanup_push(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_pthread_cond_broadcast(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_pthread_cond_broadcast");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_pthread_cond_destroy(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_pthread_cond_destroy");
@@ -1769,11 +1773,7 @@ int PSET_SYSV_ABI Pset_pthread_mutex_getyieldloops_np(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_pthread_mutex_init(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_pthread_mutex_init");
-	return PSET_OK;
-}
+
 
 int PSET_SYSV_ABI Pset_pthread_mutex_init_for_mono(void)
 {
@@ -1784,12 +1784,6 @@ int PSET_SYSV_ABI Pset_pthread_mutex_init_for_mono(void)
 int PSET_SYSV_ABI Pset_pthread_mutex_isowned_np(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_pthread_mutex_isowned_np");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_pthread_mutex_lock(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_pthread_mutex_lock");
 	return PSET_OK;
 }
 
@@ -1832,12 +1826,6 @@ int PSET_SYSV_ABI Pset_pthread_mutex_timedlock(void)
 int PSET_SYSV_ABI Pset_pthread_mutex_trylock(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_pthread_mutex_trylock");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_pthread_mutex_unlock(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_pthread_mutex_unlock");
 	return PSET_OK;
 }
 
@@ -2423,12 +2411,6 @@ int PSET_SYSV_ABI Pset_sceKernelAioWaitRequests(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceKernelAllocateDirectMemory(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelAllocateDirectMemory");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_sceKernelAllocateDirectMemoryForMiniApp(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelAllocateDirectMemoryForMiniApp");
@@ -2537,11 +2519,7 @@ int PSET_SYSV_ABI Pset_sceKernelClockGettime(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceKernelClose(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelClose");
-	return PSET_OK;
-}
+
 
 int PSET_SYSV_ABI Pset_sceKernelCloseEport(void)
 {
@@ -3795,11 +3773,7 @@ int PSET_SYSV_ABI Pset_sceKernelIsMainOnStandbyMode(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceKernelIsNeoMode(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelIsNeoMode");
-	return PSET_OK;
-}
+
 
 int PSET_SYSV_ABI Pset_sceKernelIsStack(void)
 {
@@ -3855,12 +3829,6 @@ int PSET_SYSV_ABI Pset_sceKernelLoadStartModuleForSysmodule(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceKernelLseek(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelLseek");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_sceKernelLwfsAllocateBlock(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelLwfsAllocateBlock");
@@ -3888,18 +3856,6 @@ int PSET_SYSV_ABI Pset_sceKernelLwfsTrimBlock(void)
 int PSET_SYSV_ABI Pset_sceKernelLwfsWrite(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelLwfsWrite");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceKernelMapDirectMemory(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelMapDirectMemory");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceKernelMapDirectMemory2(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelMapDirectMemory2");
 	return PSET_OK;
 }
 
@@ -4065,11 +4021,6 @@ int PSET_SYSV_ABI Pset_sceKernelNotifySystemSuspendStart(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceKernelOpen(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelOpen");
-	return PSET_OK;
-}
 
 int PSET_SYSV_ABI Pset_sceKernelOpenEport(void)
 {
@@ -4170,12 +4121,6 @@ int PSET_SYSV_ABI Pset_sceKernelRandomizedPath(void)
 int PSET_SYSV_ABI Pset_sceKernelRdup(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelRdup");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceKernelRead(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelRead");
 	return PSET_OK;
 }
 
@@ -4581,12 +4526,6 @@ int PSET_SYSV_ABI Pset_sceKernelWaitSema(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceKernelWrite(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelWrite");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_sceKernelWriteSdkEventLog(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelWriteSdkEventLog");
@@ -4608,24 +4547,6 @@ int PSET_SYSV_ABI Pset_sceLibcMspaceCreateForMonoMutex(void)
 int PSET_SYSV_ABI Pset_scePthreadAtfork(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadAtfork");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadAttrDestroy(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadAttrDestroy");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadAttrGet(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadAttrGet");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadAttrGetaffinity(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadAttrGetaffinity");
 	return PSET_OK;
 }
 
@@ -4680,12 +4601,6 @@ int PSET_SYSV_ABI Pset_scePthreadAttrGetstackaddr(void)
 int PSET_SYSV_ABI Pset_scePthreadAttrGetstacksize(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadAttrGetstacksize");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadAttrInit(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadAttrInit");
 	return PSET_OK;
 }
 
@@ -4983,12 +4898,6 @@ int PSET_SYSV_ABI Pset_scePthreadMulti(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_scePthreadMutexattrDestroy(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrDestroy");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_scePthreadMutexattrGetkind(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrGetkind");
@@ -5016,12 +4925,6 @@ int PSET_SYSV_ABI Pset_scePthreadMutexattrGetpshared(void)
 int PSET_SYSV_ABI Pset_scePthreadMutexattrGettype(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrGettype");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadMutexattrInit(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrInit");
 	return PSET_OK;
 }
 
@@ -5055,18 +4958,6 @@ int PSET_SYSV_ABI Pset_scePthreadMutexattrSetpshared(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_scePthreadMutexattrSettype(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrSettype");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadMutexDestroy(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexDestroy");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_scePthreadMutexGetprioceiling(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexGetprioceiling");
@@ -5085,12 +4976,6 @@ int PSET_SYSV_ABI Pset_scePthreadMutexGetyieldloops(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_scePthreadMutexInit(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexInit");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_scePthreadMutexInitForInternalLibc(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexInitForInternalLibc");
@@ -5100,12 +4985,6 @@ int PSET_SYSV_ABI Pset_scePthreadMutexInitForInternalLibc(void)
 int PSET_SYSV_ABI Pset_scePthreadMutexIsowned(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexIsowned");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadMutexLock(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexLock");
 	return PSET_OK;
 }
 
@@ -5136,12 +5015,6 @@ int PSET_SYSV_ABI Pset_scePthreadMutexTimedlock(void)
 int PSET_SYSV_ABI Pset_scePthreadMutexTrylock(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexTrylock");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadMutexUnlock(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexUnlock");
 	return PSET_OK;
 }
 
@@ -5256,12 +5129,6 @@ int PSET_SYSV_ABI Pset_scePthreadRwlockUnlock(void)
 int PSET_SYSV_ABI Pset_scePthreadRwlockWrlock(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadRwlockWrlock");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_scePthreadSelf(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadSelf");
 	return PSET_OK;
 }
 

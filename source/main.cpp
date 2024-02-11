@@ -7,10 +7,10 @@
 
 int main(int argc, char* argv[])
 {
-	CPtApplication ptApp;
-	ptApp.ParseCommnadLine(argc, argv);
-	ptApp.Init();
-	ptApp.Run();
+	CPtApplication* pPtApplication = GetPtApplication();
+	pPtApplication->ParseCommnadLine(argc, argv);
+	pPtApplication->Init();
+	pPtApplication->Run();
 
     return 1;
 }

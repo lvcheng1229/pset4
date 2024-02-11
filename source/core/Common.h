@@ -9,6 +9,7 @@
 #define PSET_ALIGN(n) __attribute__((__aligned__(n)))
 
 #define PSET_OK 0
+#define SCE_ERROR_ERROR_FLAG           0x80000000
 
 template <typename T1, typename T2>
 inline T1 AlignUp(T1 size, T2 align)

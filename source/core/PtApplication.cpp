@@ -6,6 +6,15 @@
 
 static CPtElfProcessor* g_pElfProcessor = nullptr;
 static CPtModuleLoader* g_pElfModuleLoader = nullptr;
+static CPtApplication* g_pApplication = nullptr;
+CPtApplication* GetPtApplication()
+{
+	if (g_pApplication == nullptr)
+	{
+		g_pApplication =  new CPtApplication();
+	}
+	return g_pApplication;
+}
 
 CPtElfProcessor* GetElfProcessor()
 {
@@ -66,6 +75,12 @@ void CPtApplication::Run()
 	PSET_LOG_INFO("run application");
 	CPsetThread psetThread(GetElfModuleLoder()->GetEbootEntryPoint());
 	psetThread.Run();
+}
+
+std::string CPtApplication::MapPs4Path(const std::string& ps4Path)
+{
+	std::string retString = ps4Path;
+	return retString.replace(0, sizeof("/app0"), m_app0Dir.c_str());
 }
 
 void CPtApplication::LoadAndInitEbootModule()

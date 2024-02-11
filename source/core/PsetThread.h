@@ -9,7 +9,7 @@ typedef void* (PSET_SYSV_ABI* PsetMainFunction)(void*, PsetExitFunction pExit);
 class CPsetThread
 {
 public:
-	CPsetThread(void* minFunc);
+		CPsetThread(void* minFunc);
 	void Run();
 	static void* RunThreadFunction(void* args);
 	static void* PSET_SYSV_ABI SysABIMainFuncttion(void* args);

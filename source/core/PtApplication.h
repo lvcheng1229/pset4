@@ -10,6 +10,8 @@ public:
 	void Init();
 	void Run();
 
+	std::string MapPs4Path(const std::string& ps4Path);
+
 private:
 	void LoadAndInitEbootModule();
 
@@ -18,3 +20,5 @@ private:
 	std::string m_app0File;
 	std::string m_app0Dir;
 };
+
+CPtApplication* GetPtApplication();
