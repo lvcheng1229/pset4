@@ -1,5 +1,7 @@
 #pragma once
-#include "PsetLibraryCommon.h" 
+#include "overridemodule/PsetLibraryCommon.h" 
+int PSET_SYSV_ABI Pset_sceSystemServiceParamGetInt(int32_t paramId, int32_t* pointer);
+
 int PSET_SYSV_ABI Pset_sceAppMessagingClearEventFlag(void);
 int PSET_SYSV_ABI Pset_sceAppMessagingReceiveMsg(void);
 int PSET_SYSV_ABI Pset_sceAppMessagingSendMsg(void);
@@ -363,7 +365,6 @@ int PSET_SYSV_ABI Pset_sceSystemServiceNavigateToAnotherApp(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceNavigateToGoBack(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceNavigateToGoBackWithValue(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceNavigateToGoHome(void);
-int PSET_SYSV_ABI Pset_sceSystemServiceParamGetInt(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceParamGetString(void);
 int PSET_SYSV_ABI Pset_sceSystemServicePowerTick(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceRaiseExceptionLocalProcess(void);

@@ -12,7 +12,16 @@ struct SSceProcParam
 	uint64_t m_sdkVersion;
 };
 SSceProcParam* PSET_SYSV_ABI Pset_sceKernelGetProcParam(void);
+
 int PSET_SYSV_ABI Pset__write(int fd, const void* buf, size_t size);
+
+struct SPsetTimeSpec
+{
+	int64_t tv_sec; //seconds
+	int64_t tv_nsec;//nanoseconds
+};
+
+int PSET_SYSV_ABI Pset_sceKernelClockGettime(int32_t clk_id, SPsetTimeSpec* pTimeSpec);
 
 int PSET_SYSV_ABI Pset___elf_phdr_match_addr(void);
 int PSET_SYSV_ABI Pset___error(void);
@@ -428,7 +437,6 @@ int PSET_SYSV_ABI Pset_sceKernelClearBootReqNotifyCount(void);
 int PSET_SYSV_ABI Pset_sceKernelClearEventFlag(void);
 int PSET_SYSV_ABI Pset_sceKernelClearGameDirectMemory(void);
 int PSET_SYSV_ABI Pset_sceKernelClockGetres(void);
-int PSET_SYSV_ABI Pset_sceKernelClockGettime(void);
 int PSET_SYSV_ABI Pset_sceKernelCloseEport(void);
 int PSET_SYSV_ABI Pset_sceKernelCloseEventFlag(void);
 int PSET_SYSV_ABI Pset_sceKernelCloseSema(void);

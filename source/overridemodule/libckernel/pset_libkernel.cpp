@@ -25,6 +25,16 @@ int PSET_SYSV_ABI Pset_sceKernelIsNeoMode(void)
 	return 0;
 }
 
+int PSET_SYSV_ABI Pset_sceKernelClockGettime(int32_t clk_id, SPsetTimeSpec* pTimeSpec)
+{
+	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelClockGettime");
+	memset(pTimeSpec, 0, sizeof(*pTimeSpec));
+	struct timespec ts;
+	timespec_get(&ts, TIME_UTC);
+	pTimeSpec->tv_sec = ts.tv_sec;
+	pTimeSpec->tv_nsec = ts.tv_nsec;
+	return PSET_OK;
+}
 
 int PSET_SYSV_ABI Pset___elf_phdr_match_addr(void)
 {
@@ -2512,14 +2522,6 @@ int PSET_SYSV_ABI Pset_sceKernelClockGetres(void)
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelClockGetres");
 	return PSET_OK;
 }
-
-int PSET_SYSV_ABI Pset_sceKernelClockGettime(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelClockGettime");
-	return PSET_OK;
-}
-
-
 
 int PSET_SYSV_ABI Pset_sceKernelCloseEport(void)
 {
