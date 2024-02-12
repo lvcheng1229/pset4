@@ -1,7 +1,7 @@
 #pragma once
 #include "overridemodule/PsetLibraryCommon.h" 
 
-struct SVideoOutBufferAttribute
+struct SSceVideoOutBufferAttribute
 {
 	uint32_t m_pixelFormat;
 	uint32_t m_tilingMode;
@@ -14,9 +14,28 @@ struct SVideoOutBufferAttribute
 	uint64_t m_reserved1;
 };
 
-int PSET_SYSV_ABI Pset_sceVideoOutSetBufferAttribute(SVideoOutBufferAttribute* attri,
+struct SSceVideoOutResolutionStatus
+{
+	uint32_t m_Width;
+	uint32_t m_Height;
+	uint32_t m_paneWidth;
+	uint32_t m_paneHeight;
+	uint64_t m_refreshRate;
+	float m_screenSizeInInch;
+	uint16_t m_flags;
+	uint16_t _reserved0;
+	uint32_t _reserved1[3];
+};
+
+#define SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ 3
+#define SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE  (0 << 0)
+
+int PSET_SYSV_ABI Pset_sceVideoOutSetBufferAttribute(SSceVideoOutBufferAttribute* attri,
 	uint32_t pixelFormat, uint32_t tilingMode, uint32_t aspectRatio, uint32_t width, uint32_t height,
 	uint32_t pitchInPixel, uint32_t option, uint32_t reserved0, uint64_t reserved1);
+
+int PSET_SYSV_ABI Pset_sceVideoOutOpen(int32_t userId, int32_t type, int32_t index, const void* param);
+int PSET_SYSV_ABI Pset_sceVideoOutGetResolutionStatus(int32_t videoHandle, SSceVideoOutResolutionStatus* status);
 
 int PSET_SYSV_ABI Pset_sceDbgVideoOutAddOutputModeVr60Privilege(void);
 int PSET_SYSV_ABI Pset_sceDbgVideoOutAddProcessAttribute(void);
@@ -83,7 +102,6 @@ int PSET_SYSV_ABI Pset_sceVideoOutGetHdmiMonitorInfo_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetHdmiMonitorInfoNoMask_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetPortStatusInfo_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetPortStatusInfoByBusSpecifier_(void);
-int PSET_SYSV_ABI Pset_sceVideoOutGetResolutionStatus(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetStatusForWebcore(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetVblankStatus(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetVideoOutModeByBusSpecifier_(void);
@@ -92,7 +110,6 @@ int PSET_SYSV_ABI Pset_sceVideoOutHdmiMonitorInfoIsSupportedVideoOutMode_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutIsFlipPending(void);
 int PSET_SYSV_ABI Pset_sceVideoOutLockBuffer(void);
 int PSET_SYSV_ABI Pset_sceVideoOutModeSetAny_(void);
-int PSET_SYSV_ABI Pset_sceVideoOutOpen(void);
 int PSET_SYSV_ABI Pset_sceVideoOutRazorAddCallback(void);
 int PSET_SYSV_ABI Pset_sceVideoOutRazorRecallCallbacks(void);
 int PSET_SYSV_ABI Pset_sceVideoOutRazorRemoveCallback(void);

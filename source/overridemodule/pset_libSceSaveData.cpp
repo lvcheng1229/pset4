@@ -377,6 +377,7 @@ int PSET_SYSV_ABI Pset_sceSaveDataMount(void)
 int PSET_SYSV_ABI Pset_sceSaveDataMount2(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceSaveDataMount2");
+	PSET_LOG_ERROR("unimplemented function: Pset_sceSaveDataMount2");
 	return PSET_OK;
 }
 

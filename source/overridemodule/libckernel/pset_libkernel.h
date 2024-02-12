@@ -21,10 +21,23 @@ struct SPsetTimeSpec
 	int64_t tv_nsec;//nanoseconds
 };
 
-int PSET_SYSV_ABI Pset_sceKernelClockGettime(int32_t clk_id, SPsetTimeSpec* pTimeSpec);
+int PSET_SYSV_ABI Pset_sceKernelClockGettime(int32_t clk_id, timespec* pTimeSpec);
+
+struct SSceKernelEqueue_t
+{
+	uint64_t m_valid;
+	uint64_t m_fRefs;
+	uint64_t m_lock;
+	uint64_t m_wait;
+	uint64_t m_hIOCP;
+};
+
+int PSET_SYSV_ABI Pset_sceKernelCreateEqueue(SSceKernelEqueue_t* pSceKernelEqueue_t,const char* name);
+int PSET_SYSV_ABI Pset_clock_gettime(int32_t clk_id, timespec* tp);
+
 
 int PSET_SYSV_ABI Pset___elf_phdr_match_addr(void);
-int PSET_SYSV_ABI Pset___error(void);
+int* PSET_SYSV_ABI Pset___error(void);
 int PSET_SYSV_ABI Pset___inet_ntop(void);
 int PSET_SYSV_ABI Pset___inet_pton(void);
 int PSET_SYSV_ABI Pset___progname(void);
@@ -125,7 +138,6 @@ int PSET_SYSV_ABI Pset_chdir(void);
 int PSET_SYSV_ABI Pset_chflags(void);
 int PSET_SYSV_ABI Pset_chmod(void);
 int PSET_SYSV_ABI Pset_clock_getres(void);
-int PSET_SYSV_ABI Pset_clock_gettime(void);
 int PSET_SYSV_ABI Pset_clock_settime(void);
 int PSET_SYSV_ABI Pset_close(void);
 int PSET_SYSV_ABI Pset_connect(void);
@@ -443,7 +455,6 @@ int PSET_SYSV_ABI Pset_sceKernelCloseSema(void);
 int PSET_SYSV_ABI Pset_sceKernelConvertLocaltimeToUtc(void);
 int PSET_SYSV_ABI Pset_sceKernelConvertUtcToLocaltime(void);
 int PSET_SYSV_ABI Pset_sceKernelCreateEport(void);
-int PSET_SYSV_ABI Pset_sceKernelCreateEqueue(void);
 int PSET_SYSV_ABI Pset_sceKernelCreateEventFlag(void);
 int PSET_SYSV_ABI Pset_sceKernelCreateSema(void);
 int PSET_SYSV_ABI Pset_sceKernelDebugAcquireAndUpdateDebugRegister(void);
@@ -765,7 +776,6 @@ int PSET_SYSV_ABI Pset_sceKernelTriggerEport(void);
 int PSET_SYSV_ABI Pset_sceKernelTriggerUserEvent(void);
 int PSET_SYSV_ABI Pset_sceKernelTruncate(void);
 int PSET_SYSV_ABI Pset_sceKernelUnlink(void);
-int PSET_SYSV_ABI Pset_sceKernelUsleep(void);
 int PSET_SYSV_ABI Pset_sceKernelUtimes(void);
 int PSET_SYSV_ABI Pset_sceKernelUuidCreate(void);
 int PSET_SYSV_ABI Pset_sceKernelVirtualQuery(void);
@@ -787,7 +797,6 @@ int PSET_SYSV_ABI Pset_scePthreadAttrGetstackaddr(void);
 int PSET_SYSV_ABI Pset_scePthreadAttrGetstacksize(void);
 int PSET_SYSV_ABI Pset_scePthreadAttrSetaffinity(void);
 int PSET_SYSV_ABI Pset_scePthreadAttrSetcreatesuspend(void);
-int PSET_SYSV_ABI Pset_scePthreadAttrSetdetachstate(void);
 int PSET_SYSV_ABI Pset_scePthreadAttrSetguardsize(void);
 int PSET_SYSV_ABI Pset_scePthreadAttrSetinheritsched(void);
 int PSET_SYSV_ABI Pset_scePthreadAttrSetschedparam(void);
@@ -817,7 +826,6 @@ int PSET_SYSV_ABI Pset_scePthreadCondSignal(void);
 int PSET_SYSV_ABI Pset_scePthreadCondSignalto(void);
 int PSET_SYSV_ABI Pset_scePthreadCondTimedwait(void);
 int PSET_SYSV_ABI Pset_scePthreadCondWait(void);
-int PSET_SYSV_ABI Pset_scePthreadCreate(void);
 int PSET_SYSV_ABI Pset_scePthreadDetach(void);
 int PSET_SYSV_ABI Pset_scePthreadEqual(void);
 int PSET_SYSV_ABI Pset_scePthreadExit(void);
@@ -873,7 +881,6 @@ int PSET_SYSV_ABI Pset_scePthreadRwlockTryrdlock(void);
 int PSET_SYSV_ABI Pset_scePthreadRwlockTrywrlock(void);
 int PSET_SYSV_ABI Pset_scePthreadRwlockUnlock(void);
 int PSET_SYSV_ABI Pset_scePthreadRwlockWrlock(void);
-int PSET_SYSV_ABI Pset_scePthreadSetaffinity(void);
 int PSET_SYSV_ABI Pset_scePthreadSetBesteffort(void);
 int PSET_SYSV_ABI Pset_scePthreadSetcancelstate(void);
 int PSET_SYSV_ABI Pset_scePthreadSetcanceltype(void);

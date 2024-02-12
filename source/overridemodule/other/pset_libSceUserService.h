@@ -2,7 +2,30 @@
 #include "overridemodule/PsetLibraryCommon.h"
 
 #define USER_ID_DEFAULT 0x1111
-int PSET_SYSV_ABI Pset_sceUserServiceGetInitialUser(void);
+
+#define SCE_USER_SERVICE_MAX_LOGIN_USERS (4)
+#define SCE_USER_SERVICE_MAX_USER_NAME_LENGTH (16)
+#define SCE_USER_SERVICE_USER_ID_INVALID (-1)
+#define SCE_USER_SERVICE_USER_ID_SYSTEM (0xFF)
+#define SCE_USER_SERVICE_USER_ID_EVERYONE (0xFE)
+
+#define SCE_USER_SERVICE_ERROR_INTERNAL			-2137653247	 // 0x80960001
+#define SCE_USER_SERVICE_ERROR_NOT_INITIALIZED	-2137653246	 // 0x80960002
+#define SCE_USER_SERVICE_ERROR_ALREADY_INITIALIZED -2137653245	 // 0x80960003
+#define SCE_USER_SERVICE_ERROR_NO_MEMORY		-2137653244	 // 0x80960004
+#define SCE_USER_SERVICE_ERROR_INVALID_ARGUMENT	-2137653243	 // 0x80960005
+#define SCE_USER_SERVICE_ERROR_OPERATION_NOT_SUPPORTED -2137653242	 // 0x80960006
+#define SCE_USER_SERVICE_ERROR_NO_EVENT			-2137653241	 // 0x80960007
+#define SCE_USER_SERVICE_ERROR_NOT_LOGGED_IN	-2137653239	 // 0x80960009
+#define SCE_USER_SERVICE_ERROR_BUFFER_TOO_SHORT	-2137653238	 // 0x8096000A
+
+struct SSceUserServiceLoginUserIdList
+{
+	int m_userId[SCE_USER_SERVICE_MAX_LOGIN_USERS];
+};
+
+int PSET_SYSV_ABI Pset_sceUserServiceGetInitialUser(int* userID);
+int PSET_SYSV_ABI Pset_sceUserServiceGetLoginUserIdList(SSceUserServiceLoginUserIdList* useIdList);
 
 
 int PSET_SYSV_ABI Pset_sceUserServiceInitializeForShellCore(void);
@@ -109,7 +132,6 @@ int PSET_SYSV_ABI Pset_sceUserServiceGetKratosPrimaryUser(void);
 int PSET_SYSV_ABI Pset_sceUserServiceGetLastLoginOrder(void);
 int PSET_SYSV_ABI Pset_sceUserServiceGetLightBarBaseBrightness(void);
 int PSET_SYSV_ABI Pset_sceUserServiceGetLoginFlag(void);
-int PSET_SYSV_ABI Pset_sceUserServiceGetLoginUserIdList(void);
 int PSET_SYSV_ABI Pset_sceUserServiceGetMicLevel(void);
 int PSET_SYSV_ABI Pset_sceUserServiceGetMouseHandType(void);
 int PSET_SYSV_ABI Pset_sceUserServiceGetMousePointerSpeed(void);

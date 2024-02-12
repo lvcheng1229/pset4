@@ -1,7 +1,7 @@
 #include "pset_kernel_error.h"
 #include "pset_libkernel_pthread.h"
 
-int pthreadErrorToSceError(int perror)
+static int pthreadErrorToSceError(int perror)
 {
 	int sceError = SCE_KERNEL_ERROR_UNKNOWN;
 
@@ -128,6 +128,23 @@ int pthreadErrorToSceError(int perror)
 	return sceError;
 }
 
+inline int ConvertSceDetachStateToPthreadState(int oldState)
+{
+	int newState = -1;
+	switch (oldState)
+	{
+	case SCE_PTHREAD_CREATE_DETACHED:
+		newState = PTHREAD_CREATE_DETACHED;
+		break;
+	case SCE_PTHREAD_CREATE_JOINABLE:
+		newState = PTHREAD_CREATE_JOINABLE;
+		break;
+	default:
+		assert(false);
+		break;
+	}
+	return newState;
+}
 
 int PSET_SYSV_ABI Pset_scePthreadMutexattrInit(pthread_mutexattr_t* pAttr)
 {
@@ -222,7 +239,7 @@ pthread_t PSET_SYSV_ABI Pset_scePthreadSelf(void)
 int PSET_SYSV_ABI Pset_scePthreadMutexLock(spset_pthread_mutex_t** mutex)
 {
 	//PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexLock");
-	int err = pthread_mutex_lock(&((*mutex)->handle));
+	int err = Pset_pthread_mutex_lock(&((*mutex)->handle));
 	assert(err == 0);
 	return PSET_OK;
 }
@@ -230,7 +247,7 @@ int PSET_SYSV_ABI Pset_scePthreadMutexLock(spset_pthread_mutex_t** mutex)
 int PSET_SYSV_ABI Pset_scePthreadMutexUnlock(spset_pthread_mutex_t** mutex)
 {
 	//PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexUnlock");
-	int err = pthread_mutex_unlock(&((*mutex)->handle));
+	int err = Pset_pthread_mutex_unlock(&((*mutex)->handle));
 	assert(err == 0);
 	return PSET_OK;
 }
@@ -258,36 +275,41 @@ int PSET_SYSV_ABI Pset_scePthreadAttrDestroy(spset_pthread_attr_t** attr)
 	return PSET_OK;
 }
 
+
 int PSET_SYSV_ABI Pset_pthread_mutex_lock(pthread_mutex_t* mtx)
 {
-	//PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_mutex_lock");
-	int err = pthread_mutex_lock(mtx);
-	assert(err == 0);
-	return PSET_OK;
+	//PSET_LOG_IMPLEMENTED(std::format("implemented function: Pset_pthread_mutex_lock pointer:{}", uint64_t(mtx)));
+	int err = pthread_mutex_trylock(mtx);
+	if (err == EBUSY)
+	{
+		//PSET_LOG_ERROR("Pset_pthread_mutex_lock::Failed To Lock");
+	}
+	//assert(err == 0);
+	return pthreadErrorToSceError(err);
 }
 
 int PSET_SYSV_ABI Pset_pthread_mutex_unlock(pthread_mutex_t* mtx)
 {
-	//PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_mutex_unlock");
+	//PSET_LOG_IMPLEMENTED(std::format("implemented function: Pset_pthread_mutex_unlock pointer:{}", uint64_t(mtx)));
 	int err = pthread_mutex_unlock(mtx);
 	assert(err == 0);;
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_pthread_cond_broadcast(pthread_cond_t** pPcond)
+int PSET_SYSV_ABI Pset_pthread_cond_broadcast(pthread_cond_t* pCond)
 {
 	//TODO:
 
-	assert(pPcond != nullptr);
-	pthread_cond_t* pCond = *pPcond;
-	if (pCond == nullptr)
+	assert(pCond != nullptr);
+	if (*pCond == 0)
 	{
 		return PSET_OK;
 	}
 	
 	PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_cond_broadcast");
 	int err = pthread_cond_broadcast(pCond);
-	assert(err == 0);
+	//assert(err == 0);
+	//return pthreadErrorToSceError(err);
 	return PSET_OK;
 }
 
@@ -305,5 +327,51 @@ int PSET_SYSV_ABI Pset_scePthreadMutexDestroy(spset_pthread_mutex_t** pMutex)
 	int err = pthread_mutex_destroy(&((*pMutex)->handle));
 	assert(err == 0);
 	free(*pMutex);
+	return PSET_OK;
+}
+
+int PSET_SYSV_ABI Pset_scePthreadAttrSetdetachstate(spset_pthread_attr_t** attr, int state)
+{
+	PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadAttrSetdetachstate");
+	int pthreadState = ConvertSceDetachStateToPthreadState(state);
+	int err = pthread_attr_setdetachstate(&((*attr)->handle), pthreadState);
+	assert(err == 0);
+	return PSET_OK;
+}
+
+int PSET_SYSV_ABI Pset_scePthreadSetaffinity(pthread_t thread, const uint64_t mask)
+{
+	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadSetaffinity");
+	return PSET_OK;
+}
+
+typedef void* (PSET_SYSV_ABI* PFUNC_PS4_THREAD_ENTRY)(void*);
+struct SCE_THREAD_PARAM
+{
+	void* entry;
+	void* arg;
+};
+void* newThreadWrapper(void* arg)
+{
+	SCE_THREAD_PARAM* param = (SCE_THREAD_PARAM*)arg;
+	PFUNC_PS4_THREAD_ENTRY pSceEntry = (PFUNC_PS4_THREAD_ENTRY)param->entry;
+	return  pSceEntry(param->arg);
+}
+
+int PSET_SYSV_ABI Pset_scePthreadCreate(pthread_t* pthread, spset_pthread_attr_t** attr, void* (PSET_SYSV_ABI*entry) (void*), void* arg, const char* name)
+{
+	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadCreate:Name" + std::string(name));
+	SCE_THREAD_PARAM* param = new SCE_THREAD_PARAM();
+	param->entry = (void*)entry;
+	param->arg = arg;
+	int err = pthread_create(pthread, attr ? &((*attr)->handle) : nullptr, newThreadWrapper, param);
+	assert(err == 0);
+	return PSET_OK;
+}
+
+int PSET_SYSV_ABI Pset_sceKernelUsleep(uint32_t ms)
+{
+	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelUsleep");
+	std::this_thread::sleep_for(std::chrono::microseconds(ms));
 	return PSET_OK;
 }

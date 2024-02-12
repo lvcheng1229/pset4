@@ -56,7 +56,7 @@ int64_t PSET_SYSV_ABI Pset_sceKernelLseek(int fileHandle, int64_t offset, int or
 
 int64_t  PSET_SYSV_ABI Pset_sceKernelRead(int fileHandle, void* destBuffer, size_t maxCharCount)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelRead");
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelRead");
 	return _read(fileHandle, destBuffer, maxCharCount);
 }
 

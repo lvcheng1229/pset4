@@ -1,5 +1,53 @@
 #pragma once
-#include "PsetLibraryCommon.h" 
+#include "overridemodule/PsetLibraryCommon.h" 
+
+#define SCE_PAD_DEVICE_CLASS_INVALID -1;
+#define SCE_PAD_DEVICE_CLASS_STANDARD  0;
+#define SCE_PAD_DEVICE_CLASS_GUITAR  1;
+#define SCE_PAD_DEVICE_CLASS_DRUM  2;
+#define SCE_PAD_DEVICE_CLASS_DJ_TURNTABLE  3;
+#define SCE_PAD_DEVICE_CLASS_DANCEMAT  4;
+#define SCE_PAD_DEVICE_CLASS_NAVIGATION  5;
+#define SCE_PAD_DEVICE_CLASS_STEERING_WHEEL  6;
+#define SCE_PAD_DEVICE_CLASS_STICK  7;
+#define SCE_PAD_DEVICE_CLASS_FLIGHT_STICK  8;
+#define SCE_PAD_DEVICE_CLASS_GUN 9;
+
+#define SCE_PAD_CONNECTION_TYPE_LOCAL              0
+#define SCE_PAD_CONNECTION_TYPE_REMOTE_VITA        1
+#define SCE_PAD_CONNECTION_TYPE_REMOTE_DUALSHOCK4  2
+
+struct SScePadTouchPadInformation
+{
+	float m_pixelDensity;
+	struct
+	{
+		uint16_t x;
+		uint16_t y;
+	} m_resolution;
+};
+
+struct SScePadStickInformation
+{
+	uint8_t m_deadZoneLeft;
+	uint8_t m_deadZoneRight;
+};
+
+struct SScePadControllerInformation
+{
+	SScePadTouchPadInformation m_touchPadInfo;
+	SScePadStickInformation m_stickInfo;
+	uint8_t m_connectionType;
+	uint8_t m_connectedCount;
+	bool m_connected;
+	int64_t m_deviceClass;
+	uint8_t reserve[8];
+};
+
+int PSET_SYSV_ABI Pset_scePadOpen(int32_t userID, int32_t type, int32_t index, void* param);
+int PSET_SYSV_ABI Pset_scePadGetControllerInformation(int32_t handle, SScePadControllerInformation* pInfo);
+
+
 int PSET_SYSV_ABI Pset_scePadClose(void);
 int PSET_SYSV_ABI Pset_scePadConnectPort(void);
 int PSET_SYSV_ABI Pset_scePadDeviceClassGetExtendedInformation(void);
@@ -14,7 +62,6 @@ int PSET_SYSV_ABI Pset_scePadEnableSpecificDeviceClass(void);
 int PSET_SYSV_ABI Pset_scePadEnableUsbConnection(void);
 int PSET_SYSV_ABI Pset_scePadGetBluetoothAddress(void);
 int PSET_SYSV_ABI Pset_scePadGetCapability(void);
-int PSET_SYSV_ABI Pset_scePadGetControllerInformation(void);
 int PSET_SYSV_ABI Pset_scePadGetDataInternal(void);
 int PSET_SYSV_ABI Pset_scePadGetDeviceId(void);
 int PSET_SYSV_ABI Pset_scePadGetDeviceInfo(void);
@@ -39,7 +86,6 @@ int PSET_SYSV_ABI Pset_scePadIsMoveReproductionModel(void);
 int PSET_SYSV_ABI Pset_scePadIsValidHandle(void);
 int PSET_SYSV_ABI Pset_scePadMbusInit(void);
 int PSET_SYSV_ABI Pset_scePadMbusTerm(void);
-int PSET_SYSV_ABI Pset_scePadOpen(void);
 int PSET_SYSV_ABI Pset_scePadOpenExt(void);
 int PSET_SYSV_ABI Pset_scePadOpenExt2(void);
 int PSET_SYSV_ABI Pset_scePadOutputReport(void);
