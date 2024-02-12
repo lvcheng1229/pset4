@@ -106,7 +106,7 @@ int PSET_SYSV_ABI Pset_sceSystemServiceParamGetInt(int32_t paramId, int32_t* val
 	switch (paramId)
 	{
 	case SCE_SYSTEM_SERVICE_PARAM_ID_LANG:
-		param = SCE_SYSTEM_PARAM_LANG_CHINESE_T;
+		param = SCE_SYSTEM_PARAM_LANG_ENGLISH_US;
 		break;
 	case SCE_SYSTEM_SERVICE_PARAM_ID_DATE_FORMAT:
 		param = SCE_SYSTEM_PARAM_DATE_FORMAT_DDMMYYYY;

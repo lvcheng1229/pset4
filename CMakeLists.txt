@@ -13,12 +13,23 @@ file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Source" FILES ${HEADER_FILES} ${SOURCE_FILES})
 include_directories(${PSET4_ROOT_DIR}/source)
 
+# vulkan
+include_directories(${PSET4_ROOT_DIR}/thirdparty/vulkan/include)
+link_directories(${PSET4_ROOT_DIR}/thirdparty/vulkan/Lib)
+link_libraries(vulkan-1)
+
+# glfw
+add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty/glfw)
+link_libraries(glfw)
+
 # winpthreads
 add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty/winpthreads)
 target_include_directories(winpthreads PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/winpthreads)
 link_libraries(winpthreads)
 
+
 # thirdparty
+include_directories(${PSET4_ROOT_DIR}/thirdparty/glfw/include)
 include_directories(${PSET4_ROOT_DIR}/thirdparty/spdlog)
 include_directories(${PSET4_ROOT_DIR}/thirdparty/cxxopts)
 

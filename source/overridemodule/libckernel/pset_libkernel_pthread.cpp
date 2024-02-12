@@ -221,7 +221,7 @@ pthread_t PSET_SYSV_ABI Pset_scePthreadSelf(void)
 
 int PSET_SYSV_ABI Pset_scePthreadMutexLock(spset_pthread_mutex_t** mutex)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexLock");
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexLock");
 	int err = pthread_mutex_lock(&((*mutex)->handle));
 	assert(err == 0);
 	return PSET_OK;
@@ -229,7 +229,7 @@ int PSET_SYSV_ABI Pset_scePthreadMutexLock(spset_pthread_mutex_t** mutex)
 
 int PSET_SYSV_ABI Pset_scePthreadMutexUnlock(spset_pthread_mutex_t** mutex)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexUnlock");
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexUnlock");
 	int err = pthread_mutex_unlock(&((*mutex)->handle));
 	assert(err == 0);
 	return PSET_OK;
@@ -258,57 +258,9 @@ int PSET_SYSV_ABI Pset_scePthreadAttrDestroy(spset_pthread_attr_t** attr)
 	return PSET_OK;
 }
 
-//int PSET_SYSV_ABI Pset_scePthreadMutexattrInit(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrInit");
-//	return PSET_OK;
-//}
-
-//int PSET_SYSV_ABI Pset_scePthreadMutexInit(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexInit");
-//	return PSET_OK;
-//}
-
-//int PSET_SYSV_ABI Pset_scePthreadMutexattrSettype(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrSettype");
-//	return PSET_OK;
-//}
-
-//int PSET_SYSV_ABI Pset_scePthreadMutexattrDestroy(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexattrDestroy");
-//	return PSET_OK;
-//}
-
-//int PSET_SYSV_ABI Pset_scePthreadAttrInit(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadAttrInit");
-//	return PSET_OK;
-//}
-
-//int PSET_SYSV_ABI Pset_scePthreadSelf(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadSelf");
-//	return PSET_OK;
-//}
-
-//int PSET_SYSV_ABI Pset_scePthreadMutexLock(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexLock");
-//	return PSET_OK;
-//}
-
-//int PSET_SYSV_ABI Pset_scePthreadMutexUnlock(void)
-//{
-//	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_scePthreadMutexUnlock");
-//	return PSET_OK;
-//}
-
 int PSET_SYSV_ABI Pset_pthread_mutex_lock(pthread_mutex_t* mtx)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_mutex_lock");
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_mutex_lock");
 	int err = pthread_mutex_lock(mtx);
 	assert(err == 0);
 	return PSET_OK;
@@ -316,7 +268,7 @@ int PSET_SYSV_ABI Pset_pthread_mutex_lock(pthread_mutex_t* mtx)
 
 int PSET_SYSV_ABI Pset_pthread_mutex_unlock(pthread_mutex_t* mtx)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_mutex_unlock");
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_mutex_unlock");
 	int err = pthread_mutex_unlock(mtx);
 	assert(err == 0);;
 	return PSET_OK;
