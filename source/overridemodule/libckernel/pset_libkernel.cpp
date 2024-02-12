@@ -452,11 +452,7 @@ int PSET_SYSV_ABI Pset__listen(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset__nanosleep(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset__nanosleep");
-	return PSET_OK;
-}
+
 
 int PSET_SYSV_ABI Pset__open(void)
 {
@@ -1262,12 +1258,6 @@ int PSET_SYSV_ABI Pset_munlockall(void)
 int PSET_SYSV_ABI Pset_munmap(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_munmap");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_nanosleep(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_nanosleep");
 	return PSET_OK;
 }
 

@@ -59,6 +59,10 @@ int PSET_SYSV_ABI Pset_scePthreadSetaffinity(pthread_t thread, const uint64_t ma
 int PSET_SYSV_ABI Pset_scePthreadCreate(pthread_t* pthread, spset_pthread_attr_t** attr, void* (PSET_SYSV_ABI* entry) (void*), void* arg, const char* name);
 int PSET_SYSV_ABI Pset_sceKernelUsleep(uint32_t ms);
 
+int PSET_SYSV_ABI Pset__nanosleep(const struct timespec* request, struct timespec* remain);
+int PSET_SYSV_ABI Pset_nanosleep(const struct timespec* request, struct timespec* remain);
+
+
 
 
 

@@ -18,7 +18,29 @@
 #define SCE_AUDIO_OUT_PARAM_FORMAT_MASK  0x000000FF
 #define SCE_AUDIO_OUT_PARAM_FORMAT_SHIFT 0
 
-#define SCE_AUDIO_OUT_ERROR_TRANS_EVENT -2144993262
+
+#define SCE_AUDIO_OUT_ERROR_NOT_OPENED -2144993279; // 0x80260001
+#define SCE_AUDIO_OUT_ERROR_BUSY -2144993278; // 0x80260002
+#define SCE_AUDIO_OUT_ERROR_INVALID_PORT -2144993277; // 0x80260003
+#define SCE_AUDIO_OUT_ERROR_INVALID_POINTER -2144993276; // 0x80260004
+#define SCE_AUDIO_OUT_ERROR_PORT_FULL -2144993275; // 0x80260005
+#define SCE_AUDIO_OUT_ERROR_INVALID_SIZE -2144993274; // 0x80260006
+#define SCE_AUDIO_OUT_ERROR_INVALID_FORMAT -2144993273; // 0x80260007
+#define SCE_AUDIO_OUT_ERROR_INVALID_SAMPLE_FREQ -2144993272; // 0x80260008
+#define SCE_AUDIO_OUT_ERROR_INVALID_VOLUME -2144993271; // 0x80260009
+#define SCE_AUDIO_OUT_ERROR_INVALID_PORT_TYPE -2144993270; // 0x8026000A
+#define SCE_AUDIO_OUT_ERROR_INVALID_CONF_TYPE -2144993268; // 0x8026000C
+#define SCE_AUDIO_OUT_ERROR_OUT_OF_MEMORY -2144993267; // 0x8026000D
+#define SCE_AUDIO_OUT_ERROR_ALREADY_INIT -2144993266; // 0x8026000E
+#define SCE_AUDIO_OUT_ERROR_NOT_INIT -2144993265; // 0x8026000F
+#define SCE_AUDIO_OUT_ERROR_MEMORY -2144993264; // 0x80260010
+#define SCE_AUDIO_OUT_ERROR_SYSTEM_RESOURCE -2144993263; // 0x80260011
+
+#define SCE_AUDIO_OUT_ERROR_TRANS_EVENT -2144993262; // 0x80260012
+#define SCE_AUDIO_OUT_ERROR_INVALID_FLAG -2144993261; // 0x80260013
+#define SCE_AUDIO_OUT_ERROR_INVALID_MIXLEVEL -2144993260; // 0x80260014
+#define SCE_AUDIO_OUT_ERROR_INVALID_ARG -2144993259; // 0x80260015
+#define SCE_AUDIO_OUT_ERROR_INVALID_PARAM -2144993258; // 0x80260016
 
 template<typename T>
 class CThreadSafeQueue
@@ -73,6 +95,7 @@ struct SAudioProperties
 	uint32_t m_bytesPerSample;
 	uint32_t m_audioFormat;
 };
+
 
 struct SAudioOutContext
 {
@@ -326,7 +349,7 @@ int PSET_SYSV_ABI Pset_sceAudioOutOpen(int32_t userID, int32_t type, int32_t ind
 
 int PSET_SYSV_ABI Pset_sceAudioOutOutput(int32_t handle, const void* ptr)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceAudioOutOutput");
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_sceAudioOutOutput");
 	assert(handle < gAudioOutNum);
 	int err = gAudioOut[handle].AudioOutput(ptr);
 	if (err != 0)
@@ -335,6 +358,24 @@ int PSET_SYSV_ABI Pset_sceAudioOutOutput(int32_t handle, const void* ptr)
 	}
 	return PSET_OK;
 }
+
+int PSET_SYSV_ABI Pset_sceAudioOutOutputs(SSceAudioOutOutputParam* params, uint64_t count)
+{
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_sceAudioOutOutputs");
+	//if (params == nullptr) return SCE_AUDIO_OUT_ERROR_INVALID_POINTER;
+	//if (count == 0) return SCE_AUDIO_OUT_ERROR_INVALID_PARAM;
+	//for (uint32_t index = 0; index < count; index++)
+	//{
+	//	int err = Pset_sceAudioOutOutput(params[index].handle, params[index].ptr);
+	//	if (err != 0)
+	//	{
+	//		return SCE_AUDIO_OUT_ERROR_TRANS_EVENT;
+	//	}
+	//}
+	return PSET_OK;
+}
+
+
 
 
 int PSET_SYSV_ABI Pset_sceAudioOutDeviceIdOpen(void)
@@ -545,12 +586,6 @@ int PSET_SYSV_ABI Pset_sceAudioOutMbusInit(void)
 int PSET_SYSV_ABI Pset_sceAudioOutOpenEx(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceAudioOutOpenEx");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceAudioOutOutputs(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceAudioOutOutputs");
 	return PSET_OK;
 }
 

@@ -375,3 +375,13 @@ int PSET_SYSV_ABI Pset_sceKernelUsleep(uint32_t ms)
 	std::this_thread::sleep_for(std::chrono::microseconds(ms));
 	return PSET_OK;
 }
+
+int PSET_SYSV_ABI Pset__nanosleep(const struct timespec* request, struct timespec* remain)
+{
+	return nanosleep(request, remain);
+}
+
+int PSET_SYSV_ABI Pset_nanosleep(const struct timespec* request, struct timespec* remain)
+{
+	return nanosleep(request, remain);
+}

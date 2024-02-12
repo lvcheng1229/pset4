@@ -10,8 +10,17 @@ public:
 private:
 	std::unique_ptr<SAudioOutContext> m_audioOutContext;
 };
+
+struct SSceAudioOutOutputParam
+{
+	int32_t handle;
+	int32_t align;
+	void* ptr;
+};
+
 int PSET_SYSV_ABI Pset_sceAudioOutOpen(int32_t userID, int32_t type, int32_t index, int32_t length, uint32_t freq, uint32_t param);
 int PSET_SYSV_ABI Pset_sceAudioOutOutput(int32_t handle, const void* ptr);
+int PSET_SYSV_ABI Pset_sceAudioOutOutputs(SSceAudioOutOutputParam* params, uint64_t count);
 
 
 int PSET_SYSV_ABI Pset_sceAudioOutDeviceIdOpen(void);
@@ -49,7 +58,6 @@ int PSET_SYSV_ABI Pset_sceAudioOutMasteringSetParam(void);
 int PSET_SYSV_ABI Pset_sceAudioOutMasteringTerm(void);
 int PSET_SYSV_ABI Pset_sceAudioOutMbusInit(void);
 int PSET_SYSV_ABI Pset_sceAudioOutOpenEx(void);
-int PSET_SYSV_ABI Pset_sceAudioOutOutputs(void);
 int PSET_SYSV_ABI Pset_sceAudioOutPtClose(void);
 int PSET_SYSV_ABI Pset_sceAudioOutPtGetLastOutputTime(void);
 int PSET_SYSV_ABI Pset_sceAudioOutPtOpen(void);

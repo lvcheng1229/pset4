@@ -137,6 +137,27 @@ int PSET_SYSV_ABI Pset_sceSystemServiceParamGetInt(int32_t paramId, int32_t* val
 	return PSET_OK;
 }
 
+int PSET_SYSV_ABI Pset_sceSystemServiceReceiveEvent(void)
+{
+	//PSET_LOG_IMPLEMENTED("implemented function: Pset_sceSystemServiceReceiveEvent");
+	return PSET_OK;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int PSET_SYSV_ABI Pset_sceAppMessagingClearEventFlag(void)
 {
@@ -2331,12 +2352,6 @@ int PSET_SYSV_ABI Pset_sceSystemServicePowerTick(void)
 int PSET_SYSV_ABI Pset_sceSystemServiceRaiseExceptionLocalProcess(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceSystemServiceRaiseExceptionLocalProcess");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceSystemServiceReceiveEvent(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceSystemServiceReceiveEvent");
 	return PSET_OK;
 }
 

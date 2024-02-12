@@ -236,6 +236,7 @@ void CPtDynamicLinker::RelocateRelativeSymbols(CPtNativeModule& nativeModule, El
 			if (symAddress)
 			{
 				*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddress);
+				bSymValid = true;
 			}
 			else
 			{
