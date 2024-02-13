@@ -1,5 +1,7 @@
 #pragma once
-#include "PsetLibraryCommon.h" 
+#include "overridemodule/PsetLibraryCommon.h" 
+#include "pset_libSceGnmDriverImpl.h"
+
 int PSET_SYSV_ABI Pset_sceGnmAddEqEvent(void);
 int PSET_SYSV_ABI Pset_sceGnmAreSubmitsAllowed(void);
 int PSET_SYSV_ABI Pset_sceGnmBeginWorkload(void);
@@ -22,7 +24,6 @@ int PSET_SYSV_ABI Pset_sceGnmDispatchDirect(void);
 int PSET_SYSV_ABI Pset_sceGnmDispatchIndirect(void);
 int PSET_SYSV_ABI Pset_sceGnmDispatchIndirectOnMec(void);
 int PSET_SYSV_ABI Pset_sceGnmDispatchInitDefaultHardwareState(void);
-int PSET_SYSV_ABI Pset_sceGnmDrawIndex(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawIndexAuto(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawIndexIndirect(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawIndexIndirectCountMulti(void);
@@ -35,7 +36,6 @@ int PSET_SYSV_ABI Pset_sceGnmDrawIndirectMulti(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState175(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState200(void);
-int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState350(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawInitToDefaultContextState(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawInitToDefaultContextState400(void);
 int PSET_SYSV_ABI Pset_sceGnmDrawOpaqueAuto(void);
@@ -84,7 +84,6 @@ int PSET_SYSV_ABI Pset_sceGnmInsertPushMarker(void);
 int PSET_SYSV_ABI Pset_sceGnmInsertSetColorMarker(void);
 int PSET_SYSV_ABI Pset_sceGnmInsertSetMarker(void);
 int PSET_SYSV_ABI Pset_sceGnmInsertThreadTraceMarker(void);
-int PSET_SYSV_ABI Pset_sceGnmInsertWaitFlipDone(void);
 int PSET_SYSV_ABI Pset_sceGnmIsCoredumpValid(void);
 int PSET_SYSV_ABI Pset_sceGnmIsUserPaEnabled(void);
 int PSET_SYSV_ABI Pset_sceGnmLogicalCuIndexToPhysicalCuIndex(void);
@@ -123,14 +122,12 @@ int PSET_SYSV_ABI Pset_sceGnmSetGsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmSetHsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmSetLsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmSetPsShader(void);
-int PSET_SYSV_ABI Pset_sceGnmSetPsShader350(void);
 int PSET_SYSV_ABI Pset_sceGnmSetResourceRegistrationUserMemory(void);
 int PSET_SYSV_ABI Pset_sceGnmSetResourceUserData(void);
 int PSET_SYSV_ABI Pset_sceGnmSetSpiEnableSqCounters(void);
 int PSET_SYSV_ABI Pset_sceGnmSetSpiEnableSqCountersForUnitInstance(void);
 int PSET_SYSV_ABI Pset_sceGnmSetupMipStatsReport(void);
 int PSET_SYSV_ABI Pset_sceGnmSetVgtControl(void);
-int PSET_SYSV_ABI Pset_sceGnmSetVsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmSetWaveLimitMultiplier(void);
 int PSET_SYSV_ABI Pset_sceGnmSetWaveLimitMultipliers(void);
 int PSET_SYSV_ABI Pset_sceGnmSpmEndSpm(void);
@@ -170,11 +167,9 @@ int PSET_SYSV_ABI Pset_sceGnmSqttStopTrace(void);
 int PSET_SYSV_ABI Pset_sceGnmSqttSwitchTraceBuffer(void);
 int PSET_SYSV_ABI Pset_sceGnmSqttSwitchTraceBuffer2(void);
 int PSET_SYSV_ABI Pset_sceGnmSqttWaitForEvent(void);
-int PSET_SYSV_ABI Pset_sceGnmSubmitAndFlipCommandBuffers(void);
 int PSET_SYSV_ABI Pset_sceGnmSubmitAndFlipCommandBuffersForWorkload(void);
 int PSET_SYSV_ABI Pset_sceGnmSubmitCommandBuffers(void);
 int PSET_SYSV_ABI Pset_sceGnmSubmitCommandBuffersForWorkload(void);
-int PSET_SYSV_ABI Pset_sceGnmSubmitDone(void);
 int PSET_SYSV_ABI Pset_sceGnmUnmapComputeQueue(void);
 int PSET_SYSV_ABI Pset_sceGnmUnregisterAllResourcesForOwner(void);
 int PSET_SYSV_ABI Pset_sceGnmUnregisterOwnerAndResources(void);
@@ -183,7 +178,6 @@ int PSET_SYSV_ABI Pset_sceGnmUpdateGsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmUpdateHsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmUpdatePsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmUpdatePsShader350(void);
-int PSET_SYSV_ABI Pset_sceGnmUpdateVsShader(void);
 int PSET_SYSV_ABI Pset_sceGnmValidateCommandBuffers(void);
 int PSET_SYSV_ABI Pset_sceGnmValidateDisableDiagnostics(void);
 int PSET_SYSV_ABI Pset_sceGnmValidateDisableDiagnostics2(void);

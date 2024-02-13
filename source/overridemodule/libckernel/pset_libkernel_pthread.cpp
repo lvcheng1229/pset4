@@ -239,9 +239,7 @@ pthread_t PSET_SYSV_ABI Pset_scePthreadSelf(void)
 int PSET_SYSV_ABI Pset_scePthreadMutexLock(spset_pthread_mutex_t** mutex)
 {
 	//PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexLock");
-	int err = Pset_pthread_mutex_lock(&((*mutex)->handle));
-	assert(err == 0);
-	return PSET_OK;
+	return Pset_pthread_mutex_lock(&((*mutex)->handle));
 }
 
 int PSET_SYSV_ABI Pset_scePthreadMutexUnlock(spset_pthread_mutex_t** mutex)
@@ -371,7 +369,6 @@ int PSET_SYSV_ABI Pset_scePthreadCreate(pthread_t* pthread, spset_pthread_attr_t
 
 int PSET_SYSV_ABI Pset_sceKernelUsleep(uint32_t ms)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelUsleep");
 	std::this_thread::sleep_for(std::chrono::microseconds(ms));
 	return PSET_OK;
 }

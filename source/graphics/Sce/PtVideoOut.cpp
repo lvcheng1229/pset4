@@ -1,5 +1,5 @@
 #include <vector>
-
+#include "graphics\RHI\RHIDeviceCommand.h"
 #define GLFW_INCLUDE_VULKAN
 #include"GLFW\glfw3.h"
 
@@ -26,6 +26,8 @@ CPtDisplay::CPtDisplay()
 	
 	glfwSetWindowSizeCallback(m_glfwWindow, GLFWWindowSizeFun);
 	glfwSetFramebufferSizeCallback(m_glfwWindow, GLFWFramebufferSizeFun);
+
+	TestRHIFunc(m_glfwWindow);
 }
 
 

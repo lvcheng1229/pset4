@@ -134,12 +134,6 @@ int PSET_SYSV_ABI Pset_sceGnmDispatchInitDefaultHardwareState(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceGnmDrawIndex(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmDrawIndex");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_sceGnmDrawIndexAuto(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmDrawIndexAuto");
@@ -209,12 +203,6 @@ int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState175(void)
 int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState200(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmDrawInitDefaultHardwareState200");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState350(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmDrawInitDefaultHardwareState350");
 	return PSET_OK;
 }
 
@@ -506,12 +494,6 @@ int PSET_SYSV_ABI Pset_sceGnmInsertThreadTraceMarker(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceGnmInsertWaitFlipDone(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmInsertWaitFlipDone");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_sceGnmIsCoredumpValid(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmIsCoredumpValid");
@@ -740,12 +722,6 @@ int PSET_SYSV_ABI Pset_sceGnmSetPsShader(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceGnmSetPsShader350(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSetPsShader350");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_sceGnmSetResourceRegistrationUserMemory(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSetResourceRegistrationUserMemory");
@@ -779,12 +755,6 @@ int PSET_SYSV_ABI Pset_sceGnmSetupMipStatsReport(void)
 int PSET_SYSV_ABI Pset_sceGnmSetVgtControl(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSetVgtControl");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceGnmSetVsShader(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSetVsShader");
 	return PSET_OK;
 }
 
@@ -1022,12 +992,6 @@ int PSET_SYSV_ABI Pset_sceGnmSqttWaitForEvent(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceGnmSubmitAndFlipCommandBuffers(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitAndFlipCommandBuffers");
-	return PSET_OK;
-}
-
 int PSET_SYSV_ABI Pset_sceGnmSubmitAndFlipCommandBuffersForWorkload(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitAndFlipCommandBuffersForWorkload");
@@ -1043,12 +1007,6 @@ int PSET_SYSV_ABI Pset_sceGnmSubmitCommandBuffers(void)
 int PSET_SYSV_ABI Pset_sceGnmSubmitCommandBuffersForWorkload(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitCommandBuffersForWorkload");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceGnmSubmitDone(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitDone");
 	return PSET_OK;
 }
 
@@ -1097,12 +1055,6 @@ int PSET_SYSV_ABI Pset_sceGnmUpdatePsShader(void)
 int PSET_SYSV_ABI Pset_sceGnmUpdatePsShader350(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmUpdatePsShader350");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceGnmUpdateVsShader(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmUpdateVsShader");
 	return PSET_OK;
 }
 
