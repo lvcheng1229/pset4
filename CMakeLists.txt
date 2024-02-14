@@ -7,6 +7,16 @@ set(PSET4_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
 project(pset4 VERSION 0.1.0)
 
+include (TestBigEndian)
+TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
+if(IS_BIG_ENDIAN)
+ message(STATUS "BIG_ENDIAN")
+ add_definitions(-DLITTLEENDIAN_CPU)
+else()
+ message(STATUS "LITTLE_ENDIAN")
+ add_definitions(-DLITTLEENDIAN_CPU)
+endif()
+
 # source file
 file(GLOB_RECURSE HEADER_FILES "${CMAKE_CURRENT_SOURCE_DIR}/source/*.h")
 file(GLOB_RECURSE SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")

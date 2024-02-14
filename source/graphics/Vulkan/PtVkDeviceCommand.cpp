@@ -12,6 +12,16 @@ const std::vector<const char*>gDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_N
 
 VKAPI_ATTR VkBool32 VKAPI_CALL VkDebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 
+static CPtVkDeviceCommand* gVkDeviceCommand;
+CRHIDeviceCommand* GetRHIDevieCommnad()
+{
+    if (gVkDeviceCommand == nullptr)
+    {
+        gVkDeviceCommand = new CPtVkDeviceCommand();
+    }
+    return gVkDeviceCommand;
+}
+
 std::vector<const char*> getRequiredExtensions() 
 {
     uint32_t glfwExtensionCount = 0;
@@ -462,6 +472,12 @@ void CPtVkDeviceCommand::Init(void* windowHandle)
     CreateCommandPool();
     CreateCommandBuffer();
     CreateSyncObjects();
+
+    if (bInit)
+    {
+        assert(false);
+    }
+    bInit = true;
 }
 
 

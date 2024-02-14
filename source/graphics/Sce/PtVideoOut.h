@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include "core\PtUtil.h"
 
-class GLFWwindow;
+struct GLFWwindow;
 class CPtDisplay
 {
 public:

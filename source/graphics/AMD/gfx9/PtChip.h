@@ -15,9 +15,30 @@
 
 #include "chip/gfx10_sq_ko_reg.h"
 
-using PM4_PT_TYPE_3_HEADER = Pal::Gfx9::PM4_ME_TYPE_3_HEADER;
+namespace Pal
+{
+	namespace Gfx9
+	{
+		inline namespace Chip
+		{
+			namespace XGfx = Gfx09;
+		}
+	}
+}
+namespace PtGfx = Pal::Gfx9;
+
+
+using PM4_PT_TYPE_3_HEADER = PtGfx::PM4_ME_TYPE_3_HEADER;
+using SPI_SHADER_PGM_RSRC2_VS = PtGfx::SPI_SHADER_PGM_RSRC2_VS;
+using SPI_SHADER_PGM_RSRC2_PS = PtGfx::SPI_SHADER_PGM_RSRC2_PS;
+using SPI_PS_INPUT_ENA = PtGfx::SPI_PS_INPUT_ENA;
+
 using PM4_HEADER_COMMON = PM4_PT_TYPE_3_HEADER;
 
-#define PM4_TYPE_0 (Pal::Gfx9::PM4_TYPE_0)
-#define PM4_TYPE_2 (Pal::Gfx9::PM4_TYPE_2)
-#define PM4_TYPE_3 (Pal::Gfx9::PM4_TYPE_3)
+#define PM4_TYPE_0 (PtGfx::PM4_TYPE_0)
+#define PM4_TYPE_2 (PtGfx::PM4_TYPE_2)
+#define PM4_TYPE_3 (PtGfx::PM4_TYPE_3)
+
+
+
+

@@ -1,6 +1,5 @@
 #pragma once
 #include "overridemodule\PsetLibraryCommon.h" 
-#include "graphics\Gnm\Pm4Defs.h"
 #include "graphics\Gnm\GnmStructure.h"
 
 int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState350(int32_t* cmdBuffer, int32_t numDwords);

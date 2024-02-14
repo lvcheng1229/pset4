@@ -1,4 +1,6 @@
 #include "pset_libSceGnmDriverImpl.h"
+#include "graphics\Gnm\PtGnmDriver.h"
+
 
 int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState350(int32_t* cmdBuffer, int32_t numDwords)
 {
@@ -101,7 +103,7 @@ int PSET_SYSV_ABI Pset_sceGnmSubmitAndFlipCommandBuffers(uint32_t count, void* d
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitAndFlipCommandBuffers");
 	//TODO: see gpcs4 and fpcs4
-
+	GetPtGnmDriver()->SubmitAndFlipCommandBuffers(count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 	return PSET_OK;
 }
 

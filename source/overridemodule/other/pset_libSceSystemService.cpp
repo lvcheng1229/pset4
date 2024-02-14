@@ -89,7 +89,6 @@ int PSET_SYSV_ABI Pset_sceSystemServiceParamGetInt(int32_t paramId, int32_t* val
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceSystemServiceParamGetInt");
 
-	int ret = SCE_SYSTEM_SERVICE_ERROR_PARAMETER;
 	int32_t param = 0;
 
 	if (!value)

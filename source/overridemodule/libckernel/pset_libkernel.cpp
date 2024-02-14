@@ -8,7 +8,6 @@ SSceProcParam* PSET_SYSV_ABI Pset_sceKernelGetProcParam(void)
 	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelGetProcParam");
 	SSceProcParam* retProcParam = (SSceProcParam*)GetElfModuleLoder()->GetEbootProcParam();
 	assert(retProcParam != nullptr);
-	SSceProcParam debugParam = *retProcParam;
 	return retProcParam;
 }
 

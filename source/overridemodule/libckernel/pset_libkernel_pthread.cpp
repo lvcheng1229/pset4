@@ -306,8 +306,7 @@ int PSET_SYSV_ABI Pset_pthread_cond_broadcast(pthread_cond_t* pCond)
 	
 	PSET_LOG_IMPLEMENTED("implemented function: Pset_pthread_cond_broadcast");
 	int err = pthread_cond_broadcast(pCond);
-	//assert(err == 0);
-	//return pthreadErrorToSceError(err);
+	assert(err == 0);
 	return PSET_OK;
 }
 
