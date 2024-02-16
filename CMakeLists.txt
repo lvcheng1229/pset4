@@ -51,6 +51,7 @@ include_directories(${PSET4_ROOT_DIR}/thirdparty/cxxopts)
 
 # defines
 add_definitions(-DPSET_DEBUG)
+add_definitions(-DPSET_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
 # executable
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SOURCE_FILES_CC} ${SOURCE_FILES_C})

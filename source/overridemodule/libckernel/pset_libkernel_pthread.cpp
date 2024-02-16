@@ -245,9 +245,7 @@ int PSET_SYSV_ABI Pset_scePthreadMutexLock(spset_pthread_mutex_t** mutex)
 int PSET_SYSV_ABI Pset_scePthreadMutexUnlock(spset_pthread_mutex_t** mutex)
 {
 	//PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadMutexUnlock");
-	int err = Pset_pthread_mutex_unlock(&((*mutex)->handle));
-	assert(err == 0);
-	return PSET_OK;
+	return Pset_pthread_mutex_unlock(&((*mutex)->handle));
 }
 
 int PSET_SYSV_ABI Pset_scePthreadAttrGet(pthread_t thread, spset_pthread_attr_t** attr)
@@ -290,8 +288,7 @@ int PSET_SYSV_ABI Pset_pthread_mutex_unlock(pthread_mutex_t* mtx)
 {
 	//PSET_LOG_IMPLEMENTED(std::format("implemented function: Pset_pthread_mutex_unlock pointer:{}", uint64_t(mtx)));
 	int err = pthread_mutex_unlock(mtx);
-	assert(err == 0);;
-	return PSET_OK;
+	return pthreadErrorToSceError(err);
 }
 
 int PSET_SYSV_ABI Pset_pthread_cond_broadcast(pthread_cond_t* pCond)

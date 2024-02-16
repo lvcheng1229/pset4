@@ -11,11 +11,7 @@
 #define PSET_OK 0
 #define SCE_ERROR_ERROR_FLAG           0x80000000
 
-template <typename T1, typename T2>
-inline T1 AlignUp(T1 size, T2 align)
-{
-	return (size / static_cast<T1>(align) + ((size % static_cast<T1>(align)) ? 1 : 0)) * static_cast<T1>(align);
-}
+
 
 #define DEFINE_PSET_ENUM_FLAG_OPERATORS(ENUMTYPE) \
 	inline           ENUMTYPE& operator|=(ENUMTYPE& a, ENUMTYPE b) { return a = (ENUMTYPE)((__underlying_type(ENUMTYPE))a | (__underlying_type(ENUMTYPE))b); } \

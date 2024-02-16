@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
-#include "graphics\AMD\gfx9\PtChip.h"
-#include "PtGnmCommandBuffer.h"
+#include "PtGcnCommandDefs.h"
+#include "graphics\AMD\PtChip.h"
 #include "graphics\Gnm\PtGnmCode.h"
 
 class CPtGnmTranslator
@@ -15,9 +15,10 @@ private:
 	void ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody);
 
 	const PM4_HEADER_COMMON* GetNextPm4(const PM4_HEADER_COMMON* currentPm4, uint32_t step);
+private:
+	void SetShReg(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody);
 
-
-	CPtGnmCommandBuffer m_gnmCmdBuffer;
+	
 
 	// Flip packet is the last pm4 packet of a command buffer,
 	// when flip packet had been processed, we end processing command buffer.
