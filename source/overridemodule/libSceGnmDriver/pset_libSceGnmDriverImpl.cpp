@@ -27,7 +27,7 @@ int PSET_SYSV_ABI Pset_sceGnmInsertWaitFlipDone(uint32_t* cmdBuffer, uint32_t nu
 
 int PSET_SYSV_ABI Pset_sceGnmSetVsShader(uint32_t* cmdBuffer, uint32_t numDwords, const VsStageRegisters* vsRegs, uint32_t shaderModifier)
 {
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSetVsShader");
+	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceGnmSetVsShader");
 	const uint32_t paramSize = sizeof(GnmCmdVSShader) / sizeof(uint32_t);
 	assert(paramSize == numDwords);
 	GnmCmdVSShader* param = (GnmCmdVSShader*)cmdBuffer;

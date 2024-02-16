@@ -44,6 +44,15 @@ void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* i
 	uint32_t opcode = pm4Hdr->opcode;
 	switch (opcode)
 	{
+	case PtGfx::IT_NOP:
+	case PtGfx::IT_ACQUIRE_MEM:
+	case PtGfx::IT_DMA_DATA:
+	case PtGfx::IT_INDEX_TYPE:
+	case PtGfx::IT_SET_CONTEXT_REG:
+	case PtGfx::IT_SET_SH_REG:
+	case PtGfx::IT_SET_UCONFIG_REG:
+		//TODO
+		break;
 	case IT_GNM_PRIVATE:
 		ProcessGnmPrivateOp(pm4Hdr, itBody);
 		break;

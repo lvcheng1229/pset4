@@ -24,7 +24,7 @@ void CPtGnmCommandBuffer::SetPsShader(const PsStageRegisters* psRegs)
 
 void CPtGnmCommandBuffer::DrawIndex(uint32_t indexCount, const void* indexAddr)
 {
-
+	GenerateIndexBuffer(0, nullptr);
 }
 
 void CPtGnmCommandBuffer::GenerateIndexBuffer(uint32_t indexCount, const void* indexAddr)
