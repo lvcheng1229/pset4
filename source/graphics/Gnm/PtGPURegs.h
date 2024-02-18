@@ -16,7 +16,7 @@ struct SSPIVS
 	PtGfx::SPI_SHADER_POS_FORMAT POS_FORMAT;
 	PtGfx::PA_CL_VS_OUT_CNTL OUT_CNTL;
 
-	PtGfx::SPI_SHADER_USER_DATA_VS_0 USER_DATA[16];
+	uint32_t USER_DATA[16];
 };
 static_assert(sizeof(PtGfx::SPI_SHADER_PGM_RSRC1_VS) == sizeof(uint32_t));
 
@@ -29,8 +29,14 @@ struct SShaderProcessorInput
 class SGPU_REGS
 {
 public:
+	SGPU_REGS();
+
 	PtGfx::VGT_NUM_INSTANCES VGT_NUM_INSTANCES;
 	SShaderProcessorInput SPI;
 };
+
+inline void* GetFetchAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 32 | (uintptr_t(lo) & ~(0x3u))); };
+inline void* GetCodeAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 40 | uintptr_t(lo) << 8); }
+
 
 SGPU_REGS* GetGpuRegs();

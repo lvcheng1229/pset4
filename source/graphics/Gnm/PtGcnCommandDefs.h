@@ -21,11 +21,6 @@ struct PsStageRegisters
 	uint32_t spiBarycCntl;
 	uint32_t dbShaderControl;
 	uint32_t cbShaderMask;
-
-	void* getCodeAddress() const
-	{
-		return (void*)(uintptr_t(spiShaderPgmHiPs) << 40 | uintptr_t(spiShaderPgmLoPs) << 8);
-	}
 };
 
 struct VsStageRegisters
@@ -37,11 +32,6 @@ struct VsStageRegisters
 	uint32_t spiVsOutConfig;
 	uint32_t spiShaderPosFormat;
 	uint32_t paClVsOutCntl;
-
-	void* getCodeAddress() const
-	{
-		return (void*)(uintptr_t(spiShaderPgmHiVs) << 40 | uintptr_t(spiShaderPgmLoVs) << 8);
-	}
 };
 
 struct GnmCmdSetVSShader

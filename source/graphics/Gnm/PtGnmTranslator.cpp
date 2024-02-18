@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "PtGnmTranslator.h"
-#include "graphics\AMD\PtGPURegs.h"
+#include "PtGPURegs.h"
+#include "graphics\Gcn\PtGcnDumpShader.h"
 
 void CPtGnmTranslator::TranslateAndDispatchCmd(const void* commandBuffer, uint32_t commandSize)
 {
@@ -51,10 +52,10 @@ void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* i
 	case PtGfx::IT_INDEX_TYPE:
 	case PtGfx::IT_SET_CONTEXT_REG:
 	case PtGfx::IT_SET_UCONFIG_REG:
-		//TODO
+		OnSetUConfigRegs(pm4Hdr, (PtGfx::PM4CMDSETDATA*)itBody);
 		break;
 	case PtGfx::IT_SET_SH_REG:
-		SetShReg(pm4Hdr, itBody);
+		OnSetShRegs(pm4Hdr, (PtGfx::PM4CMDSETDATA*)itBody);
 		break;
 	case IT_OP_CUS:
 		ProcessGnmPrivateOp(pm4Hdr, itBody);
@@ -68,6 +69,7 @@ void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* i
 void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody)
 {
 	GnmCmdDrawIndex* param = (GnmCmdDrawIndex*)pm4Hdr;
+	SaveGcnVS();
 }
 
 void CPtGnmTranslator::ProcessGnmPrivateOp(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody)
@@ -91,7 +93,8 @@ void CPtGnmTranslator::ProcessGnmPrivateOp(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_
 		GetGpuRegs()->SPI.VS.OUT_CNTL = *(PtGfx::PA_CL_VS_OUT_CNTL*)(&param->vsRegs.paClVsOutCntl);
 		break;
 	}
-		
+	case OP_CUS_UPDATE_VS_SHADER:
+		break;
 	case OP_CUS_SET_PS_SHADER:
 	{
 		const GnmCmdSetPSShader* param = (GnmCmdSetPSShader*)pm4Hdr;
@@ -120,7 +123,22 @@ const PM4_HEADER_COMMON* CPtGnmTranslator::GetNextPm4(const PM4_HEADER_COMMON* c
 	return currPm4;
 }
 
-void CPtGnmTranslator::SetShReg(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody)
+void CPtGnmTranslator::OnSetUConfigRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)
+{
+	constexpr uint32_t USERCONFIG_REG_BASE = 0x0C000;
+	constexpr uint32_t USERCONFIG_REG_END = 0x10000;
+	constexpr uint32_t USERCONFIG_REG_SIZE = USERCONFIG_REG_END - USERCONFIG_REG_BASE;
+
+	uint32_t count = pm4Hdr->count;
+	for (uint32_t index = 0; index < count; index++)
+	{
+		uint16_t reg = USERCONFIG_REG_BASE + itBody->regOffset + index;
+		uint32_t value = *((uint32_t*)(itBody + 1) + index);
+		SetUContextReg(reg, value);
+	}
+}
+
+void CPtGnmTranslator::OnSetShRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)
 {
 	constexpr uint32_t SH_REG_BASE = 0x2C00;
 	constexpr uint32_t SH_REG_END = 0x3000;
@@ -129,6 +147,29 @@ void CPtGnmTranslator::SetShReg(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody)
 	uint32_t count = pm4Hdr->count;
 	for (uint32_t index = 0; index < count; index++)
 	{
-		//uint8_t reg =  SH_REG_BASE + Body ^ .REG_OFFSET + i;
+		uint16_t reg = SH_REG_BASE + itBody->regOffset + index;
+		uint32_t value = *((uint32_t*)(itBody + 1) + index);
+		SetShReg(reg, value);
+	}
+}
+
+void CPtGnmTranslator::SetUContextReg(uint16_t reg, uint32_t value)
+{
+	switch (reg)
+	{
+	case PtGfx::mmVGT_NUM_INSTANCES:
+	{
+		GetGpuRegs()->VGT_NUM_INSTANCES = *(PtGfx::VGT_NUM_INSTANCES*)(&value);
+		break;
+	}
+
+	}
+}
+
+void CPtGnmTranslator::SetShReg(uint16_t reg, uint32_t value)
+{
+	if (reg >= PtGfx::mmSPI_SHADER_USER_DATA_VS_0 && reg <= PtGfx::mmSPI_SHADER_USER_DATA_VS_15)
+	{
+		GetGpuRegs()->SPI.VS.USER_DATA[reg - PtGfx::mmSPI_SHADER_USER_DATA_VS_0] = value;
 	}
 }

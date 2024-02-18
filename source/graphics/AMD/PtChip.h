@@ -20,7 +20,19 @@ namespace Pal
 	{
 		inline namespace Chip
 		{
-			//namespace XGfx = Gfx09;
+            typedef struct _PM4CMDSETDATA
+            {
+                union
+                {
+                    struct
+                    {
+                        unsigned int    regOffset : 16;  ///< offset in DWords from the register base address
+                        unsigned int    reserved1 : 12;  ///< Program to zero
+                        unsigned int    index : 4;   ///< Index for UCONFIG/CONTEXT on CI+
+                    };
+                    unsigned int        ordinal2;
+                };
+            } PM4CMDSETDATA, * PPM4CMDSETDATA;
 		}
 	}
 }

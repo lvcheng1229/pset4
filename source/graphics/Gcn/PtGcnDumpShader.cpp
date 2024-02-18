@@ -2,11 +2,15 @@
 #include <fstream>
 #include <assert.h>
 
-#include "PtGnmShader.h"
+#include "graphics\Gnm\GnmStructure.h"
+#include "graphics\Gnm\PtGnmShader.h"
+#include "graphics\Gnm\PtGPURegs.h"
+
 #include "PtGcnDumpShader.h"
+
 #include "core\PtUtil.h"
 
-#include "graphics\AMD\PtGPURegs.h"
+#include "graphics\Gcn\GcnShaderDecoder.h"
 
 enum EShaderInputUsage
 {
@@ -36,13 +40,6 @@ struct SUSER_DATA_USEAGE
 	uint8_t data[16];
 };
 
-struct SInputUsageSlotSub
-{
-	uint8_t m_registerCount : 1;///< If 0, count is 4DW; if 1, count is 8DW. Other sizes are defined by the usage type.
-	uint8_t m_resourceType : 1;	///< If 0, resource type <c>V#</c>; if 1, resource type <c>T#</c>, in case of a Gnm::kShaderInputUsageImmResource.
-	uint8_t m_reserved : 2;		///< Unused; must be set to zero.
-	uint8_t m_chunkMask : 4;	///< Internal usage data.
-};
 
 struct SInputUsageSlot
 {
@@ -51,7 +48,13 @@ struct SInputUsageSlot
 	uint8_t m_startRegister; ///< User data slot.
 	union
 	{
-		SInputUsageSlotSub slotSub;
+		struct
+		{
+			uint8_t m_registerCount : 1;  ///< If 0, count is 4DW; if 1, count is 8DW. Other sizes are defined by the usage type.
+			uint8_t m_resourceType : 1;   ///< If 0, resource type <c>V#</c>; if 1, resource type <c>T#</c>, in case of a Gnm::kShaderInputUsageImmResource.
+			uint8_t m_reserved : 2;       ///< Unused; must be set to zero.
+			uint8_t m_chunkMask : 4;      ///< Internal usage data.
+		};
 		uint8_t m_srtSizeInDWordMinusOne;
 	};
 };
@@ -77,7 +80,7 @@ SInputUsageSlot* GetShaderSlot(void* data)
 	SInputUsageSlot* inputUsageSlot = nullptr;
 	if (GetShaderInfo(data)->m_numInputUsageSlots > 0)
 	{
-		uint8_t* usageMasks = (uint8_t*)data - (GetShaderInfo(data)->m_chunkUsageBaseOffsetInDW * 4);
+		uint8_t* usageMasks = (uint8_t*)GetShaderInfo(data) - (GetShaderInfo(data)->m_chunkUsageBaseOffsetInDW * 4);
 		inputUsageSlot = (SInputUsageSlot*)usageMasks - (GetShaderInfo(data)->m_numInputUsageSlots);
 	}
 	return inputUsageSlot;
@@ -85,7 +88,9 @@ SInputUsageSlot* GetShaderSlot(void* data)
 
 SUSER_DATA_USEAGE GetUsage(void* data, uint32_t* USER_DATA)
 {
-	SUSER_DATA_USEAGE dataUsage;
+	SUSER_DATA_USEAGE dataUsage; 
+	memset(&dataUsage,0,sizeof(SUSER_DATA_USEAGE));
+
 	SInputUsageSlot* slots = GetShaderSlot(data);
 	if (slots != nullptr)
 	{
@@ -95,7 +100,6 @@ SUSER_DATA_USEAGE GetUsage(void* data, uint32_t* USER_DATA)
 			{
 			case kShaderInputUsageSubPtrFetchShader:
 			{
-				assert(false);
 				uint8_t r = slots[index].m_startRegister;
 				assert(r < 15);
 				dataUsage.data[r] = 2;
@@ -135,9 +139,9 @@ SUSER_DATA_USEAGE GetUsage(void* data, uint32_t* USER_DATA)
 	return dataUsage;
 }
 
-void WriteUserData(std::ofstream& file, void* data, uint16_t REG, PtGfx::SPI_SHADER_USER_DATA_VS_0* USER_DATA)
+void WriteUserData(std::ofstream& file, void* data, uint16_t REG, uint32_t* USER_DATA, CGsISAProcessor& isaProcessor)
 {
-	SUSER_DATA_USEAGE dataUsage = GetUsage(data, (uint32_t*)USER_DATA);
+	SUSER_DATA_USEAGE dataUsage = GetUsage(data, USER_DATA);
 	for (uint16_t index = 0; index < 16; index++)
 	{
 		switch (dataUsage.data[index])
@@ -152,8 +156,8 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, PtGfx::SPI_SHA
 			void* buffer = GetFetchAddress(dataUsage.data[index], dataUsage.data[index + 1]);
 			if (buffer != nullptr)
 			{
-				assert(false);
-				WriteBlock(file, REG + index, buffer, 0);
+				uint32_t size = isaProcessor.ParseSize(buffer,true);
+				WriteBlock(file, REG + index, buffer, size);
 			}
 		}
 		case 3:
@@ -168,9 +172,10 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, PtGfx::SPI_SHA
 	}
 }
 
-void SaveGcnVS(VsStageRegisters* vsRegs)
+void SaveGcnVS()
 {
-	void* base = vsRegs->getCodeAddress();
+	return;
+	void* base = GetCodeAddress(GetGpuRegs()->SPI.VS.LO, GetGpuRegs()->SPI.VS.HI);
 	if (base != nullptr)
 	{
 		size_t hashSeed = 42;
@@ -178,16 +183,25 @@ void SaveGcnVS(VsStageRegisters* vsRegs)
 		THashCombine(hashSeed, GetShaderInfo(base)->m_shaderHash0);
 		THashCombine(hashSeed, GetShaderInfo(base)->m_crc32);
 
+		
 		std::string filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(hashSeed) + ".dump";
 
 		if (std::filesystem::exists(filePath))
 		{
 			return;
 		}
+		std::string fileDir = std::string(PSET_ROOT_DIR) + "/save";
 
-		std::ofstream file("data.bin", std::ios::binary);
+		if (!std::filesystem::exists(fileDir))
+		{
+			std::filesystem::create_directory(fileDir);
+		}
 
-		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_LO_VS, base, GetShaderInfo(base)->m_length);
+		std::ofstream file(filePath, std::ios::binary);
+
+		CGsISAProcessor isaProcessor;
+		isaProcessor.SetBase(base);
+		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_LO_VS, base, isaProcessor.ParseSize(base));
 
 		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_RSRC1_VS, &GetGpuRegs()->SPI.VS.RSRC1, sizeof(uint32_t));
 		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_RSRC2_VS, &GetGpuRegs()->SPI.VS.RSRC2, sizeof(uint32_t));
@@ -197,12 +211,20 @@ void SaveGcnVS(VsStageRegisters* vsRegs)
 		WriteBlock(file, PtGfx::mmSPI_SHADER_POS_FORMAT, &GetGpuRegs()->SPI.VS.POS_FORMAT, sizeof(uint32_t));
 		WriteBlock(file, PtGfx::mmPA_CL_VS_OUT_CNTL, &GetGpuRegs()->SPI.VS.OUT_CNTL, sizeof(uint32_t));
 
-		WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_VS_0, GetGpuRegs()->SPI.VS.USER_DATA);
+		uint32_t USER_DATA[16];
+		memset(USER_DATA, 0, sizeof(uint32_t) * 16);
+		USER_DATA[0] = 1073741924;
+		USER_DATA[1] = 9;
+		USER_DATA[2] = 3238057276;
+		USER_DATA[3] = 8;
+		//WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_VS_0, GetGpuRegs()->SPI.VS.USER_DATA);
+		WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_VS_0, USER_DATA, isaProcessor);
 
 		WriteBlock(file, PtGfx::mmVGT_NUM_INSTANCES, &GetGpuRegs()->VGT_NUM_INSTANCES, sizeof(uint32_t));
+		file.close();
 	}
 }
 
-void SaveGcnPS(PsStageRegisters* psRegs)
+void SaveGcnPS()
 {
 }

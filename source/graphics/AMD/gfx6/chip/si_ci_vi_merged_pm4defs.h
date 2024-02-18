@@ -340,33 +340,33 @@ typedef struct _PM4CMDLOADDATAINDEX
 #define SET_SH_REG_INDEX_CP_MODIFY_CU_MASK 3 // Use this to modify CU_EN for COMPUTE_STATIC* and SPI_SHADER_PGM_RSRC3*
                                              // CP performs AND operation on KMD and UMD CU masks to write registers.
 
-typedef struct _PM4CMDSETDATA
-{
-    union
-    {
-        PM4_TYPE_3_HEADER   header;     ///< header
-        unsigned int        ordinal1;
-    };
-    union
-    {
-        struct
-        {
-            unsigned int    regOffset : 16;  ///< offset in DWords from the register base address
-            unsigned int    reserved1 : 12;  ///< Program to zero
-            unsigned int    index     : 4;   ///< Index for UCONFIG/CONTEXT on CI+
-                                             ///< Program to zero for other opcodes and on SI
-        };
-        unsigned int        ordinal2;
-    };
-    // This is a variable length packet. So, based on size in header, the layout following this
-    // looks as follows:
-    // Data for SET_CONTEXT_REG
-    // DW Offset into Patch table for SET_CONTEXT_REG_INDIRECT
-    // unsigned int data0;
-    // ...
-    // unsigned int dataN;
-
-} PM4CMDSETDATA, *PPM4CMDSETDATA;
+//typedef struct _PM4CMDSETDATA
+//{
+//    union
+//    {
+//        PM4_TYPE_3_HEADER   header;     ///< header
+//        unsigned int        ordinal1;
+//    };
+//    union
+//    {
+//        struct
+//        {
+//            unsigned int    regOffset : 16;  ///< offset in DWords from the register base address
+//            unsigned int    reserved1 : 12;  ///< Program to zero
+//            unsigned int    index     : 4;   ///< Index for UCONFIG/CONTEXT on CI+
+//                                             ///< Program to zero for other opcodes and on SI
+//        };
+//        unsigned int        ordinal2;
+//    };
+//    // This is a variable length packet. So, based on size in header, the layout following this
+//    // looks as follows:
+//    // Data for SET_CONTEXT_REG
+//    // DW Offset into Patch table for SET_CONTEXT_REG_INDIRECT
+//    // unsigned int data0;
+//    // ...
+//    // unsigned int dataN;
+//
+//} PM4CMDSETDATA, *PPM4CMDSETDATA;
 
 //-------------------------------------------------------------------------------------------------
 

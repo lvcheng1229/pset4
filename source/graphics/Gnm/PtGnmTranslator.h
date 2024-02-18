@@ -16,8 +16,10 @@ private:
 
 	const PM4_HEADER_COMMON* GetNextPm4(const PM4_HEADER_COMMON* currentPm4, uint32_t step);
 private:
-	void SetShReg(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody);
-
+	void OnSetUConfigRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody);
+	void OnSetShRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody);
+	void SetUContextReg(uint16_t reg, uint32_t value);
+	void SetShReg(uint16_t reg, uint32_t value);
 	
 
 	// Flip packet is the last pm4 packet of a command buffer,
