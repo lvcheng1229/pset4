@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <xhash>
+#include <string>
 
 struct Vec2i
 {
@@ -26,3 +27,4 @@ inline T1 AlignUp(T1 size, T2 align)
 {
 	return (size / static_cast<T1>(align) + ((size % static_cast<T1>(align)) ? 1 : 0)) * static_cast<T1>(align);
 }
+void PtReadFile(const std::string& filePath, std::vector<uint8_t>& outData);

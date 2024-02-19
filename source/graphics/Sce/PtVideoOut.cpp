@@ -1,5 +1,7 @@
 #include <vector>
+
 #include "graphics\Vulkan\PtVkDeviceCommand.h"
+#include "graphics\RHI\DynamicRHI.h"
 
 #define GLFW_INCLUDE_VULKAN
 #include"GLFW\glfw3.h"
@@ -28,7 +30,7 @@ CPtDisplay::CPtDisplay()
 	glfwSetWindowSizeCallback(m_glfwWindow, GLFWWindowSizeFun);
 	glfwSetFramebufferSizeCallback(m_glfwWindow, GLFWFramebufferSizeFun);
 
-	GetRHIDevieCommnad()->Init(m_glfwWindow);
+	InitDynamicRHI(m_glfwWindow);
 }
 
 

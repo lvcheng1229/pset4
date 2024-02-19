@@ -66,11 +66,7 @@ void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* i
 	}
 }
 
-void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody)
-{
-	GnmCmdDrawIndex* param = (GnmCmdDrawIndex*)pm4Hdr;
-	SaveGcnVS();
-}
+
 
 void CPtGnmTranslator::ProcessGnmPrivateOp(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody)
 {
@@ -97,7 +93,19 @@ void CPtGnmTranslator::ProcessGnmPrivateOp(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_
 		break;
 	case OP_CUS_SET_PS_SHADER:
 	{
-		const GnmCmdSetPSShader* param = (GnmCmdSetPSShader*)pm4Hdr;
+		GnmCmdSetPSShader* param = (GnmCmdSetPSShader*)pm4Hdr;
+		GetGpuRegs()->SPI.PS.LO = param->psRegs.spiShaderPgmLoPs;
+		GetGpuRegs()->SPI.PS.HI = param->psRegs.spiShaderPgmHiPs;
+		GetGpuRegs()->SPI.PS.RSRC1 = *(PtGfx::SPI_SHADER_PGM_RSRC1_PS*)(&param->psRegs.spiShaderPgmRsrc1Ps);
+		GetGpuRegs()->SPI.PS.RSRC2 = *(PtGfx::SPI_SHADER_PGM_RSRC2_PS*)(&param->psRegs.spiShaderPgmRsrc2Ps);
+		GetGpuRegs()->SPI.PS.Z_FORMAT = *(PtGfx::SPI_SHADER_Z_FORMAT*)(&param->psRegs.spiShaderZFormat);
+		GetGpuRegs()->SPI.PS.COL_FORMAT = *(PtGfx::SPI_SHADER_COL_FORMAT*)(&param->psRegs.spiShaderColFormat);
+		GetGpuRegs()->SPI.PS.INPUT_ENA = *(PtGfx::SPI_PS_INPUT_ENA*)(&param->psRegs.spiPsInputEna);
+		GetGpuRegs()->SPI.PS.INPUT_ADDR = *(PtGfx::SPI_PS_INPUT_ADDR*)(&param->psRegs.spiPsInputAddr);
+		GetGpuRegs()->SPI.PS.IN_CONTROL = *(PtGfx::SPI_PS_IN_CONTROL*)(&param->psRegs.spiPsInControl);
+		GetGpuRegs()->SPI.PS.BARYC_CNTL = *(PtGfx::SPI_BARYC_CNTL*)(&param->psRegs.spiBarycCntl);
+		GetGpuRegs()->SPI.PS.SHADER_CONTROL = *(PtGfx::DB_SHADER_CONTROL*)(&param->psRegs.dbShaderControl);
+		GetGpuRegs()->SPI.PS.SHADER_MASK = *(PtGfx::CB_SHADER_MASK*)(&param->psRegs.cbShaderMask);
 		break;
 	}
 
