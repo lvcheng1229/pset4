@@ -57,6 +57,14 @@ public:
 	SShaderProcessorInput SPI;
 };
 
+class CBufferResourceDesc
+{
+public:
+	void* GetBaseAddress()const;
+	uint32_t GetStride()const;
+	GfxBufferSrd m_bufferSrd;
+};
+
 inline void* GetFetchAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 32 | (uintptr_t(lo) & ~(0x3u))); };
 inline void* GetCodeAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 40 | uintptr_t(lo) << 8); }
 

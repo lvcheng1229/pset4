@@ -1,5 +1,7 @@
 #pragma once
 #include <stdint.h>
+#include <memory>
+
 struct SShaderBinaryInfo
 {
 	uint8_t m_signature[7];  // 'OrbShdr'
@@ -38,7 +40,7 @@ public:
 	inline uint32_t operator[](uint32_t index) { return m_ptr[index]; }
 	inline uint32_t ReadU32() { return *(m_ptr++); };
 	inline uint64_t ReadU64() { uint64_t value = *(uint64_t*)m_ptr; m_ptr += 2; return value; };
-	inline bool IsEnd() { return m_ptr == m_end; };
+	inline bool IsEnd() { return m_ptr >= m_end; };
 	inline uintptr_t GetPos() { return uintptr_t(m_ptr); };
 	inline uintptr_t GetBeg() { return uintptr_t(m_beg); };
 private:
@@ -47,16 +49,67 @@ private:
 	const uint32_t* m_end = nullptr;
 };
 
+
+enum EShaderInputUsage
+{
+	kShaderInputUsageSubPtrFetchShader = 0x12, ///< Immediate fetch shader subroutine pointer.
+	kShaderInputUsagePtrResourceTable = 0x13, ///< Flat resource table pointer.
+	kShaderInputUsagePtrInternalResourceTable = 0x14, ///< Flat internal resource table pointer.
+	kShaderInputUsagePtrSamplerTable = 0x15, ///< Flat sampler table pointer.
+	kShaderInputUsagePtrConstBufferTable = 0x16, ///< Flat const buffer table pointer.
+	kShaderInputUsagePtrVertexBufferTable = 0x17, ///< Flat vertex buffer table pointer.
+	kShaderInputUsagePtrSoBufferTable = 0x18, ///< Flat stream-out buffer table pointer.
+	kShaderInputUsagePtrRwResourceTable = 0x19, ///< Flat read/write resource table pointer.
+	kShaderInputUsagePtrInternalGlobalTable = 0x1A, ///< Internal driver table pointer.
+	kShaderInputUsagePtrExtendedUserData = 0x1B, ///< Extended user data pointer.
+	kShaderInputUsagePtrIndirectResourceTable = 0x1C, ///< Pointer to resource indirection table.
+	kShaderInputUsagePtrIndirectInternalResourceTable = 0x1D, ///< Pointer to internal resource indirection table.
+	kShaderInputUsagePtrIndirectRwResourceTable = 0x1E, ///< Pointer to read/write resource indirection table.
+};
+
+
+struct SUSER_DATA_USEAGE
+{
+	uint8_t data[16];
+};
+
+struct alignas(4) SInputUsageSlot
+{
+	uint8_t m_usageType; ///< From Gnm::ShaderInputUsageType.
+	uint8_t m_apiSlot; ///< API slot or chunk ID.
+	uint8_t m_startRegister; ///< User data slot.
+	union
+	{
+		struct
+		{
+			uint8_t m_registerCount : 1;  ///< If 0, count is 4DW; if 1, count is 8DW. Other sizes are defined by the usage type.
+			uint8_t m_resourceType : 1;   ///< If 0, resource type <c>V#</c>; if 1, resource type <c>T#</c>, in case of a Gnm::kShaderInputUsageImmResource.
+			uint8_t m_reserved : 2;       ///< Unused; must be set to zero.
+			uint8_t m_chunkMask : 4;      ///< Internal usage data.
+		};
+		uint8_t m_srtSizeInDWordMinusOne;
+	};
+};
+
+
 class CGsISAProcessor
 {
 public:
-	void SetBase(void* base);
+	void Init(void* base);
+	inline void Reset(void* base) { Init(base); };
+
+	SInputUsageSlot* GetShaderSlot();
 	uint32_t ParseSize(const void* start, bool bStePc = false);
+	int32_t GetUsageRegisterIndex(EShaderInputUsage usgae);
+	uint32_t ParserFetchShader(const void* base);
 private:
 	uint32_t ParseInstruction(CGsCodeReader& codeReader);
 private:
+
 	const SShaderBinaryInfo* m_shaderInfo;
 	const uint32_t* parseEnd;
 	void* m_base;
 	CGsCodeReader m_codeReader;
 };
+
+

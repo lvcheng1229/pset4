@@ -4,6 +4,8 @@
 #include "graphics\AMD\PtChip.h"
 #include "graphics\Gnm\PtGnmCode.h"
 
+using PtPointer = void*;
+
 class CPtGnmTranslator
 {
 public:

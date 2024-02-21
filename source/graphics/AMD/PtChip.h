@@ -51,5 +51,30 @@ using PM4_HEADER_COMMON = PM4_PT_TYPE_3_HEADER;
 #define PM4_TYPE_3 (PtGfx::PM4_TYPE_3)
 
 
+// Buffer resource descriptor structure
+// V# Vertex Descriptor Buffer
+struct GfxBufferSrd
+{
+    PtGfx::SQ_BUF_RSRC_WORD0 word0;
+    PtGfx::SQ_BUF_RSRC_WORD1 word1;
+    PtGfx::SQ_BUF_RSRC_WORD2 word2;
+    PtGfx::SQ_BUF_RSRC_WORD3 word3;
+};
+
+// Image resource descriptor structure
+// T# Texture Descriptor Buffer
+struct GfxImageSrd
+{
+    PtGfx::SQ_IMG_RSRC_WORD0 word0;
+    PtGfx::SQ_IMG_RSRC_WORD1 word1;
+    PtGfx::SQ_IMG_RSRC_WORD2 word2;
+    PtGfx::SQ_IMG_RSRC_WORD3 word3;
+    PtGfx::SQ_IMG_RSRC_WORD4 word4;
+    PtGfx::SQ_IMG_RSRC_WORD5 word5;
+    PtGfx::SQ_IMG_RSRC_WORD6 word6;
+    PtGfx::SQ_IMG_RSRC_WORD7 word7;
+};
+
+
 
 

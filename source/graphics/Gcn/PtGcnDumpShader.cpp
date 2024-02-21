@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #include "graphics\Gnm\GnmStructure.h"
-#include "graphics\Gnm\PtGnmShader.h"
 #include "graphics\Gnm\PtGPURegs.h"
 
 #include "PtGcnDumpShader.h"
@@ -12,52 +11,12 @@
 
 #include "graphics\Gcn\GcnShaderDecoder.h"
 
-enum EShaderInputUsage
-{
-	kShaderInputUsageSubPtrFetchShader = 0x12, ///< Immediate fetch shader subroutine pointer.
-	kShaderInputUsagePtrResourceTable = 0x13, ///< Flat resource table pointer.
-	kShaderInputUsagePtrInternalResourceTable = 0x14, ///< Flat internal resource table pointer.
-	kShaderInputUsagePtrSamplerTable = 0x15, ///< Flat sampler table pointer.
-	kShaderInputUsagePtrConstBufferTable = 0x16, ///< Flat const buffer table pointer.
-	kShaderInputUsagePtrVertexBufferTable = 0x17, ///< Flat vertex buffer table pointer.
-	kShaderInputUsagePtrSoBufferTable = 0x18, ///< Flat stream-out buffer table pointer.
-	kShaderInputUsagePtrRwResourceTable = 0x19, ///< Flat read/write resource table pointer.
-	kShaderInputUsagePtrInternalGlobalTable = 0x1A, ///< Internal driver table pointer.
-	kShaderInputUsagePtrExtendedUserData = 0x1B, ///< Extended user data pointer.
-	kShaderInputUsagePtrIndirectResourceTable = 0x1C, ///< Pointer to resource indirection table.
-	kShaderInputUsagePtrIndirectInternalResourceTable = 0x1D, ///< Pointer to internal resource indirection table.
-	kShaderInputUsagePtrIndirectRwResourceTable = 0x1E, ///< Pointer to read/write resource indirection table.
-};
-
 struct SSaveWord
 {
 	uint16_t REG;
 	uint16_t COUNT;//count of uint32
 };
 
-struct SUSER_DATA_USEAGE
-{
-	uint8_t data[16];
-};
-
-
-struct SInputUsageSlot
-{
-	uint8_t m_usageType; ///< From Gnm::ShaderInputUsageType.
-	uint8_t m_apiSlot; ///< API slot or chunk ID.
-	uint8_t m_startRegister; ///< User data slot.
-	union
-	{
-		struct
-		{
-			uint8_t m_registerCount : 1;  ///< If 0, count is 4DW; if 1, count is 8DW. Other sizes are defined by the usage type.
-			uint8_t m_resourceType : 1;   ///< If 0, resource type <c>V#</c>; if 1, resource type <c>T#</c>, in case of a Gnm::kShaderInputUsageImmResource.
-			uint8_t m_reserved : 2;       ///< Unused; must be set to zero.
-			uint8_t m_chunkMask : 4;      ///< Internal usage data.
-		};
-		uint8_t m_srtSizeInDWordMinusOne;
-	};
-};
 
 void WriteBlock(std::ofstream& file, uint16_t REG, void* data, uint64_t size)
 {
@@ -75,23 +34,15 @@ void WriteBlock(std::ofstream& file, uint16_t REG, void* data, uint64_t size)
 	file.write((const char*)data, AlignUp(size, 4));
 }
 
-SInputUsageSlot* GetShaderSlot(void* data)
-{
-	SInputUsageSlot* inputUsageSlot = nullptr;
-	if (GetShaderInfo(data)->m_numInputUsageSlots > 0)
-	{
-		uint8_t* usageMasks = (uint8_t*)GetShaderInfo(data) - (GetShaderInfo(data)->m_chunkUsageBaseOffsetInDW * 4);
-		inputUsageSlot = (SInputUsageSlot*)usageMasks - (GetShaderInfo(data)->m_numInputUsageSlots);
-	}
-	return inputUsageSlot;
-}
-
 SUSER_DATA_USEAGE GetUsage(void* data, uint32_t* USER_DATA)
 {
-	SUSER_DATA_USEAGE dataUsage; 
-	memset(&dataUsage,0,sizeof(SUSER_DATA_USEAGE));
+	SUSER_DATA_USEAGE dataUsage;
+	memset(&dataUsage, 0, sizeof(SUSER_DATA_USEAGE));
 
-	SInputUsageSlot* slots = GetShaderSlot(data);
+	CGsISAProcessor isaProcessor;
+	isaProcessor.Init(data);
+
+	SInputUsageSlot* slots = isaProcessor.GetShaderSlot();
 	if (slots != nullptr)
 	{
 		for (uint32_t index = 0; index < GetShaderInfo(data)->m_numInputUsageSlots; index++)
@@ -200,7 +151,7 @@ void SaveGcnVS()
 		std::ofstream file(filePath, std::ios::binary);
 
 		CGsISAProcessor isaProcessor;
-		isaProcessor.SetBase(base);
+		isaProcessor.Init(base);
 		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_LO_VS, base, isaProcessor.ParseSize(base));
 
 		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_RSRC1_VS, &GetGpuRegs()->SPI.VS.RSRC1, sizeof(uint32_t));
