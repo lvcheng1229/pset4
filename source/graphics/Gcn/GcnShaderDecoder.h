@@ -52,6 +52,19 @@ private:
 
 enum EShaderInputUsage
 {
+	kShaderInputUsageImmResource = 0x00, ///< Immediate read-only buffer/texture descriptor.
+	kShaderInputUsageImmSampler = 0x01, ///< Immediate sampler descriptor.
+	kShaderInputUsageImmConstBuffer = 0x02, ///< Immediate constant buffer descriptor.
+	kShaderInputUsageImmVertexBuffer = 0x03, ///< Immediate vertex buffer descriptor.
+	kShaderInputUsageImmRwResource = 0x04, ///< Immediate read/write buffer/texture descriptor.
+	kShaderInputUsageImmAluFloatConst = 0x05, ///< Immediate float const (scalar or vector).
+	kShaderInputUsageImmAluBool32Const = 0x06, ///< 32 immediate Booleans packed into one UINT.
+	kShaderInputUsageImmGdsCounterRange = 0x07, ///< Immediate UINT with GDS address range for counters (used for append/consume buffers).
+	kShaderInputUsageImmGdsMemoryRange = 0x08, ///< Immediate UINT with GDS address range for storage.
+	kShaderInputUsageImmGwsBase = 0x09, ///< Immediate UINT with GWS resource base offset.
+	kShaderInputUsageImmShaderResourceTable = 0x0A, ///< Pointer to read/write resource indirection table.
+	kShaderInputUsageImmLdsEsGsSize = 0x0D, ///< Immediate LDS ESGS size used in on-chip GS
+	// Skipped several items here...
 	kShaderInputUsageSubPtrFetchShader = 0x12, ///< Immediate fetch shader subroutine pointer.
 	kShaderInputUsagePtrResourceTable = 0x13, ///< Flat resource table pointer.
 	kShaderInputUsagePtrInternalResourceTable = 0x14, ///< Flat internal resource table pointer.
@@ -101,6 +114,7 @@ public:
 	SInputUsageSlot* GetShaderSlot();
 	uint32_t ParseSize(const void* start, bool bStePc = false);
 	int32_t GetUsageRegisterIndex(EShaderInputUsage usgae);
+	int32_t GetUsageRegisterNum(EShaderInputUsage usgae);
 	uint32_t ParserFetchShader(const void* base);
 private:
 	uint32_t ParseInstruction(CGsCodeReader& codeReader);

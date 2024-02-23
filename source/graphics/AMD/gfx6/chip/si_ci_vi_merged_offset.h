@@ -458,18 +458,23 @@ constexpr unsigned int mmCB_BLEND_GREEN                                 = 0xA106
 constexpr unsigned int mmCB_BLEND_RED                                   = 0xA105;
 constexpr unsigned int mmCB_CGTT_SCLK_CTRL__CI__VI                      = 0xF0A8;
 constexpr unsigned int mmCB_CGTT_SCLK_CTRL__SI                          = 0x2698;
-constexpr unsigned int mmCB_COLOR0_ATTRIB                               = 0xA31D;
+
+//PSET:MODIFY
 constexpr unsigned int mmCB_COLOR0_BASE                                 = 0xA318;
-constexpr unsigned int mmCB_COLOR0_CLEAR_WORD0                          = 0xA323;
-constexpr unsigned int mmCB_COLOR0_CLEAR_WORD1                          = 0xA324;
-constexpr unsigned int mmCB_COLOR0_CMASK                                = 0xA31F;
-constexpr unsigned int mmCB_COLOR0_CMASK_SLICE                          = 0xA320;
+constexpr unsigned int mmCB_COLOR0_PITCH								= 0xA319;
+constexpr unsigned int mmCB_COLOR0_SLICE                                = 0xA31A;
+constexpr unsigned int mmCB_COLOR0_VIEW									= 0xA31B;
+constexpr unsigned int mmCB_COLOR0_INFO									= 0xA31C;
+constexpr unsigned int mmCB_COLOR0_ATTRIB                               = 0xA31D;
+constexpr unsigned int mmCB_COLOR0_DCC_CONTROL__VI						= 0xA31E;
+constexpr unsigned int mmCB_COLOR0_CMASK								= 0xA31F;
+constexpr unsigned int mmCB_COLOR0_CMASK_SLICE							= 0xA320;
 constexpr unsigned int mmCB_COLOR0_FMASK                                = 0xA321;
 constexpr unsigned int mmCB_COLOR0_FMASK_SLICE                          = 0xA322;
-constexpr unsigned int mmCB_COLOR0_INFO                                 = 0xA31C;
-constexpr unsigned int mmCB_COLOR0_PITCH                                = 0xA319;
-constexpr unsigned int mmCB_COLOR0_SLICE                                = 0xA31A;
-constexpr unsigned int mmCB_COLOR0_VIEW                                 = 0xA31B;
+constexpr unsigned int mmCB_COLOR0_CLEAR_WORD0                          = 0xA323;
+constexpr unsigned int mmCB_COLOR0_CLEAR_WORD1                          = 0xA324;
+constexpr unsigned int mmCB_COLOR0_DCC_BASE__VI							= 0xA325;
+
 constexpr unsigned int mmCB_COLOR1_ATTRIB                               = 0xA32C;
 constexpr unsigned int mmCB_COLOR1_BASE                                 = 0xA327;
 constexpr unsigned int mmCB_COLOR1_CLEAR_WORD0                          = 0xA332;
@@ -7994,8 +7999,7 @@ constexpr unsigned int mmBPHYC_UNIPHY6_UNIPHY_TX_CONTROL2__VI           = 0x4981
 constexpr unsigned int mmBPHYC_UNIPHY6_UNIPHY_TX_CONTROL3__VI           = 0x4982;
 constexpr unsigned int mmBPHYC_UNIPHY6_UNIPHY_TX_CONTROL4__VI           = 0x4983;
 constexpr unsigned int mmBX_RESET_CNTL__VI                              = 0x1518;
-constexpr unsigned int mmCB_COLOR0_DCC_BASE__VI                         = 0xA325;
-constexpr unsigned int mmCB_COLOR0_DCC_CONTROL__VI                      = 0xA31E;
+
 constexpr unsigned int mmCB_COLOR1_DCC_BASE__VI                         = 0xA334;
 constexpr unsigned int mmCB_COLOR1_DCC_CONTROL__VI                      = 0xA32D;
 constexpr unsigned int mmCB_COLOR2_DCC_BASE__VI                         = 0xA343;
@@ -8008,7 +8012,8 @@ constexpr unsigned int mmCB_COLOR5_DCC_BASE__VI                         = 0xA370
 constexpr unsigned int mmCB_COLOR5_DCC_CONTROL__VI                      = 0xA369;
 constexpr unsigned int mmCB_COLOR6_DCC_BASE__VI                         = 0xA37F;
 constexpr unsigned int mmCB_COLOR6_DCC_CONTROL__VI                      = 0xA378;
-constexpr unsigned int mmCB_COLOR7_DCC_BASE__VI                         = 0xA38E;
+//PSET:MODIFY
+constexpr unsigned int mmCB_COLOR7_DCC_BASE								= 0xA38E;
 constexpr unsigned int mmCB_COLOR7_DCC_CONTROL__VI                      = 0xA387;
 constexpr unsigned int mmCB_DCC_CONFIG__VI                              = 0x2687;
 constexpr unsigned int mmCB_DCC_CONTROL__VI                             = 0xA109;

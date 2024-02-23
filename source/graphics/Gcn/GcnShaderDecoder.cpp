@@ -139,6 +139,20 @@ int32_t CGsISAProcessor::GetUsageRegisterIndex(EShaderInputUsage usgae)
 	return -1;
 }
 
+int32_t CGsISAProcessor::GetUsageRegisterNum(EShaderInputUsage usgae)
+{
+	int32_t num = 0;
+	SInputUsageSlot* usageSlot = GetShaderSlot();
+	if (usageSlot != nullptr)
+	{
+		for (uint32_t index = 0; index < GetShaderInfo(m_base)->m_numInputUsageSlots; index++)
+		{
+			if (usgae == usageSlot[index].m_usageType) { num++; };
+		}
+	}
+	return num;
+}
+
 uint32_t CGsISAProcessor::ParserFetchShader(const void* base)
 {
 	const uint32_t* start = reinterpret_cast<const uint32_t*>(base);

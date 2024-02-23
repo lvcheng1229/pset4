@@ -43,6 +43,13 @@ static std::shared_ptr<CRHIVertexShader> CreateVertexShader()
 			std::vector<uint8_t> vsShaderCode;
 			PtReadFile(fileName, vsShaderCode);
 			pVertexShader = RHICreateVertexShader(vsShaderCode);
+			CGsISAProcessor isaProcessor;
+			isaProcessor.Init(vsCodeAddr);
+			pVertexShader->m_numCbv = isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmConstBuffer);
+			assert(isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmResource) == 0);
+			assert(isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmSampler) == 0);
+			assert(isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmRwResource) == 0);
+			gRHIVertexShaders[vsShaderName] = pVertexShader;
 		}
 	}
 	return pVertexShader;
@@ -67,6 +74,13 @@ static std::shared_ptr<CRHIPixelShader> CreatePixelShader()
 			std::vector<uint8_t> psShaderCode;
 			PtReadFile(fileName, psShaderCode);
 			pPixelShader = RHICreatePixelShader(psShaderCode);
+			CGsISAProcessor isaProcessor;
+			isaProcessor.Init(psCodeAddr);
+			pPixelShader->m_numCbv = isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmConstBuffer);
+			pPixelShader->m_numSrv = isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmResource);
+			pPixelShader->m_numSampler = isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmSampler);
+			assert(isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmRwResource) == 0);
+			gRHIPixelShaders[psShaderName] = pPixelShader;
 		}
 	}
 	return pPixelShader;
@@ -156,13 +170,38 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 		}
 	}
 
+	CRHIDepthStencilState depthStencilState;
+	depthStencilState.bDepthTestEnable = GetGpuRegs()->DEPTH.DEPTH_CONTROL.bitfields.Z_ENABLE;
+	depthStencilState.bDepthWriteEnable = GetGpuRegs()->DEPTH.DEPTH_CONTROL.bitfields.Z_WRITE_ENABLE;
+	depthStencilState.zFunc = GetGpuRegs()->DEPTH.DEPTH_CONTROL.bitfields.ZFUNC;
+
+	uint32_t rtNum = 0;
+	for (uint32_t index = 0; index < 8; index++)
+	{
+		if (GetGpuRegs()->RENDER_TARGET[index].BASE.bitfields.BASE_256B != 0 &&
+			GetGpuRegs()->RENDER_TARGET[index].INFO.bitfields.FORMAT != 0 &&
+			((uint32_t(*(uint32_t*)(&GetGpuRegs()->TARGET_MASK)) >> (index * 4)) & 0xFF) != 0)
+		{
+			rtNum++;
+		}
+	}
+
 	CRHIGraphicsPipelineStateInitDesc graphicsPsoInitDesc;
 	graphicsPsoInitDesc.m_vertexElements = vertexEllemts;
 	graphicsPsoInitDesc.m_vertexBindings = veretxBindings;
 	graphicsPsoInitDesc.m_pVertexShader = pVertexShader.get();
 	graphicsPsoInitDesc.m_pPixelShader = pPixelShader.get();
+	graphicsPsoInitDesc.m_dsState = depthStencilState;
 
-	RHICreateGraphicsPipelineState(graphicsPsoInitDesc);
+	for (uint32_t index = 0; index < Pal::MaxColorTargets; index++)
+	{
+		graphicsPsoInitDesc.m_colorBelndControls[index] = GetGpuRegs()->CB_BLEND_CONTROL[index];
+		graphicsPsoInitDesc.renderTargets[index] = GetGpuRegs()->RENDER_TARGET[index];
+	}
+
+	graphicsPsoInitDesc.m_rtNum = rtNum;
+	
+	std::shared_ptr<CRHIGraphicsPipelineState> graphicsPipelineState = RHICreateGraphicsPipelineState(graphicsPsoInitDesc);
 	
 
 }

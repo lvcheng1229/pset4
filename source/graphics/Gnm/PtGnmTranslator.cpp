@@ -50,7 +50,10 @@ void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* i
 	case PtGfx::IT_ACQUIRE_MEM:
 	case PtGfx::IT_DMA_DATA:
 	case PtGfx::IT_INDEX_TYPE:
+		break;
 	case PtGfx::IT_SET_CONTEXT_REG:
+		onSetContextRegs(pm4Hdr, (PtGfx::PM4CMDSETDATA*)itBody);
+		break;
 	case PtGfx::IT_SET_UCONFIG_REG:
 		OnSetUConfigRegs(pm4Hdr, (PtGfx::PM4CMDSETDATA*)itBody);
 		break;
@@ -146,6 +149,20 @@ void CPtGnmTranslator::OnSetUConfigRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4
 	}
 }
 
+void CPtGnmTranslator::onSetContextRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)
+{
+	constexpr uint32_t CONTEXT_REG_BASE = 0xA000;
+	constexpr uint32_t CONTEXT_REG_END = 0xA400;
+	constexpr uint32_t CONTEXT_REG_SIZE = CONTEXT_REG_END - CONTEXT_REG_BASE;
+	uint32_t count = pm4Hdr->count;
+	for (uint32_t index = 0; index < count; index++)
+	{
+		uint16_t reg = CONTEXT_REG_BASE + itBody->regOffset + index;
+		uint32_t value = *((uint32_t*)(itBody + 1 + index));
+		SetContextReg(reg, value);
+	}
+}
+
 
 void CPtGnmTranslator::OnSetShRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)
 {
@@ -173,8 +190,46 @@ void CPtGnmTranslator::SetUContextReg(uint16_t reg, uint32_t value)
 		GetGpuRegs()->VGT_NUM_INSTANCES = *(PtGfx::VGT_NUM_INSTANCES*)(&value);
 		break;
 	}
-
+	default:
+		//assert(false);
+		break;
 	}
+}
+
+void CPtGnmTranslator::SetContextReg(uint16_t reg, uint32_t value)
+{
+	if (reg >= PtGfx::mmCB_COLOR0_BASE && reg <= PtGfx::mmCB_COLOR7_DCC_BASE)
+	{
+		((uint32_t*)GetGpuRegs()->RENDER_TARGET)[reg - PtGfx::mmCB_COLOR0_BASE] = value;
+	}
+
+	if (reg >= PtGfx::mmCB_BLEND0_CONTROL && reg <= PtGfx::mmCB_BLEND7_CONTROL)
+	{
+		GetGpuRegs()->CB_BLEND_CONTROL[reg - PtGfx::mmCB_BLEND0_CONTROL] = *(PtGfx::CB_BLEND0_CONTROL*)&value;
+	}
+
+	switch (reg)
+	{
+	case PtGfx::mmPA_SU_SC_MODE_CNTL:
+		GetGpuRegs()->SC_MODE_CNTL = *(PtGfx::PA_SU_SC_MODE_CNTL*)&value;
+		break;
+	case PtGfx::mmDB_DEPTH_CONTROL:
+		GetGpuRegs()->DEPTH.DEPTH_CONTROL = *(PtGfx::DB_DEPTH_CONTROL*)&value;
+		break;
+	case PtGfx::mmCB_TARGET_MASK:
+		GetGpuRegs()->TARGET_MASK = *(PtGfx::CB_TARGET_MASK*)&value;
+		break;
+	case PtGfx::mmDB_Z_INFO:
+		break;
+	default:
+	{
+		if (reg >= PtGfx::mmCB_COLOR0_BASE && PtGfx::mmCB_COLOR7_DCC_BASE <= reg) { break; }
+		if (reg >= PtGfx::mmCB_BLEND0_CONTROL && PtGfx::mmCB_BLEND7_CONTROL <= reg) { break; }
+		//assert(false);
+		break;
+	}
+	}
+	
 }
 
 void CPtGnmTranslator::SetShReg(uint16_t reg, uint32_t value)
@@ -182,5 +237,9 @@ void CPtGnmTranslator::SetShReg(uint16_t reg, uint32_t value)
 	if (reg >= PtGfx::mmSPI_SHADER_USER_DATA_VS_0 && reg <= PtGfx::mmSPI_SHADER_USER_DATA_VS_15)
 	{
 		GetGpuRegs()->SPI.VS.USER_DATA[reg - PtGfx::mmSPI_SHADER_USER_DATA_VS_0] = value;
+	}
+	else
+	{
+		assert(false);
 	}
 }

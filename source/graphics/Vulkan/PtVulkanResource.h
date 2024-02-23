@@ -21,3 +21,9 @@ class CVulkanPixelShader : public CRHIPixelShader, public CVulkanShader
 public:
 
 };
+
+class CVulkanGraphicsPipelineState : public CRHIGraphicsPipelineState
+{
+public:
+	VkPipeline m_vkPipeline;
+};

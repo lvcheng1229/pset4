@@ -48,13 +48,53 @@ struct SShaderProcessorInput
 	SSPIPS PS;
 };
 
+struct SDepth
+{
+	PtGfx::DB_RENDER_CONTROL RENDER_CONTROL; //depth/stencil clear/compress
+	PtGfx::DB_DEPTH_CONTROL DEPTH_CONTROL; //depth stencil
+	
+	// unused reigisters are not listed here
+	PtGfx::DB_DEPTH_VIEW  DEPTH_VIEW;
+	PtGfx::DB_DEPTH_INFO DEPTH_INFO;
+};
+
+struct SRenderTarget
+{
+	PtGfx::CB_COLOR0_BASE BASE;
+	PtGfx::CB_COLOR0_PITCH PITCH;
+	PtGfx::CB_COLOR0_SLICE SLICE;
+	PtGfx::CB_COLOR0_VIEW VIEW;
+	PtGfx::CB_COLOR0_INFO INFO;
+	PtGfx::CB_COLOR0_ATTRIB ATTRIB;
+	PtGfx::CB_COLOR0_DCC_CONTROL DCC_CONTROL;
+	PtGfx::CB_COLOR0_CMASK CMASK;
+	PtGfx::CB_COLOR0_CMASK_SLICE CMASK_SLICE;
+	PtGfx::CB_COLOR0_FMASK FMASK;
+	PtGfx::CB_COLOR0_FMASK_SLICE FMASK_SLICE;
+	PtGfx::CB_COLOR0_CLEAR_WORD0 CLEAR_WORD0;
+	PtGfx::CB_COLOR0_CLEAR_WORD1 CLEAR_WORD1;
+	PtGfx::CB_COLOR0_DCC_BASE DCC_BASE;
+	uint32_t PADDING;
+};
+
 class SGPU_REGS
 {
 public:
 	SGPU_REGS();
 
-	PtGfx::VGT_NUM_INSTANCES VGT_NUM_INSTANCES;
 	SShaderProcessorInput SPI;
+	SDepth DEPTH;
+
+	PtGfx::VGT_NUM_INSTANCES VGT_NUM_INSTANCES;
+	
+	SRenderTarget RENDER_TARGET[8];
+	PtGfx::CB_TARGET_MASK TARGET_MASK;
+
+	PtGfx::CB_BLEND0_CONTROL CB_BLEND_CONTROL[8]; // color blend control
+
+	PtGfx::PA_SU_SC_MODE_CNTL SC_MODE_CNTL;	// cull face / poly mode
+	PtGfx::PA_SC_MODE_CNTL_0 SC_MODE_CNTL_0; // msaa
+	PtGfx::PA_SC_MODE_CNTL_1 SC_MODE_CNTL_1;
 };
 
 class CBufferResourceDesc
