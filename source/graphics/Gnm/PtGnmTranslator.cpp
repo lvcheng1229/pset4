@@ -2,9 +2,12 @@
 #include "PtGnmTranslator.h"
 #include "PtGPURegs.h"
 #include "graphics\Gcn\PtGcnDumpShader.h"
+#include "graphics\RHI\RHICommandList.h"
 
 void CPtGnmTranslator::TranslateAndDispatchCmd(const void* commandBuffer, uint32_t commandSize)
 {
+	gRHICommandList.RHIBeginFrame();
+
 	const PM4_HEADER_COMMON* pm4Hdr = reinterpret_cast<const PM4_HEADER_COMMON*>(commandBuffer);
 	uint32_t processedCmdBufferLen = 0;
 	while (processedCmdBufferLen < commandSize)
@@ -39,6 +42,8 @@ void CPtGnmTranslator::TranslateAndDispatchCmd(const void* commandBuffer, uint32
 		pm4Hdr = nextPm4Hdr;
 		processedCmdBufferLen += processedLength;
 	}
+
+	gRHICommandList.RHIEndFrame();
 }
 
 void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* itBody)
@@ -161,6 +166,8 @@ void CPtGnmTranslator::onSetContextRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4
 		uint32_t value = *((uint32_t*)(itBody + 1 + index));
 		SetContextReg(reg, value);
 	}
+
+	m_setCtxCount++;
 }
 
 

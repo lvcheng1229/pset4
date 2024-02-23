@@ -27,6 +27,8 @@ private:
 	void SetContextReg(uint16_t reg, uint32_t value);
 	void SetShReg(uint16_t reg, uint32_t value);
 	
+	uint32_t m_setCtxCount = 0;
+	uint32_t m_lastSetCtxCount = 0;
 
 	// Flip packet is the last pm4 packet of a command buffer,
 	// when flip packet had been processed, we end processing command buffer.

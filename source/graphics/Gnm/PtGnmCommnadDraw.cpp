@@ -15,14 +15,11 @@
 
 #include "graphics\RHI\RHI.h"
 #include "graphics\RHI\DynamicRHI.h"
+#include "graphics\RHI\RHICommandList.h"
 
 static std::unordered_map<std::string, std::shared_ptr<CRHIVertexShader>> gRHIVertexShaders;
 static std::unordered_map<std::string, std::shared_ptr<CRHIPixelShader>> gRHIPixelShaders;
 
-void* GetSharpByPatch()
-{
-
-}
 
 static std::shared_ptr<CRHIVertexShader> CreateVertexShader()
 {
@@ -201,7 +198,24 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 
 	graphicsPsoInitDesc.m_rtNum = rtNum;
 	
-	std::shared_ptr<CRHIGraphicsPipelineState> graphicsPipelineState = RHICreateGraphicsPipelineState(graphicsPsoInitDesc);
 	
+	CRHIRenderPassInfo rhiRenderPassInfo;
+	rhiRenderPassInfo.rtTexture = RHIGetBackBufferTexture().get();
+	for (uint32_t index = 0; index < Pal::MaxColorTargets; index++)
+	{
+		rhiRenderPassInfo.renderTargets[index] = GetGpuRegs()->RENDER_TARGET[index];
+	}
+
+	std::shared_ptr<CRHIRenderPass> renderPass = RHICreateRenderPass(rhiRenderPassInfo);
+
+	// is context changed ? 
+	if (m_setCtxCount != m_lastSetCtxCount)
+	{
+		m_lastSetCtxCount = m_setCtxCount;
+		gRHICommandList.RHIBeginRenderPass(rhiRenderPassInfo);
+	}
+
+	std::shared_ptr<CRHIGraphicsPipelineState> graphicsPipelineState = RHICreateGraphicsPipelineState(graphicsPsoInitDesc);
+	gRHICommandList.RHISetGraphicsPipelineState(graphicsPipelineState);
 
 }

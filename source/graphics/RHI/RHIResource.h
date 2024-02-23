@@ -14,6 +14,12 @@ enum ERHIShaderType :uint8_t
 	RST_ShaderCount,
 };
 
+class CRHITexture2D
+{
+public:
+	uint32_t m_width;
+	uint32_t m_height;
+};
 
 class CRHIShader
 {
@@ -61,11 +67,29 @@ public:
 	
 	// depth stencil state
 	CRHIDepthStencilState m_dsState;
+	CRHIRenderPassInfo m_renderPassInfo;
 private:
 
 };
 
 class CRHIGraphicsPipelineState
+{
+
+};
+
+class CRHIRenderPassInfo
+{
+public:
+	//TODO: Multi RenderTarget
+	CRHITexture2D* rtTexture;
+
+	// vkRenderPass
+	uint32_t m_rtNum;
+	CRHIDepthStencilState m_dsState;
+	SRenderTarget renderTargets[Pal::MaxColorTargets];
+};
+
+class CRHIRenderPass
 {
 
 };

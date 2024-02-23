@@ -3,7 +3,11 @@
 #include <iostream>
 #include <format>
 
+#include "core\PtUtil.h"
+
 #include "graphics\AMD\pal\core\pal.h"
+#include "graphics\RHI\RHICommandList.h"
+
 
 #include "PtVkCommon.h"
 #include "PtVulkanResource.h"
@@ -11,6 +15,9 @@
 
 static std::unordered_map<std::size_t, std::shared_ptr<CVulkanVertexShader>>gVertexShaderTable;
 static std::unordered_map<std::size_t, std::shared_ptr<CVulkanPixelShader>>gPixelShaderTable;
+static std::unordered_map<std::size_t, std::shared_ptr<CVulkanGraphicsPipelineState>> gPipelineMap;
+static std::unordered_map<std::size_t, std::shared_ptr<CVulkanRenderPass>> gRenderPass;
+
 
 CVulkanDynamicRHI::CVulkanDynamicRHI()
 {
@@ -19,8 +26,13 @@ CVulkanDynamicRHI::CVulkanDynamicRHI()
 void CVulkanDynamicRHI::Init(void* windowHandle)
 {
     m_device.Init(windowHandle);
+    gRHICommandList.SetRHIContext(m_device.GetContext());
 }
 
+std::shared_ptr<CRHITexture2D> CVulkanDynamicRHI::RHIGetBackBufferTexture()
+{
+    return m_device.GetCurrentBackBufferTexture();
+}
 
 std::shared_ptr<CRHIVertexShader> CVulkanDynamicRHI::RHICreateVertexShader(const std::vector<uint8_t>& code)
 {
@@ -62,9 +74,35 @@ std::shared_ptr<CRHIPixelShader> CVulkanDynamicRHI::RHICreatePixelShader(const s
     return retShader;
 }
 
+size_t HashGraphicsPSO(const CRHIGraphicsPipelineStateInitDesc& psoInitDesc)
+{
+    size_t seed = 42;
+    
+    std::size_t shaderHash = std::hash<std::string>{}(std::string((char*)&psoInitDesc, sizeof(CRHIVertexShader*) + sizeof(CRHIPixelShader*)));
+    std::size_t vtxEleHash = std::hash<std::string>{}(std::string((char*)psoInitDesc.m_vertexElements.data(), psoInitDesc.m_vertexElements.size() * sizeof(SVertexElement)));
+    std::size_t vtxBinHash = std::hash<std::string>{}(std::string((char*)psoInitDesc.m_vertexBindings.data(), psoInitDesc.m_vertexBindings.size() * sizeof(SVertexBinding)));
+    std::size_t otherHash = std::hash<std::string>{}(std::string((char*)&psoInitDesc.m_rtNum, 
+        sizeof(uint32_t) + 
+        sizeof(PtGfx::CB_BLEND0_CONTROL) * Pal::MaxColorTargets + 
+        sizeof(SRenderTarget) * Pal::MaxColorTargets + 
+        sizeof(CRHIDepthStencilState)
+    ));
+
+    THashCombine(seed, shaderHash);
+    THashCombine(seed, vtxEleHash);
+    THashCombine(seed, vtxBinHash);
+    THashCombine(seed, otherHash);
+}
+
 std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsPipelineState(const CRHIGraphicsPipelineStateInitDesc& psoInitDesc)
 {
-    // TODO cache
+    size_t hash = HashGraphicsPSO(psoInitDesc);
+    auto iter = gPipelineMap.find(hash);
+    
+    if (iter != gPipelineMap.end())
+    {
+        return iter->second;
+    }
 
     // create shader stage
     CVulkanVertexShader* pVkVertexShader = static_cast<CVulkanVertexShader*>(psoInitDesc.m_pVertexShader);
@@ -215,5 +253,83 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
 
     std::shared_ptr<CVulkanGraphicsPipelineState> ptVkraphicsPipelineState = std::make_shared<CVulkanGraphicsPipelineState>();
     vkCreateGraphicsPipelines(m_device.m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &ptVkraphicsPipelineState->m_vkPipeline);
+    gPipelineMap[hash] = ptVkraphicsPipelineState;
     return ptVkraphicsPipelineState;
+}
+
+std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRHIRenderPassInfo& rhiRenderPassInfo)
+{
+    size_t hash = std::hash<std::string>{}(std::string((const char*)&rhiRenderPassInfo, sizeof(CRHIRenderPassInfo)));
+    auto iter = gRenderPass.find(hash);
+    if (iter != gRenderPass.end())
+    {
+        return iter->second;
+    }
+
+    std::vector<VkAttachmentReference>colorAttachmentRefs;
+    for (uint32_t index = 0; index < rhiRenderPassInfo.m_rtNum; index++)
+    {
+        VkAttachmentReference colorAttachmentRef{};
+        colorAttachmentRef.attachment = 0;
+        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+        colorAttachmentRefs.push_back(colorAttachmentRef);
+    }
+
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = rhiRenderPassInfo.m_rtNum;
+    subpass.pColorAttachments = colorAttachmentRefs.data();
+
+    VkSubpassDependency dependency{};
+    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependency.dstSubpass = 0;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcAccessMask = 0;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+    VkAttachmentDescription attachmentDesc[8];
+    for (uint32_t index = 0; index < rhiRenderPassInfo.m_rtNum; index++)
+    {
+        attachmentDesc[index] = {};
+        attachmentDesc[index].format = GetVkRenderTargetFormatFromAMDFormat(rhiRenderPassInfo.renderTargets[index].INFO.bitfields.FORMAT, rhiRenderPassInfo.renderTargets[index].INFO.bitfields.NUMBER_TYPE);
+        attachmentDesc[index].samples = VK_SAMPLE_COUNT_1_BIT;
+        attachmentDesc[index].loadOp = rhiRenderPassInfo.renderTargets[index].INFO.bitfields.FAST_CLEAR != 0 ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachmentDesc[index].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        attachmentDesc[index].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachmentDesc[index].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachmentDesc[index].initialLayout = VK_IMAGE_LAYOUT_GENERAL;
+        attachmentDesc[index].finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+    }
+
+    uint32_t totalRtNum = rhiRenderPassInfo.m_rtNum;
+    if (rhiRenderPassInfo.m_dsState.bDepthTestEnable || rhiRenderPassInfo.m_dsState.bDepthWriteEnable)
+    {
+        totalRtNum++;
+
+        uint32_t dsIndex = rhiRenderPassInfo.m_rtNum;
+        attachmentDesc[dsIndex].format = VK_FORMAT_D24_UNORM_S8_UINT;
+        attachmentDesc[dsIndex].samples = VK_SAMPLE_COUNT_1_BIT;
+        attachmentDesc[dsIndex].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachmentDesc[dsIndex].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachmentDesc[dsIndex].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachmentDesc[dsIndex].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        attachmentDesc[dsIndex].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        attachmentDesc[dsIndex].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    }
+
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = totalRtNum;
+    renderPassInfo.pAttachments = attachmentDesc;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+    renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;
+
+    std::shared_ptr<CVulkanRenderPass> pVulkanRenderPass = std::make_shared<CVulkanRenderPass>();
+    VULKAN_VARIFY(vkCreateRenderPass(m_device.m_vkDevice, &renderPassInfo, nullptr, &pVulkanRenderPass->m_vkRenderPass));
+    gRenderPass[hash] = pVulkanRenderPass;
+
+    return pVulkanRenderPass;
 }
