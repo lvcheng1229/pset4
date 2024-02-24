@@ -14,6 +14,13 @@ public:
 	VmaAllocation m_vmaAlloc;
 };
 
+class CVulkanBuffer : public CRHIBuffer
+{
+public:
+	VkBuffer m_buffer;
+	VmaAllocation m_vmaAlloc;
+};
+
 class CVulkanShader
 {
 public:

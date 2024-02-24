@@ -19,7 +19,7 @@
 
 static std::unordered_map<std::string, std::shared_ptr<CRHIVertexShader>> gRHIVertexShaders;
 static std::unordered_map<std::string, std::shared_ptr<CRHIPixelShader>> gRHIPixelShaders;
-
+static std::unordered_map<void*, std::shared_ptr<CRHIBuffer>> gRHIBuffers;
 
 static std::shared_ptr<CRHIVertexShader> CreateVertexShader()
 {
@@ -115,58 +115,84 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 {
 	GnmCmdDrawIndex* param = (GnmCmdDrawIndex*)pm4Hdr;
 
+	// TODO: refactor this cope
+	{
+		void* bufferAddres = (void*)(param->indexAddr);
+		auto iter = gRHIBuffers.find(bufferAddres);
+		if (iter == gRHIBuffers.end())
+		{
+			gRHIBuffers[bufferAddres] = RHICreateBuffer(bufferAddres, param->indexCount * sizeof(uint16_t), 1, RHIBU_IB);
+		}
+	}
+
+	// vertex/pixel shader
 	std::shared_ptr<CRHIVertexShader> pVertexShader = CreateVertexShader();
 	std::shared_ptr<CRHIPixelShader> pPixelShader = CreatePixelShader();
 
+	// vertex buffer
+	std::vector<SVertexBinding>veretxBindings;
+	std::vector<SVertexElement> vertexEllemts;
 	CGsISAProcessor isaProcessor;
 	isaProcessor.Init(GetCodeAddress(GetGpuRegs()->SPI.VS.LO, GetGpuRegs()->SPI.VS.HI));
 	int32_t fetchRegIndex = isaProcessor.GetUsageRegisterIndex(EShaderInputUsage::kShaderInputUsageSubPtrFetchShader);
 	assert(fetchRegIndex != -1);
-	
+
 	CGsISAProcessor fetchShaderProcessor;
 	const PtPointer fsCode = *reinterpret_cast<PtPointer const*>(&GetGpuRegs()->SPI.VS.USER_DATA[fetchRegIndex]);
 	uint32_t semanticNum = fetchShaderProcessor.ParserFetchShader(fsCode);
 
 	size_t   firstAttributeOffset = 0;
 	int32_t vbRegIndex = isaProcessor.GetUsageRegisterIndex(EShaderInputUsage::kShaderInputUsagePtrVertexBufferTable);
-	const uint32_t* vertexTable = *reinterpret_cast<uint32_t* const*>(&GetGpuRegs()->SPI.VS.USER_DATA[vbRegIndex]);
-	bool singleBinding = IsSingleVertexBinding(vertexTable, semanticNum);
 
-	std::vector<SVertexBinding>veretxBindings;
-	std::vector<SVertexElement> vertexEllemts;
-	
-	if (singleBinding)
 	{
-		veretxBindings.push_back(SVertexBinding{ 0 });
-	}
-	
-	for (uint32_t index = 0; index < semanticNum; index++)
-	{
-		uint32_t offsetInDwords = index * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
-		const CBufferResourceDesc* vtxBuffer = reinterpret_cast<const CBufferResourceDesc*>(vertexTable + offsetInDwords);
-
-		if (firstAttributeOffset == 0) { firstAttributeOffset = reinterpret_cast<size_t>(vtxBuffer->GetBaseAddress()); }
-
-		SVertexElement vtxElement;
-		vtxElement.m_vertexNumFormat = PtGfx::BUF_NUM_FORMAT(vtxBuffer->m_bufferSrd.word3.bitfields.NUM_FORMAT);
-		vtxElement.m_vertexDataFormat = PtGfx::BUF_DATA_FORMAT(vtxBuffer->m_bufferSrd.word3.bitfields.DATA_FORMAT);
-		
-		vtxElement.binding = singleBinding ? 0 : index;
-		vtxElement.location = index;
-		vtxElement.offset = singleBinding ? reinterpret_cast<size_t>(vtxBuffer->GetBaseAddress()) - firstAttributeOffset : 0;
-		
-		vertexEllemts.push_back(vtxElement);
+		const uint32_t* vertexTable = *reinterpret_cast<uint32_t* const*>(&GetGpuRegs()->SPI.VS.USER_DATA[vbRegIndex]);
+		bool singleBinding = IsSingleVertexBinding(vertexTable, semanticNum);
 
 		if (singleBinding)
 		{
-			veretxBindings[0].m_stride += vtxBuffer->GetStride();
+			veretxBindings.push_back(SVertexBinding{ 0 });
 		}
-		else
+
+		for (uint32_t index = 0; index < semanticNum; index++)
 		{
-			veretxBindings.push_back(SVertexBinding{ vtxBuffer->GetStride() });
+			uint32_t offsetInDwords = index * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+			const CBufferResourceDesc* vtxBuffer = reinterpret_cast<const CBufferResourceDesc*>(vertexTable + offsetInDwords);
+
+			if (firstAttributeOffset == 0) { firstAttributeOffset = reinterpret_cast<size_t>(vtxBuffer->GetBaseAddress()); }
+
+			// TODO: refactor this cope
+			{
+				void* bufferAddres = vtxBuffer->GetBaseAddress();
+				auto iter = gRHIBuffers.find(bufferAddres);
+				if (iter == gRHIBuffers.end())
+				{
+					gRHIBuffers[bufferAddres] = RHICreateBuffer(bufferAddres, vtxBuffer->GetSize(), 1, RHIBU_VB);
+				}
+			}
+
+			SVertexElement vtxElement;
+			vtxElement.m_vertexNumFormat = PtGfx::BUF_NUM_FORMAT(vtxBuffer->m_bufferSrd.word3.bitfields.NUM_FORMAT);
+			vtxElement.m_vertexDataFormat = PtGfx::BUF_DATA_FORMAT(vtxBuffer->m_bufferSrd.word3.bitfields.DATA_FORMAT);
+
+			vtxElement.binding = singleBinding ? 0 : index;
+			vtxElement.location = index;
+			vtxElement.offset = singleBinding ? reinterpret_cast<size_t>(vtxBuffer->GetBaseAddress()) - firstAttributeOffset : 0;
+
+			vertexEllemts.push_back(vtxElement);
+
+			if (singleBinding)
+			{
+				veretxBindings[0].m_stride += vtxBuffer->GetStride();
+			}
+			else
+			{
+				veretxBindings.push_back(SVertexBinding{ vtxBuffer->GetStride() });
+			}
 		}
 	}
+	
 
+	// depth stencil state
 	CRHIDepthStencilState depthStencilState;
 	depthStencilState.bDepthTestEnable = GetGpuRegs()->DEPTH.DEPTH_CONTROL.bitfields.Z_ENABLE;
 	depthStencilState.bDepthWriteEnable = GetGpuRegs()->DEPTH.DEPTH_CONTROL.bitfields.Z_WRITE_ENABLE;
@@ -183,6 +209,7 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 		}
 	}
 
+	// gfx pipeline state
 	CRHIGraphicsPipelineStateInitDesc graphicsPsoInitDesc;
 	graphicsPsoInitDesc.m_vertexElements = vertexEllemts;
 	graphicsPsoInitDesc.m_vertexBindings = veretxBindings;
@@ -197,7 +224,6 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	}
 
 	graphicsPsoInitDesc.m_rtNum = rtNum;
-	
 	
 	CRHIRenderPassInfo rhiRenderPassInfo;
 	rhiRenderPassInfo.m_rtNum = rtNum;
@@ -219,5 +245,26 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 
 	std::shared_ptr<CRHIGraphicsPipelineState> graphicsPipelineState = RHICreateGraphicsPipelineState(graphicsPsoInitDesc);
 	gRHICommandList.RHISetGraphicsPipelineState(graphicsPipelineState);
+	
+	for (uint32_t index = 0; index < semanticNum; index++)
+	{
+		const uint32_t* vertexTable = *reinterpret_cast<uint32_t* const*>(&GetGpuRegs()->SPI.VS.USER_DATA[vbRegIndex]);
+		uint32_t offsetInDwords = index * ShaderConstantDwordSize::kDwordSizeVertexBuffer;
+		const CBufferResourceDesc* vtxBuffer = reinterpret_cast<const CBufferResourceDesc*>(vertexTable + offsetInDwords);
 
+		void* bufferAddres = vtxBuffer->GetBaseAddress();
+		auto iter = gRHIBuffers.find(bufferAddres);
+		assert(iter != gRHIBuffers.end());
+
+		gRHICommandList.RHISetVertexBuffer(iter->second.get(), index, 0);
+	}
+
+	{
+		void* idxBufferAddres = (void*)(param->indexAddr);
+		auto idxIter = gRHIBuffers.find(idxBufferAddres);
+		assert(idxIter != gRHIBuffers.end());
+		gRHICommandList.RHIDrawIndexedPrimitive(idxIter->second.get(), param->indexCount, 1, 0, 0, 0);
+	}
+
+	
 }

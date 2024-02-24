@@ -27,3 +27,10 @@ uint32_t CBufferResourceDesc::GetStride()const
 {
     return m_bufferSrd.word1.bitfields.STRIDE;
 }
+
+uint32_t CBufferResourceDesc::GetSize() const
+{
+    uint32_t stride = m_bufferSrd.word1.bitfields.STRIDE;
+    uint32_t numElements = m_bufferSrd.word2.bitfields.NUM_RECORDS;
+    return stride ? numElements * stride : numElements;
+}

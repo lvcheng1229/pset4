@@ -7,6 +7,19 @@
 
 #include "RHI.h"
 
+enum EBufferUsage : uint32_t
+{
+	RHIBU_VB = (1 << 0), // vertex buffer
+	RHIBU_IB = (1 << 1), // index buffer
+	RHIBU_CB = (1 << 2), // constant buffer
+};
+
+enum class EIndexType : uint32_t
+{
+	IDX_16,
+	IDX_32,
+};
+
 enum ERHIShaderType :uint8_t
 {
 	RST_VertexShader,
@@ -37,6 +50,11 @@ public:
 	uint32_t m_height;
 };
 
+class CRHIBuffer
+{
+public:
+};
+
 class CRHIShader
 {
 public:
@@ -63,11 +81,6 @@ public:
 	bool bDepthWriteEnable;
 	bool bDepthTestEnable;
 	uint8_t zFunc;
-};
-
-class CRHIBuffer
-{
-
 };
 
 class CRHIRenderPass

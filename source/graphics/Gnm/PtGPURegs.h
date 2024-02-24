@@ -102,6 +102,7 @@ class CBufferResourceDesc
 public:
 	void* GetBaseAddress()const;
 	uint32_t GetStride()const;
+	uint32_t GetSize()const;
 	GfxBufferSrd m_bufferSrd;
 };
 

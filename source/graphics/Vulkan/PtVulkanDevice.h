@@ -9,6 +9,8 @@
 
 class CVulkanDevice
 {
+	friend class CVulkanDynamicRHI;
+	friend class CVulkanContext;
 public:
 	void Init(void* windowHandle);
 	inline CVulkanContext* GetContext() { return m_gfxCtx; }

@@ -49,6 +49,12 @@ void CVulkanContext::RHIBeginFrame()
 void CVulkanContext::RHIEndFrame()
 {
 	m_device->Present();
+	vkCmdEndRenderPass(*m_vkCmdBuffer);
+	vkWaitForFences(m_device->m_vkDevice, 1, &m_device->inFlightFence, VK_TRUE, UINT64_MAX);
+	vkResetFences(m_device->m_vkDevice, 1, &m_device->inFlightFence);
+	uint32_t imageIndex;
+	vkAcquireNextImageKHR(m_device->m_vkDevice, m_device->m_swapChain, UINT64_MAX, m_device->imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
 }
 
 void CVulkanContext::RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPipelineState> graphicsPso)
@@ -89,6 +95,24 @@ void CVulkanContext::RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITextu
 	renderPassInfo.pClearValues = rtClearValue;
 
 	vkCmdBeginRenderPass(*m_vkCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+	// todo: refactor this scope
+	{
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = (float)m_device->m_width;
+		viewport.height = (float)m_device->m_height;
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		vkCmdSetViewport(*m_vkCmdBuffer, 0, 1, &viewport);
+
+		VkRect2D scissor{};
+		scissor.offset = { 0, 0 };
+		scissor.extent.width = m_device->m_width;
+		scissor.extent.height = m_device->m_height;
+		vkCmdSetScissor(*m_vkCmdBuffer, 0, 1, &scissor);
+	}
 }
 
 void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset, uint32_t firstInstance)
@@ -98,4 +122,22 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 		vkCmdBindPipeline(*m_vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_gfxStateCache.m_pipeline);
 		m_gfxStateCache.m_bPipelineDirty = false;
 	}
+
+	for (uint32_t index = 0; index < 8; index++)
+	{
+		if (m_gfxStateCache.m_bVertexBufferDirty[index])
+		{
+			CVulkanBuffer* pVtxBuffer = static_cast<CVulkanBuffer*>(m_gfxStateCache.m_vertexStreamings[index].m_buffer);
+
+			VkBuffer vertexBuffers[] = { pVtxBuffer->m_buffer };
+			VkDeviceSize offsets[] = { 0 };
+			vkCmdBindVertexBuffers(*m_vkCmdBuffer, index, 1, vertexBuffers, offsets);
+			m_gfxStateCache.m_bVertexBufferDirty[index] = false;
+		}
+	}
+
+
+	CVulkanBuffer* pIdxBuffer = static_cast<CVulkanBuffer*>(indexBuffer);
+	vkCmdBindIndexBuffer(*m_vkCmdBuffer, pIdxBuffer->m_buffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdDrawIndexed(*m_vkCmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }
