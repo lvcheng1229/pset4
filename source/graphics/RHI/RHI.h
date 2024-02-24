@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include "graphics\AMD\PtChip.h"
+
 struct SVertexElement
 {
 	uint32_t location;

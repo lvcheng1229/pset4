@@ -14,6 +14,22 @@ enum ERHIShaderType :uint8_t
 	RST_ShaderCount,
 };
 
+enum class EDeviceDefaultTex
+{
+	DDT_BackBuffer,
+	DDT_DepthStencil,
+};
+
+enum ETextureCreateFlags
+{
+	TexCreate_None = 0,
+	TexCreate_RenderTargetable = 1 << 0,
+	TexCreate_DepthStencilTargetable = 1 << 1,
+	TexCreate_ShaderResource = 1 << 2,
+	TexCreate_SRGB = 1 << 3,
+	TexCreate_UAV = 1 << 4,
+};
+
 class CRHITexture2D
 {
 public:
@@ -49,6 +65,16 @@ public:
 	uint8_t zFunc;
 };
 
+class CRHIBuffer
+{
+
+};
+
+class CRHIRenderPass
+{
+
+};
+
 class CRHIGraphicsPipelineStateInitDesc
 {
 public:
@@ -67,7 +93,7 @@ public:
 	
 	// depth stencil state
 	CRHIDepthStencilState m_dsState;
-	CRHIRenderPassInfo m_renderPassInfo;
+	CRHIRenderPass* m_rhiRenderPass;
 private:
 
 };
@@ -77,19 +103,13 @@ class CRHIGraphicsPipelineState
 
 };
 
+
 class CRHIRenderPassInfo
 {
 public:
-	//TODO: Multi RenderTarget
-	CRHITexture2D* rtTexture;
-
 	// vkRenderPass
 	uint32_t m_rtNum;
 	CRHIDepthStencilState m_dsState;
 	SRenderTarget renderTargets[Pal::MaxColorTargets];
 };
 
-class CRHIRenderPass
-{
-
-};

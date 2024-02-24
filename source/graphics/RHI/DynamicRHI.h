@@ -7,7 +7,8 @@ class CDynamicRHI
 {
 public:
 	virtual void Init(void* windowHandle) = 0;
-	virtual std::shared_ptr<CRHITexture2D> RHIGetBackBufferTexture() = 0;
+	virtual std::shared_ptr<CRHITexture2D> RHIGetDeviceDefaultTexture(EDeviceDefaultTex deviceDefaultTex) = 0;
+	//virtual std::shared_ptr<CRHITexture2D> RHICreateTexture2D(uint32_t width, uint32_t height, uint8_t format, uint8_t numberType, ETextureCreateFlags* texCreateFlags, uint8_t* texFlags) = 0;
 	virtual std::shared_ptr<CRHIVertexShader> RHICreateVertexShader(const std::vector<uint8_t>& code) = 0;
 	virtual std::shared_ptr<CRHIPixelShader> RHICreatePixelShader(const std::vector<uint8_t>& code) = 0;
 	virtual std::shared_ptr<CRHIGraphicsPipelineState> RHICreateGraphicsPipelineState(const CRHIGraphicsPipelineStateInitDesc& psoInitDesc) = 0;
@@ -18,9 +19,9 @@ private:
 extern CDynamicRHI* gPlatformRHI;
 void InitDynamicRHI(void* windowHandle, bool useVulkan = true, bool useDx12 = false);
 
-inline std::shared_ptr<CRHITexture2D> RHIGetBackBufferTexture()
+inline std::shared_ptr<CRHITexture2D> RHIGetDeviceDefaultTexture(EDeviceDefaultTex deviceDefaultTex)
 {
-	return gPlatformRHI->RHIGetBackBufferTexture();
+	return gPlatformRHI->RHIGetDeviceDefaultTexture(deviceDefaultTex);
 }
 
 inline std::shared_ptr<CRHIVertexShader> RHICreateVertexShader(const std::vector<uint8_t>& code)

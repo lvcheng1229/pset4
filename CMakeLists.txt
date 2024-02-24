@@ -44,6 +44,11 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty/winpthreads)
 target_include_directories(winpthreads PUBLIC ${CMAKE_SOURCE_DIR}/thirdparty/winpthreads)
 link_libraries(winpthreads)
 
+# amd vulkan memory allocator
+add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty/VulkanMemoryAllocator)
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty/VulkanMemoryAllocator/include)
+link_libraries(VulkanMemoryAllocator)
+
 # thirdparty
 include_directories(${PSET4_ROOT_DIR}/thirdparty/glfw/include)
 include_directories(${PSET4_ROOT_DIR}/thirdparty/spdlog)

@@ -200,7 +200,8 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	
 	
 	CRHIRenderPassInfo rhiRenderPassInfo;
-	rhiRenderPassInfo.rtTexture = RHIGetBackBufferTexture().get();
+	rhiRenderPassInfo.m_rtNum = rtNum;
+	rhiRenderPassInfo.m_dsState = depthStencilState;
 	for (uint32_t index = 0; index < Pal::MaxColorTargets; index++)
 	{
 		rhiRenderPassInfo.renderTargets[index] = GetGpuRegs()->RENDER_TARGET[index];
@@ -212,8 +213,9 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	if (m_setCtxCount != m_lastSetCtxCount)
 	{
 		m_lastSetCtxCount = m_setCtxCount;
-		gRHICommandList.RHIBeginRenderPass(rhiRenderPassInfo);
+		gRHICommandList.RHIBeginRenderPass(renderPass.get(), RHIGetDeviceDefaultTexture(EDeviceDefaultTex::DDT_BackBuffer).get(), graphicsPsoInitDesc.m_rtNum, RHIGetDeviceDefaultTexture(EDeviceDefaultTex::DDT_DepthStencil).get());
 	}
+	graphicsPsoInitDesc.m_rhiRenderPass = renderPass.get();
 
 	std::shared_ptr<CRHIGraphicsPipelineState> graphicsPipelineState = RHICreateGraphicsPipelineState(graphicsPsoInitDesc);
 	gRHICommandList.RHISetGraphicsPipelineState(graphicsPipelineState);

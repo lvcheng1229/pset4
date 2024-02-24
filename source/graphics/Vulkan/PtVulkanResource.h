@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <stdint.h>
+#include "vk_mem_alloc.h"
 #include "vulkan\vulkan.h"
 #include "graphics\RHI\RHIResource.h"
 
@@ -10,8 +11,8 @@ class CVulkanTexture2D : public CRHITexture2D
 public:
 	VkImage m_image;
 	VkImageView m_view;
+	VmaAllocation m_vmaAlloc;
 };
-
 
 class CVulkanShader
 {

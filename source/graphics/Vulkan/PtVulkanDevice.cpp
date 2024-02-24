@@ -18,6 +18,8 @@ void CVulkanDevice::Init(void* windowHandle)
     CreateBackBufferImageViews();
     CreateCmdPoolAndCmdBuffer();
     CreateSyncObjects();
+    CreateAmdVulkanMemAllocator();
+    CreateDeviceDefaultDepthTexture();
 
     m_gfxCtx = new CVulkanContext(this, &m_commandBuffer);
 }
@@ -227,17 +229,17 @@ void CVulkanDevice::CreateBackBufferImageViews()
         VULKAN_VARIFY(vkCreateImageView(m_vkDevice, &createInfo, nullptr, &m_swapChainImageViews[i]));
     }
 
-    int width, height;
-    glfwGetFramebufferSize(m_glfwWindow, &width, &height);
-    VkExtent2D actualExtent = { static_cast<uint32_t>(width),static_cast<uint32_t>(height) };
+    glfwGetFramebufferSize(m_glfwWindow, &m_width, &m_height);
+    VkExtent2D actualExtent = { static_cast<uint32_t>(m_width),static_cast<uint32_t>(m_height) };
 
     m_backBufferTextures.resize(m_backBufferImages.size());
     for (size_t index = 0; index < m_backBufferImages.size(); index++)
     {
+        m_backBufferTextures[index] = std::make_shared<CVulkanTexture2D>();
+        m_backBufferTextures[index]->m_width = m_width;
+        m_backBufferTextures[index]->m_height = m_height;
         m_backBufferTextures[index]->m_image = m_backBufferImages[index];
         m_backBufferTextures[index]->m_view = m_swapChainImageViews[index];
-        m_backBufferTextures[index]->m_width = width;
-        m_backBufferTextures[index]->m_height = height;
     }
 }
 
@@ -273,30 +275,59 @@ void CVulkanDevice::CreateSyncObjects()
     VULKAN_VARIFY(vkCreateFence(m_vkDevice, &fenceInfo, nullptr, &inFlightFence));
 }
 
-//void CVulkanDevice::CreateBackBufferFramebuffers()
-//{
-//    m_swapChainFramebuffers.resize(m_swapChainImageViews.size());
-//
-//    int width, height;
-//    glfwGetFramebufferSize(m_glfwWindow, &width, &height);
-//    VkExtent2D actualExtent = { static_cast<uint32_t>(width),static_cast<uint32_t>(height) };
-//
-//    for (size_t i = 0; i < m_swapChainImageViews.size(); i++)
-//    {
-//        VkImageView attachments[] = { m_swapChainImageViews[i] };
-//
-//        VkFramebufferCreateInfo framebufferInfo{};
-//        framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-//        framebufferInfo.renderPass = renderPass;
-//        framebufferInfo.attachmentCount = 1;
-//        framebufferInfo.pAttachments = attachments;
-//        framebufferInfo.width = actualExtent.width;
-//        framebufferInfo.height = actualExtent.height;
-//        framebufferInfo.layers = 1;
-//
-//        VULKAN_VARIFY(vkCreateFramebuffer(m_vkDevice, &framebufferInfo, nullptr, &m_swapChainFramebuffers[i]));
-//    }
-//}
+void CVulkanDevice::CreateAmdVulkanMemAllocator()
+{
+    VmaVulkanFunctions vulkanFunctions = {};
+    vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
 
+    VmaAllocatorCreateInfo allocatorCreateInfo = {};
+    allocatorCreateInfo.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+    allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_1;
+    allocatorCreateInfo.physicalDevice = m_vkPhysicalDevice;
+    allocatorCreateInfo.device = m_vkDevice;
+    allocatorCreateInfo.instance = m_vkInstance;
+    allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
 
+    vmaCreateAllocator(&allocatorCreateInfo, &m_vmaAllocator);
+}
+
+void CVulkanDevice::CreateDeviceDefaultDepthTexture()
+{
+    VkImageCreateInfo imgCreateInfo = { VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    imgCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+    imgCreateInfo.extent.width = m_width;
+    imgCreateInfo.extent.height = m_height;
+    imgCreateInfo.extent.depth = 1;
+    imgCreateInfo.mipLevels = 1;
+    imgCreateInfo.arrayLayers = 1;
+    imgCreateInfo.format = VK_FORMAT_D24_UNORM_S8_UINT;
+    imgCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+    imgCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imgCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    imgCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+
+    VmaAllocationCreateInfo allocCreateInfo = {};
+    allocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    allocCreateInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    allocCreateInfo.priority = 1.0f;
+
+    m_deviceDefaultDsTexture = std::make_shared<CVulkanTexture2D>();
+    m_deviceDefaultDsTexture->m_width = m_width;
+    m_deviceDefaultDsTexture->m_height = m_height;
+
+    vmaCreateImage(m_vmaAllocator, &imgCreateInfo, &allocCreateInfo, &m_deviceDefaultDsTexture->m_image, &m_deviceDefaultDsTexture->m_vmaAlloc, nullptr);
+
+    VkImageViewCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    createInfo.image = m_deviceDefaultDsTexture->m_image;
+    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    createInfo.format = VK_FORMAT_D24_UNORM_S8_UINT;
+    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+    createInfo.subresourceRange.baseMipLevel = 0;
+    createInfo.subresourceRange.levelCount = 1;
+    createInfo.subresourceRange.baseArrayLayer = 0;
+    createInfo.subresourceRange.layerCount = 1;
+    VULKAN_VARIFY(vkCreateImageView(m_vkDevice, &createInfo, nullptr, &m_deviceDefaultDsTexture->m_view));
+}
 

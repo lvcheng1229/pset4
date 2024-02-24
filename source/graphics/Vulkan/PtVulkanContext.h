@@ -2,9 +2,18 @@
 #include <memory>
 
 #include "vulkan\vulkan.h"
-#include "PtVulkanDevice.h"
 
+#include "PtVulkanResource.h"
 #include "graphics\RHI\RHIContext.h"
+
+class CVulkanDevice;
+
+struct SVkGraphicsStateCache
+{
+	VkPipeline m_pipeline;
+
+	bool m_bPipelineDirty;
+};
 
 class CVulkanContext : public CRHIContext
 {
@@ -18,11 +27,14 @@ public:
 	virtual void RHIEndFrame()override;
 
 	virtual void RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPipelineState> graphicsPso)override;
-	virtual void RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum))override;
+	virtual void RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture)override;
+
+	virtual void RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset, uint32_t firstInstance)override;
 private:
+	SVkGraphicsStateCache m_gfxStateCache;
 
 	// viewport
-	VkFramebuffer PtGetOrCreateVulkanFrameBuffer(const CRHIRenderPassInfo& renderPassInfo, VkRenderPass renderPass);
+	VkFramebuffer PtGetOrCreateVulkanFrameBuffer(const CVulkanTexture2D* pVkRtTexture2D, VkRenderPass renderPass, const CVulkanTexture2D* pVkDsTexture2D);
 
 	VkCommandBuffer* m_vkCmdBuffer;
 	CVulkanDevice* m_device;

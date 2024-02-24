@@ -5,6 +5,8 @@
 
 #include "core\PtUtil.h"
 
+#include "vk_mem_alloc.h"
+
 #include "graphics\AMD\pal\core\pal.h"
 #include "graphics\RHI\RHICommandList.h"
 
@@ -29,9 +31,16 @@ void CVulkanDynamicRHI::Init(void* windowHandle)
     gRHICommandList.SetRHIContext(m_device.GetContext());
 }
 
-std::shared_ptr<CRHITexture2D> CVulkanDynamicRHI::RHIGetBackBufferTexture()
+std::shared_ptr<CRHITexture2D> CVulkanDynamicRHI::RHIGetDeviceDefaultTexture(EDeviceDefaultTex deviceDefaultTex)
 {
-    return m_device.GetCurrentBackBufferTexture();
+    if (deviceDefaultTex == EDeviceDefaultTex::DDT_BackBuffer)
+    {
+        return m_device.GetCurrentBackBufferTexture();
+    }
+    else
+    {
+        return m_device.GetDefaultDSTexture();
+    }
 }
 
 std::shared_ptr<CRHIVertexShader> CVulkanDynamicRHI::RHICreateVertexShader(const std::vector<uint8_t>& code)
@@ -78,20 +87,22 @@ size_t HashGraphicsPSO(const CRHIGraphicsPipelineStateInitDesc& psoInitDesc)
 {
     size_t seed = 42;
     
-    std::size_t shaderHash = std::hash<std::string>{}(std::string((char*)&psoInitDesc, sizeof(CRHIVertexShader*) + sizeof(CRHIPixelShader*)));
-    std::size_t vtxEleHash = std::hash<std::string>{}(std::string((char*)psoInitDesc.m_vertexElements.data(), psoInitDesc.m_vertexElements.size() * sizeof(SVertexElement)));
-    std::size_t vtxBinHash = std::hash<std::string>{}(std::string((char*)psoInitDesc.m_vertexBindings.data(), psoInitDesc.m_vertexBindings.size() * sizeof(SVertexBinding)));
-    std::size_t otherHash = std::hash<std::string>{}(std::string((char*)&psoInitDesc.m_rtNum, 
-        sizeof(uint32_t) + 
-        sizeof(PtGfx::CB_BLEND0_CONTROL) * Pal::MaxColorTargets + 
-        sizeof(SRenderTarget) * Pal::MaxColorTargets + 
-        sizeof(CRHIDepthStencilState)
+    const std::size_t shaderHash = std::hash<std::string>{}(std::string((const char*)&psoInitDesc, sizeof(CRHIVertexShader*) + sizeof(CRHIPixelShader*)));
+    const std::size_t vtxEleHash = std::hash<std::string>{}(std::string((const char*)psoInitDesc.m_vertexElements.data(), psoInitDesc.m_vertexElements.size() * sizeof(SVertexElement)));
+    const std::size_t vtxBinHash = std::hash<std::string>{}(std::string((const char*)psoInitDesc.m_vertexBindings.data(), psoInitDesc.m_vertexBindings.size() * sizeof(SVertexBinding)));
+    const std::size_t otherHash = std::hash<std::string>{}(std::string((const char*)&psoInitDesc.m_rtNum,
+        sizeof(uint32_t) +
+        sizeof(PtGfx::CB_BLEND0_CONTROL) * Pal::MaxColorTargets +
+        sizeof(SRenderTarget) * Pal::MaxColorTargets +
+        sizeof(CRHIDepthStencilState) +
+        sizeof(CRHIRenderPass*)
     ));
 
     THashCombine(seed, shaderHash);
     THashCombine(seed, vtxEleHash);
     THashCombine(seed, vtxBinHash);
     THashCombine(seed, otherHash);
+    return seed;
 }
 
 std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsPipelineState(const CRHIGraphicsPipelineStateInitDesc& psoInitDesc)
@@ -228,7 +239,9 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
     dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
     dynamicState.pDynamicStates = dynamicStates.data();
 
-    VkRenderPass renderPass = PtCreateVulkanRenderPass(psoInitDesc);
+    CVulkanRenderPass* p_VkRenderPass = static_cast<CVulkanRenderPass*>(psoInitDesc.m_rhiRenderPass);
+
+    VkRenderPass renderPass = p_VkRenderPass->m_vkRenderPass;
 
     VkGraphicsPipelineCreateInfo pipelineInfo;
     pipelineInfo = {};
@@ -308,6 +321,7 @@ std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRH
         totalRtNum++;
 
         uint32_t dsIndex = rhiRenderPassInfo.m_rtNum;
+        attachmentDesc[dsIndex] = {};
         attachmentDesc[dsIndex].format = VK_FORMAT_D24_UNORM_S8_UINT;
         attachmentDesc[dsIndex].samples = VK_SAMPLE_COUNT_1_BIT;
         attachmentDesc[dsIndex].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;

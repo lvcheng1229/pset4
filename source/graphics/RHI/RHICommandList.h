@@ -9,7 +9,7 @@ public:
 	inline void RHIEndFrame();
 	inline void SetRHIContext(CRHIContext* gfxCtx) { m_gfxCtx = gfxCtx; }
 	inline void RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPipelineState> graphicsPso);
-	inline void RHIBeginRenderPass(const CRHIRenderPassInfo& renderPassInfo);
+	inline void RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture);
 private:
 	CRHIContext* m_gfxCtx;
 };
@@ -31,8 +31,8 @@ inline void CRHICommnadList::RHISetGraphicsPipelineState(std::shared_ptr<CRHIGra
 	m_gfxCtx->RHISetGraphicsPipelineState(graphicsPso);
 }
 
-void CRHICommnadList::RHIBeginRenderPass(const CRHIRenderPassInfo& renderPassInfo)
+void CRHICommnadList::RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture)
 {
-	m_gfxCtx->RHIBeginRenderPass(renderPassInfo);
+	m_gfxCtx->RHIBeginRenderPass(rhiRenderPass, rtTextures, rtNum, dsTexture);
 }
 
