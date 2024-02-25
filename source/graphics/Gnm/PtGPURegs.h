@@ -77,12 +77,20 @@ struct SRenderTarget
 	uint32_t PADDING;
 };
 
+struct SVGT_DMA
+{
+	PtGfx::VGT_INDEX_TYPE_MODE INDEX_TYPE;
+};
+
 class SGPU_REGS
 {
 public:
 	SGPU_REGS();
 
 	SShaderProcessorInput SPI;
+
+	SVGT_DMA VGT_DMA;
+
 	SDepth DEPTH;
 
 	PtGfx::VGT_NUM_INSTANCES VGT_NUM_INSTANCES;

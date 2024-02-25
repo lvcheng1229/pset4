@@ -55,6 +55,7 @@ void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* i
 	case PtGfx::IT_ACQUIRE_MEM:
 	case PtGfx::IT_DMA_DATA:
 	case PtGfx::IT_INDEX_TYPE:
+		onSetIndexType(pm4Hdr, (PtGfx::PM4CMDSETDATA*)itBody);
 		break;
 	case PtGfx::IT_SET_CONTEXT_REG:
 		onSetContextRegs(pm4Hdr, (PtGfx::PM4CMDSETDATA*)itBody);
@@ -137,6 +138,11 @@ const PM4_HEADER_COMMON* CPtGnmTranslator::GetNextPm4(const PM4_HEADER_COMMON* c
 		step--;
 	}
 	return currPm4;
+}
+
+void CPtGnmTranslator::onSetIndexType(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)
+{
+	GetGpuRegs()->VGT_DMA.INDEX_TYPE = *(PtGfx::VGT_INDEX_TYPE_MODE*)(itBody + 1);
 }
 
 void CPtGnmTranslator::OnSetUConfigRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)

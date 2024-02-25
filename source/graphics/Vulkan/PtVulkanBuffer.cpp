@@ -17,13 +17,15 @@ static VkBufferUsageFlags ConvertBufferUsage(EBufferUsage inUsage)
 	return retVkUsage;
 }
 
-std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInitData, uint64_t nTotalSize, uint64_t nStride, EBufferUsage bufferUsage)
+std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInitData, uint64_t nElementCount, uint64_t nStride, EBufferUsage bufferUsage)
 {
 	std::shared_ptr<CVulkanBuffer> pVkBuffer = std::make_shared<CVulkanBuffer>();
+	pVkBuffer->m_elemCount = nElementCount;
+	pVkBuffer->m_elemStride = nStride;
 
 	{
 		VkBufferCreateInfo dstBufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-		dstBufferInfo.size = nTotalSize;
+		dstBufferInfo.size = nElementCount * nStride;
 		dstBufferInfo.usage = ConvertBufferUsage(bufferUsage);
 		VmaAllocationCreateInfo dstAllocInfo = {};
 		dstAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
@@ -32,7 +34,7 @@ std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInit
 	if (pInitData != nullptr)
 	{
 		VkBufferCreateInfo srcBufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
-		srcBufferInfo.size = nTotalSize;
+		srcBufferInfo.size = nElementCount * nStride;
 		srcBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
 		VmaAllocationCreateInfo srcAllocInfo = {};
@@ -44,7 +46,7 @@ std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInit
 		VmaAllocation vmaAlloc;
 		VmaAllocationInfo vmaAllocInfo;
 		vmaCreateBuffer(m_device.m_vmaAllocator, &srcBufferInfo, &srcAllocInfo, &stageBuffer, &vmaAlloc, &vmaAllocInfo);
-		memcpy(vmaAllocInfo.pMappedData, pInitData, nTotalSize);
+		memcpy(vmaAllocInfo.pMappedData, pInitData, nElementCount * nStride);
 
 		VkCommandBuffer commandBuffer;
 		
@@ -63,7 +65,7 @@ std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInit
 		vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
 		VkBufferCopy copyRegion{};
-		copyRegion.size = nTotalSize;
+		copyRegion.size = nElementCount * nStride;
 		vkCmdCopyBuffer(commandBuffer, stageBuffer, pVkBuffer->m_buffer, 1, &copyRegion);
 
 		vkEndCommandBuffer(commandBuffer);

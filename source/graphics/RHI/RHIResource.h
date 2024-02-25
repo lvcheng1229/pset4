@@ -53,6 +53,8 @@ public:
 class CRHIBuffer
 {
 public:
+	uint32_t m_elemCount;
+	uint32_t m_elemStride;
 };
 
 class CRHIShader

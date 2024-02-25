@@ -2,6 +2,8 @@
 #include <string>
 #include <assert.h>
 
+#include "core\Log.h"
+
 #include "PtVulkanDevice.h"
 #include "PtVkCommon.h"
 #include "PtVulkanResource.h"
@@ -55,8 +57,11 @@ void CVulkanContext::RHIEndFrame()
 	VULKAN_VARIFY(vkEndCommandBuffer(*m_vkCmdBuffer));
 	m_device->Present();
 
-	
-	m_device->GetRenderDocAPI()->EndFrameCapture(&m_device->m_vkDevice, m_device->m_glfwWindow);
+	if (m_device->GetRenderDocAPI())
+	{
+		m_device->GetRenderDocAPI()->EndFrameCapture(nullptr, nullptr);
+	}
+	PSET_LOG_INFO("end rdc capture");
 }
 
 void CVulkanContext::RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPipelineState> graphicsPso)
@@ -140,6 +145,6 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 
 
 	CVulkanBuffer* pIdxBuffer = static_cast<CVulkanBuffer*>(indexBuffer);
-	vkCmdBindIndexBuffer(*m_vkCmdBuffer, pIdxBuffer->m_buffer, 0, VK_INDEX_TYPE_UINT16);
+	vkCmdBindIndexBuffer(*m_vkCmdBuffer, pIdxBuffer->m_buffer, 0, pIdxBuffer->m_elemStride == sizeof(uint16_t) ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
 	vkCmdDrawIndexed(*m_vkCmdBuffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 }

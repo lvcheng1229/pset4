@@ -121,7 +121,8 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 		auto iter = gRHIBuffers.find(bufferAddres);
 		if (iter == gRHIBuffers.end())
 		{
-			gRHIBuffers[bufferAddres] = RHICreateBuffer(bufferAddres, param->indexCount * sizeof(uint16_t), 1, RHIBU_IB);
+			uint32_t idxSize = GetGpuRegs()->VGT_DMA.INDEX_TYPE == PtGfx::VGT_INDEX_16 ? sizeof(uint16_t) : sizeof(uint32_t);
+			gRHIBuffers[bufferAddres] = RHICreateBuffer(bufferAddres, param->indexCount, idxSize, RHIBU_IB);
 		}
 	}
 
@@ -166,6 +167,19 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 				auto iter = gRHIBuffers.find(bufferAddres);
 				if (iter == gRHIBuffers.end())
 				{
+					//if (index == 0 || index == 2)
+					//{
+					//	std::vector<float> testData;
+					//	testData.resize(vtxBuffer->GetSize() / sizeof(float));
+					//	memcpy(testData.data(), bufferAddres, vtxBuffer->GetSize());
+					//}
+					//else if(index == 1)
+					//{
+						std::vector<uint8_t> testData;
+						testData.resize(vtxBuffer->GetSize() / sizeof(uint8_t));
+						memcpy(testData.data(), bufferAddres, vtxBuffer->GetSize());
+					//}
+
 					gRHIBuffers[bufferAddres] = RHICreateBuffer(bufferAddres, vtxBuffer->GetSize(), 1, RHIBU_VB);
 				}
 			}

@@ -306,7 +306,9 @@ std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRH
         attachmentDesc[index] = {};
         attachmentDesc[index].format = GetVkRenderTargetFormatFromAMDFormat(rhiRenderPassInfo.renderTargets[index].INFO.bitfields.FORMAT, rhiRenderPassInfo.renderTargets[index].INFO.bitfields.NUMBER_TYPE);
         attachmentDesc[index].samples = VK_SAMPLE_COUNT_1_BIT;
-        attachmentDesc[index].loadOp = rhiRenderPassInfo.renderTargets[index].INFO.bitfields.FAST_CLEAR != 0 ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+        //todo
+        //attachmentDesc[index].loadOp = rhiRenderPassInfo.renderTargets[index].INFO.bitfields.FAST_CLEAR != 0 ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
+        attachmentDesc[index].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         attachmentDesc[index].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachmentDesc[index].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachmentDesc[index].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;

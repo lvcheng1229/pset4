@@ -25,13 +25,16 @@ CPtRenderDocAPI::CPtRenderDocAPI()
     RENDERDOC_API_1_6_0* rdoc = nullptr;
     std::string rdocPath = std::string(PSET_ROOT_DIR) + "/thirdparty/renderdoc/renderdoc.dll";
     std::wstring rdocWPath = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(rdocPath.c_str());
-    
-    std::wstring testPath = L"F:/RenderDoc_1.31_64/RenderDoc_1.31_64/renderdoc.dll";
-    HMODULE module = LoadLibraryW(testPath.c_str());
-
+   
+    // HMODULE module = LoadLibraryW(rdocWPath.c_str());
+    HMODULE module = GetModuleHandleA("renderdoc.dll");
     if (module == NULL)
     {
-        return;
+        module = LoadLibraryW(rdocWPath.c_str());
+        if (module == NULL)
+        {
+            return;
+        }
     }
 
     pRENDERDOC_GetAPI getApi = nullptr;
@@ -63,7 +66,11 @@ void CVulkanDevice::Init(void* windowHandle)
     CreateSyncObjects();
     CreateAmdVulkanMemAllocator();
     CreateDeviceDefaultDepthTexture();
-    m_rdoc->StartFrameCapture(&m_vkDevice, m_glfwWindow);
+    if (m_rdoc)
+    {
+        m_rdoc->StartFrameCapture(nullptr, nullptr);
+    }
+    
     m_gfxCtx = new CVulkanContext(this, &m_commandBuffer);
 }
 

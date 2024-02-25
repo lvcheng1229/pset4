@@ -19,6 +19,7 @@ private:
 	const PM4_HEADER_COMMON* GetNextPm4(const PM4_HEADER_COMMON* currentPm4, uint32_t step);
 private:
 
+	void onSetIndexType(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody);
 	void OnSetUConfigRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody);
 	void onSetContextRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody);
 	void OnSetShRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody);
