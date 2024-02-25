@@ -460,6 +460,7 @@ void CPtVkDeviceCommand::CreateSyncObjects()
 
 void CPtVkDeviceCommand::Init(void* windowHandle)
 {
+    assert(false);
     m_glfwWindow = (GLFWwindow*)windowHandle;
     InitVulkanInstance();
     PickPhysicalDevice();

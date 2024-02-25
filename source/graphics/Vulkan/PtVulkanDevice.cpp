@@ -9,6 +9,8 @@
 #include "PtVkCommon.h"
 #include "PtVulkanDevice.h"
 
+#define ENABLE_VALIDATION_LAYER 1
+
 class CPtRenderDocAPI
 {
 public:
@@ -23,7 +25,9 @@ CPtRenderDocAPI::CPtRenderDocAPI()
     RENDERDOC_API_1_6_0* rdoc = nullptr;
     std::string rdocPath = std::string(PSET_ROOT_DIR) + "/thirdparty/renderdoc/renderdoc.dll";
     std::wstring rdocWPath = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(rdocPath.c_str());
-    HMODULE module = LoadLibraryW(rdocWPath.c_str());
+    
+    std::wstring testPath = L"F:/RenderDoc_1.31_64/RenderDoc_1.31_64/renderdoc.dll";
+    HMODULE module = LoadLibraryW(testPath.c_str());
 
     if (module == NULL)
     {
@@ -151,8 +155,13 @@ void CVulkanDevice::InitVulkanInstance()
     debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
     debugCreateInfo.pfnUserCallback = VkDefaultDebugCallback;
 
+#if ENABLE_VALIDATION_LAYER
     createInfo.enabledLayerCount = static_cast<uint32_t>(gValidationLayers.size());
     createInfo.ppEnabledLayerNames = gValidationLayers.data();
+#else
+    createInfo.enabledLayerCount = 0;
+    createInfo.ppEnabledLayerNames = nullptr;
+#endif
     createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;
 
 #else 
@@ -233,7 +242,7 @@ void CVulkanDevice::CreateLogicalDevice()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(gDeviceExtensions.size());
     createInfo.ppEnabledExtensionNames = gDeviceExtensions.data();
 
-#if PSET_DEBUG
+#if ENABLE_VALIDATION_LAYER
     createInfo.enabledLayerCount = static_cast<uint32_t>(gValidationLayers.size());
     createInfo.ppEnabledLayerNames = gValidationLayers.data();
 #else
