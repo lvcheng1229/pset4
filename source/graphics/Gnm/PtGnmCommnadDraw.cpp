@@ -266,5 +266,6 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 		gRHICommandList.RHIDrawIndexedPrimitive(idxIter->second.get(), param->indexCount, 1, 0, 0, 0);
 	}
 
-	
+	// test
+	gRHICommandList.RHIEndFrame();
 }

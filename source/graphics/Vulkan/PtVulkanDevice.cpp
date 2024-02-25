@@ -1,5 +1,6 @@
 #include <vector>
-
+#include <locale>
+#include <codecvt>
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
@@ -8,9 +9,47 @@
 #include "PtVkCommon.h"
 #include "PtVulkanDevice.h"
 
+class CPtRenderDocAPI
+{
+public:
+    CPtRenderDocAPI();
+    RENDERDOC_API_1_6_0* m_rdoc;
+};
+
+static CPtRenderDocAPI rdocApi;
+
+CPtRenderDocAPI::CPtRenderDocAPI()
+{
+    RENDERDOC_API_1_6_0* rdoc = nullptr;
+    std::string rdocPath = std::string(PSET_ROOT_DIR) + "/thirdparty/renderdoc/renderdoc.dll";
+    std::wstring rdocWPath = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(rdocPath.c_str());
+    HMODULE module = LoadLibraryW(rdocWPath.c_str());
+
+    if (module == NULL)
+    {
+        return;
+    }
+
+    pRENDERDOC_GetAPI getApi = nullptr;
+    getApi = (pRENDERDOC_GetAPI)GetProcAddress(module, "RENDERDOC_GetAPI");
+
+    if (getApi == nullptr)
+    {
+        return;
+    }
+
+    if (getApi(eRENDERDOC_API_Version_1_6_0, (void**)&rdoc) != 1)
+    {
+        return;
+    }
+
+    m_rdoc =  rdoc;
+}
+
 void CVulkanDevice::Init(void* windowHandle)
 {
     m_glfwWindow = (GLFWwindow*)windowHandle;
+    m_rdoc = rdocApi.m_rdoc;
     InitVulkanInstance();
     PickPhysicalDevice();
     CreateLogicalDevice();
@@ -20,13 +59,48 @@ void CVulkanDevice::Init(void* windowHandle)
     CreateSyncObjects();
     CreateAmdVulkanMemAllocator();
     CreateDeviceDefaultDepthTexture();
-
+    m_rdoc->StartFrameCapture(&m_vkDevice, m_glfwWindow);
     m_gfxCtx = new CVulkanContext(this, &m_commandBuffer);
 }
 
 void CVulkanDevice::Present()
 {
     m_currentBackBufferIndex++;
+
+    vkAcquireNextImageKHR(m_vkDevice, m_swapChain, UINT64_MAX, imageAvailableSemaphore, VK_NULL_HANDLE, &m_acquiredImageIndex);
+
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = { imageAvailableSemaphore };
+    VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_commandBuffer;
+
+    VkSemaphore signalSemaphores[] = { renderFinishedSemaphore };
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    VULKAN_VARIFY(vkQueueSubmit(m_vkQueue, 1, &submitInfo, inFlightFence));
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = { m_swapChain };
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+
+    presentInfo.pImageIndices = &m_acquiredImageIndex;
+
+    vkQueuePresentKHR(m_vkQueue, &presentInfo);
 }
 
 const std::vector<const char*>gValidationLayers = { "VK_LAYER_KHRONOS_validation" };
@@ -165,7 +239,6 @@ void CVulkanDevice::CreateLogicalDevice()
 #else
     createInfo.enabledLayerCount = 0;
 #endif
-
     VULKAN_VARIFY(vkCreateDevice(m_vkPhysicalDevice, &createInfo, nullptr, &m_vkDevice));
     vkGetDeviceQueue(m_vkDevice, GfxQueueFamilyIndex, 0, &m_vkQueue);
 
@@ -230,7 +303,6 @@ void CVulkanDevice::CreateBackBufferImageViews()
     }
 
     glfwGetFramebufferSize(m_glfwWindow, &m_width, &m_height);
-    VkExtent2D actualExtent = { static_cast<uint32_t>(m_width),static_cast<uint32_t>(m_height) };
 
     m_backBufferTextures.resize(m_backBufferImages.size());
     for (size_t index = 0; index < m_backBufferImages.size(); index++)
@@ -304,6 +376,7 @@ void CVulkanDevice::CreateDeviceDefaultDepthTexture()
     imgCreateInfo.format = VK_FORMAT_D24_UNORM_S8_UINT;
     imgCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imgCreateInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    //imgCreateInfo.initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     imgCreateInfo.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     imgCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 

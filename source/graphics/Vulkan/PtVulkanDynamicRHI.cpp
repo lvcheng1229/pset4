@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <iostream>
 #include <format>
+#include <assert.h>
 
 #include "core\PtUtil.h"
 
@@ -14,6 +15,7 @@
 #include "PtVkCommon.h"
 #include "PtVulkanResource.h"
 #include "PtVulkanDynamicRHI.h"
+
 
 static std::unordered_map<std::size_t, std::shared_ptr<CVulkanVertexShader>>gVertexShaderTable;
 static std::unordered_map<std::size_t, std::shared_ptr<CVulkanPixelShader>>gPixelShaderTable;
@@ -288,18 +290,15 @@ std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRH
         colorAttachmentRefs.push_back(colorAttachmentRef);
     }
 
-    VkSubpassDescription subpass{};
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = rhiRenderPassInfo.m_rtNum;
-    subpass.pColorAttachments = colorAttachmentRefs.data();
 
     VkSubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
     dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
 
     VkAttachmentDescription attachmentDesc[8];
     for (uint32_t index = 0; index < rhiRenderPassInfo.m_rtNum; index++)
@@ -311,8 +310,11 @@ std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRH
         attachmentDesc[index].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
         attachmentDesc[index].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachmentDesc[index].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachmentDesc[index].initialLayout = VK_IMAGE_LAYOUT_GENERAL;
-        attachmentDesc[index].finalLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+        //TODO: current is one pass pipeline
+        assert(rhiRenderPassInfo.m_rtNum == 1);
+        attachmentDesc[index].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        attachmentDesc[index].finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     }
 
     uint32_t totalRtNum = rhiRenderPassInfo.m_rtNum;
@@ -328,9 +330,20 @@ std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRH
         attachmentDesc[dsIndex].storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         attachmentDesc[dsIndex].stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachmentDesc[dsIndex].stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-        attachmentDesc[dsIndex].initialLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+        attachmentDesc[dsIndex].initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         attachmentDesc[dsIndex].finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     }
+
+    VkAttachmentReference depthAttachmentRef{};
+    depthAttachmentRef.attachment = 1;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = rhiRenderPassInfo.m_rtNum;
+    subpass.pColorAttachments = colorAttachmentRefs.data();
+    subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;

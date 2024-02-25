@@ -5,6 +5,8 @@
 
 #include "vulkan\vulkan.h"
 
+#include "renderdoc_app.h"
+
 #include "vk_mem_alloc.h"
 
 class CVulkanDevice
@@ -17,6 +19,8 @@ public:
 	inline std::shared_ptr<CVulkanTexture2D> GetCurrentBackBufferTexture() { return m_backBufferTextures[m_currentBackBufferIndex]; };
 	inline std::shared_ptr<CVulkanTexture2D> GetDefaultDSTexture() { return m_deviceDefaultDsTexture; };
 	
+	inline RENDERDOC_API_1_6_0* GetRenderDocAPI() { return m_rdoc; };
+
 	void Present();
 public:
 	VkDevice m_vkDevice;
@@ -38,6 +42,9 @@ private:
 	VkQueue m_vkQueue;	
 	uint32_t m_queueFamilyIndex;
 
+	// renderdoc
+	RENDERDOC_API_1_6_0* m_rdoc;
+
 	// commnad pool
 	VkCommandPool m_commandPool;
 	VkCommandBuffer m_commandBuffer;
@@ -56,6 +63,8 @@ private:
 
 	// device default depth texture
 	std::shared_ptr<CVulkanTexture2D> m_deviceDefaultDsTexture;
+
+	uint32_t m_acquiredImageIndex;
 
 	// swap chain
 	VkExtent2D m_swapChainExtent;

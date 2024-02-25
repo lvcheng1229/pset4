@@ -49,6 +49,9 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/thirdparty/VulkanMemoryAllocator)
 include_directories(${CMAKE_SOURCE_DIR}/thirdparty/VulkanMemoryAllocator/include)
 link_libraries(VulkanMemoryAllocator)
 
+# renderdoc
+include_directories(${PSET4_ROOT_DIR}/thirdparty/renderdoc)
+
 # thirdparty
 include_directories(${PSET4_ROOT_DIR}/thirdparty/glfw/include)
 include_directories(${PSET4_ROOT_DIR}/thirdparty/spdlog)

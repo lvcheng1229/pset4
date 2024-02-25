@@ -40,6 +40,9 @@ VkFramebuffer CVulkanContext::PtGetOrCreateVulkanFrameBuffer(const CVulkanTextur
 
 void CVulkanContext::RHIBeginFrame()
 {
+	vkWaitForFences(m_device->m_vkDevice, 1, &m_device->inFlightFence, VK_TRUE, UINT64_MAX);
+	vkResetFences(m_device->m_vkDevice, 1, &m_device->inFlightFence);
+
 	VkCommandBufferBeginInfo beginInfo{};
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 	vkResetCommandBuffer(*m_vkCmdBuffer, /*VkCommandBufferResetFlagBits*/ 0);
@@ -48,13 +51,12 @@ void CVulkanContext::RHIBeginFrame()
 
 void CVulkanContext::RHIEndFrame()
 {
-	m_device->Present();
 	vkCmdEndRenderPass(*m_vkCmdBuffer);
-	vkWaitForFences(m_device->m_vkDevice, 1, &m_device->inFlightFence, VK_TRUE, UINT64_MAX);
-	vkResetFences(m_device->m_vkDevice, 1, &m_device->inFlightFence);
-	uint32_t imageIndex;
-	vkAcquireNextImageKHR(m_device->m_vkDevice, m_device->m_swapChain, UINT64_MAX, m_device->imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	VULKAN_VARIFY(vkEndCommandBuffer(*m_vkCmdBuffer));
+	m_device->Present();
 
+	
+	m_device->GetRenderDocAPI()->EndFrameCapture(&m_device->m_vkDevice, m_device->m_glfwWindow);
 }
 
 void CVulkanContext::RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPipelineState> graphicsPso)
