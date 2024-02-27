@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "PtVulkanDynamicRHI.h"
 
 static VkBufferUsageFlags ConvertBufferUsage(EBufferUsage inUsage)
@@ -17,19 +18,34 @@ static VkBufferUsageFlags ConvertBufferUsage(EBufferUsage inUsage)
 	return retVkUsage;
 }
 
+void CVulkanDynamicRHI::RHIUpdateBuffer(CRHIBuffer* pBuffer, uint8_t* pData, uint64_t bufferSize)
+{
+	CVulkanBuffer* pVkBuffer = static_cast<CVulkanBuffer*>(pBuffer);
+	memcpy(pVkBuffer->m_vmaAllocInfo.pMappedData, pData, bufferSize);
+}
+
 std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInitData, uint64_t nElementCount, uint64_t nStride, EBufferUsage bufferUsage)
 {
 	std::shared_ptr<CVulkanBuffer> pVkBuffer = std::make_shared<CVulkanBuffer>();
 	pVkBuffer->m_elemCount = nElementCount;
 	pVkBuffer->m_elemStride = nStride;
+	pVkBuffer->bInit = true;
 
 	{
 		VkBufferCreateInfo dstBufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };
 		dstBufferInfo.size = nElementCount * nStride;
 		dstBufferInfo.usage = ConvertBufferUsage(bufferUsage);
-		VmaAllocationCreateInfo dstAllocInfo = {};
-		dstAllocInfo.usage = VMA_MEMORY_USAGE_AUTO;
-		vmaCreateBuffer(m_device.m_vmaAllocator, &dstBufferInfo, &dstAllocInfo, &pVkBuffer->m_buffer, &pVkBuffer->m_vmaAlloc, nullptr);
+		
+		VmaAllocationCreateInfo vmaAllocCreateInfo = {};
+		vmaAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
+
+		if (bufferUsage == RHIBU_CB)
+		{
+			//Persistently mapped memory
+			vmaAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+		}
+
+		vmaCreateBuffer(m_device.m_vmaAllocator, &dstBufferInfo, &vmaAllocCreateInfo, &pVkBuffer->m_buffer, &pVkBuffer->m_vmaAlloc, &pVkBuffer->m_vmaAllocInfo);
 	}
 	if (pInitData != nullptr)
 	{
@@ -84,6 +100,16 @@ std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInit
 	return pVkBuffer;
 }
 
+
+void CVulkanContext::RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t index)
+{
+	CVulkanBuffer* pVkBuffer = static_cast<CVulkanBuffer*>(ctBuffer);
+	if (m_gfxStateCache.m_bufferDescs[index].m_buffer != pVkBuffer->m_buffer)
+	{
+		m_gfxStateCache.m_bufferDescs[index].m_buffer = pVkBuffer->m_buffer;
+		m_gfxStateCache.m_bufferDescs[index].m_size = ctBuffer->m_elemCount * ctBuffer->m_elemStride;
+	}
+}
 
 void CVulkanContext::RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t bufferOffset)
 {

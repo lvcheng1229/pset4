@@ -233,6 +233,8 @@ VkFormat GetVkFormatFromAMDFormat(PtGfx::BUF_DATA_FORMAT dataFormat, PtGfx::BUF_
     return VkFormat();
 }
 
+
+
 VkCompareOp GetVkCmpFuncFromAMD(Pal::CompareFunc cmpFunc)
 {
     return VkCompareOp(cmpFunc);

@@ -114,6 +114,17 @@ public:
 	GfxBufferSrd m_bufferSrd;
 };
 
+class CTextureResourceDesc
+{
+public:
+	//void* GetBaseAddress()const;
+	//uint32_t GetStride()const;
+	//uint32_t GetSize()const;
+	GfxImageSrd m_imageSrd;
+};
+
+uint32_t GetDataFormatSizeInByte(PtGfx::BUF_DATA_FORMAT dataFormat);
+
 inline void* GetFetchAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 32 | (uintptr_t(lo) & ~(0x3u))); };
 inline void* GetCodeAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 40 | uintptr_t(lo) << 8); }
 

@@ -34,6 +34,7 @@ private:
 	void CreateSyncObjects();
 	void CreateAmdVulkanMemAllocator();
 	void CreateDeviceDefaultDepthTexture();
+	void CreateDescriptorPool();
 private:
 	struct GLFWwindow* m_glfwWindow;
 	
@@ -41,6 +42,9 @@ private:
 	VkPhysicalDevice m_vkPhysicalDevice;	
 	VkQueue m_vkQueue;	
 	uint32_t m_queueFamilyIndex;
+
+	// vulkan descriptor pool
+	VkDescriptorPool m_descPool;
 
 	// renderdoc
 	RENDERDOC_API_1_6_0* m_rdoc;

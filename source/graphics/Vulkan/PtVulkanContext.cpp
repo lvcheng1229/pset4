@@ -53,7 +53,7 @@ void CVulkanContext::RHIBeginFrame()
 
 void CVulkanContext::RHIEndFrame()
 {
-	vkCmdEndRenderPass(*m_vkCmdBuffer);
+	RHIEndRenderPass();
 	VULKAN_VARIFY(vkEndCommandBuffer(*m_vkCmdBuffer));
 	m_device->Present();
 
@@ -70,6 +70,7 @@ void CVulkanContext::RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPip
 	if (m_gfxStateCache.m_pipeline != vkgGraphicsPso->m_vkPipeline)
 	{
 		m_gfxStateCache.m_pipeline = vkgGraphicsPso->m_vkPipeline;
+		m_gfxStateCache.m_pipelineLayout = vkgGraphicsPso->m_pipelineLayout;
 		m_gfxStateCache.m_bPipelineDirty = true;
 	}
 	
@@ -102,6 +103,7 @@ void CVulkanContext::RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITextu
 	renderPassInfo.pClearValues = rtClearValue;
 
 	vkCmdBeginRenderPass(*m_vkCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+	m_gfxStateCache.m_bInRenderPass = true;
 
 	// todo: refactor this scope
 	{
@@ -120,6 +122,23 @@ void CVulkanContext::RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITextu
 		scissor.extent.height = m_device->m_height;
 		vkCmdSetScissor(*m_vkCmdBuffer, 0, 1, &scissor);
 	}
+}
+
+void CVulkanContext::RHIEndRenderPass()
+{
+	if (m_gfxStateCache.m_bInRenderPass)
+	{
+		vkCmdEndRenderPass(*m_vkCmdBuffer);
+		m_gfxStateCache.m_bInRenderPass = false;
+	}
+	
+}
+
+void CVulkanContext::RHIPixelShaderSetPushConstatnt(uint32_t index, uint32_t size, uint8_t* pData)
+{
+	m_gfxStateCache.m_pixelShaderPushConstant[index].m_pushConstantData.resize(size);
+	m_gfxStateCache.m_bPushCtDirty[index] = true;
+	memcpy(m_gfxStateCache.m_pixelShaderPushConstant[index].m_pushConstantData.data(), pData, size);
 }
 
 void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, uint32_t vertexOffset, uint32_t firstInstance)
@@ -142,7 +161,27 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 			m_gfxStateCache.m_bVertexBufferDirty[index] = false;
 		}
 	}
+	
+	for (uint32_t index = 0; index < 4; index++)
+	{
+		if (m_gfxStateCache.m_bPushCtDirty[index])
+		{
+			vkCmdPushConstants(*m_vkCmdBuffer, m_gfxStateCache.m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+				m_gfxStateCache.m_pixelShaderPushConstant[index].m_pushConstantData.size(),
+				m_gfxStateCache.m_pixelShaderPushConstant[index].m_pushConstantData.data());
+			m_gfxStateCache.m_bPushCtDirty[index] = false;
+		}
+	}
 
+	// update desc set
+	{
+		uint32_t gloablBindingIndex = 0;
+
+		for (uint32_t index = 0; index < m_gfxStateCache.m_pVertexShader->m_numCbv; index++)
+		{
+			gloablBindingIndex++;
+		}
+	}
 
 	CVulkanBuffer* pIdxBuffer = static_cast<CVulkanBuffer*>(indexBuffer);
 	vkCmdBindIndexBuffer(*m_vkCmdBuffer, pIdxBuffer->m_buffer, 0, pIdxBuffer->m_elemStride == sizeof(uint16_t) ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);

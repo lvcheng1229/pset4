@@ -1,6 +1,9 @@
+#include <assert.h>
 #include "PtGPURegs.h"
 
 static SGPU_REGS gGpuRegs;
+
+
 
 SGPU_REGS* GetGpuRegs()
 {
@@ -33,4 +36,27 @@ uint32_t CBufferResourceDesc::GetSize() const
     uint32_t stride = m_bufferSrd.word1.bitfields.STRIDE;
     uint32_t numElements = m_bufferSrd.word2.bitfields.NUM_RECORDS;
     return stride ? numElements * stride : numElements;
+}
+
+uint32_t GetDataFormatSizeInByte(PtGfx::BUF_DATA_FORMAT dataFormat)
+{
+	switch (dataFormat)
+	{
+	case PtGfx::BUF_DATA_FORMAT_8:return 1;
+	case PtGfx::BUF_DATA_FORMAT_16:return 2;
+	case PtGfx::BUF_DATA_FORMAT_8_8:return 2;
+	case PtGfx::BUF_DATA_FORMAT_32:return 4;
+	case PtGfx::BUF_DATA_FORMAT_16_16:return 4;
+	case PtGfx::BUF_DATA_FORMAT_10_11_11:return 4;
+	case PtGfx::BUF_DATA_FORMAT_11_11_10:return 4;
+	case PtGfx::BUF_DATA_FORMAT_10_10_10_2:return 4;
+	case PtGfx::BUF_DATA_FORMAT_2_10_10_10:return 4;
+	case PtGfx::BUF_DATA_FORMAT_8_8_8_8:return 4;
+	case PtGfx::BUF_DATA_FORMAT_32_32:return 8;
+	case PtGfx::BUF_DATA_FORMAT_16_16_16_16:return 8;
+	case PtGfx::BUF_DATA_FORMAT_32_32_32:return 12;
+	case PtGfx::BUF_DATA_FORMAT_32_32_32_32:return 16;
+	default:assert(false);
+	}
+	return 0;
 }

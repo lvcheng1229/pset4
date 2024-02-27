@@ -26,15 +26,10 @@ CPtRenderDocAPI::CPtRenderDocAPI()
     std::string rdocPath = std::string(PSET_ROOT_DIR) + "/thirdparty/renderdoc/renderdoc.dll";
     std::wstring rdocWPath = std::wstring_convert<std::codecvt_utf8<wchar_t>>().from_bytes(rdocPath.c_str());
    
-    // HMODULE module = LoadLibraryW(rdocWPath.c_str());
     HMODULE module = GetModuleHandleA("renderdoc.dll");
     if (module == NULL)
     {
-        module = LoadLibraryW(rdocWPath.c_str());
-        if (module == NULL)
-        {
-            return;
-        }
+        return;
     }
 
     pRENDERDOC_GetAPI getApi = nullptr;
@@ -418,5 +413,23 @@ void CVulkanDevice::CreateDeviceDefaultDepthTexture()
     createInfo.subresourceRange.baseArrayLayer = 0;
     createInfo.subresourceRange.layerCount = 1;
     VULKAN_VARIFY(vkCreateImageView(m_vkDevice, &createInfo, nullptr, &m_deviceDefaultDsTexture->m_view));
+}
+
+void CVulkanDevice::CreateDescriptorPool()
+{
+    static constexpr uint32_t maxDescCount = 1024;
+    std::array<VkDescriptorPoolSize, 2> poolSizes{};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    poolSizes[0].descriptorCount = maxDescCount;
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[1].descriptorCount = maxDescCount;
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.pPoolSizes = poolSizes.data();
+    poolInfo.maxSets = 128;
+
+    VULKAN_VARIFY(vkCreateDescriptorPool(m_vkDevice, &poolInfo, nullptr, &m_descPool));
 }
 

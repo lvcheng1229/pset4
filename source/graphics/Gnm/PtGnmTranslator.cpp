@@ -86,6 +86,7 @@ void CPtGnmTranslator::ProcessGnmPrivateOp(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_
 	case OP_CUS_WAIT_UNTIL_SAFE_FOR_RENDERING:
 		//TODO:
 		break;
+	case OP_CUS_UPDATE_VS_SHADER:
 	case OP_CUS_SET_VS_SHADER:
 	{
 		GnmCmdSetVSShader* param = (GnmCmdSetVSShader*)pm4Hdr;
@@ -98,8 +99,6 @@ void CPtGnmTranslator::ProcessGnmPrivateOp(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_
 		GetGpuRegs()->SPI.VS.OUT_CNTL = *(PtGfx::PA_CL_VS_OUT_CNTL*)(&param->vsRegs.paClVsOutCntl);
 		break;
 	}
-	case OP_CUS_UPDATE_VS_SHADER:
-		break;
 	case OP_CUS_SET_PS_SHADER:
 	{
 		GnmCmdSetPSShader* param = (GnmCmdSetPSShader*)pm4Hdr;
@@ -250,6 +249,10 @@ void CPtGnmTranslator::SetShReg(uint16_t reg, uint32_t value)
 	if (reg >= PtGfx::mmSPI_SHADER_USER_DATA_VS_0 && reg <= PtGfx::mmSPI_SHADER_USER_DATA_VS_15)
 	{
 		GetGpuRegs()->SPI.VS.USER_DATA[reg - PtGfx::mmSPI_SHADER_USER_DATA_VS_0] = value;
+	}
+	else if(reg >= PtGfx::mmSPI_SHADER_USER_DATA_PS_0 && reg <= PtGfx::mmSPI_SHADER_USER_DATA_PS_15)
+	{
+		GetGpuRegs()->SPI.PS.USER_DATA[reg - PtGfx::mmSPI_SHADER_USER_DATA_PS_0] = value;
 	}
 	else
 	{

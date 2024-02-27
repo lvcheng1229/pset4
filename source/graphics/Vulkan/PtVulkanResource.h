@@ -19,6 +19,7 @@ class CVulkanBuffer : public CRHIBuffer
 public:
 	VkBuffer m_buffer;
 	VmaAllocation m_vmaAlloc;
+	VmaAllocationInfo m_vmaAllocInfo;
 };
 
 class CVulkanShader
@@ -42,7 +43,10 @@ public:
 class CVulkanGraphicsPipelineState : public CRHIGraphicsPipelineState
 {
 public:
+
 	VkPipeline m_vkPipeline;
+	VkDescriptorSet m_vkDescSet;
+	VkPipelineLayout m_pipelineLayout;
 };
 
 class CVulkanRenderPass : public CRHIRenderPass

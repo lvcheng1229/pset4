@@ -131,6 +131,7 @@ int32_t CGsISAProcessor::GetUsageRegisterIndex(EShaderInputUsage usgae)
 	SInputUsageSlot* usageSlot = GetShaderSlot();
 	if (usageSlot != nullptr)
 	{
+		int32_t numUsageSlot = GetShaderInfo(m_base)->m_numInputUsageSlots;
 		for (uint32_t index = 0; index < GetShaderInfo(m_base)->m_numInputUsageSlots; index++)
 		{
 			if (usgae == usageSlot[index].m_usageType) { return usageSlot[index].m_startRegister; };
@@ -147,7 +148,10 @@ int32_t CGsISAProcessor::GetUsageRegisterNum(EShaderInputUsage usgae)
 	{
 		for (uint32_t index = 0; index < GetShaderInfo(m_base)->m_numInputUsageSlots; index++)
 		{
-			if (usgae == usageSlot[index].m_usageType) { num++; };
+			if (usgae == usageSlot[index].m_usageType) 
+			{ 
+				num++;
+			};
 		}
 	}
 	return num;

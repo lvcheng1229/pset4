@@ -164,7 +164,8 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
     vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-    VkPipelineLayout pipelineLayout = PtCreateVulkanGraphicsPipelineLayout(pVkVertexShader, pVkPixelShader);
+    VkDescriptorSet* pVkDescSet;
+    VkPipelineLayout pipelineLayout = PtCreateVulkanGraphicsPipelineLayout(pVkVertexShader, pVkPixelShader, pVkDescSet);
 
     // inputAssembly
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -267,6 +268,10 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
     pipelineInfo.basePipelineIndex = -1;
 
     std::shared_ptr<CVulkanGraphicsPipelineState> ptVkraphicsPipelineState = std::make_shared<CVulkanGraphicsPipelineState>();
+    ptVkraphicsPipelineState->m_pipelineLayout = pipelineLayout;
+    ptVkraphicsPipelineState->m_vkDescSet = *pVkDescSet;
+    ptVkraphicsPipelineState->m_vertexShader = psoInitDesc.m_pVertexShader;
+    ptVkraphicsPipelineState->m_pixelShader = psoInitDesc.m_pPixelShader;
     vkCreateGraphicsPipelines(m_device.m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &ptVkraphicsPipelineState->m_vkPipeline);
     gPipelineMap[hash] = ptVkraphicsPipelineState;
     return ptVkraphicsPipelineState;

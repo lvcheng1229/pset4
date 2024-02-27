@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <vector>
+#include <memory>
 
 #include "graphics\AMD\pal\core\pal.h"
 #include "graphics\Gnm\PtGPURegs.h"
@@ -55,15 +56,31 @@ class CRHIBuffer
 public:
 	uint32_t m_elemCount;
 	uint32_t m_elemStride;
+	bool bInit = false;
 };
+
+static constexpr uint32_t gMaxResourceNum = 8;
 
 class CRHIShader
 {
 public:
+	uint32_t m_numPushConst;
+	uint32_t m_pushCtStartRegIdnex;
+	std::vector<size_t> m_pushConstSizes;
+	
 	uint32_t m_numCbv;
+	uint32_t m_cbvStartRegIdnex;
+	std::shared_ptr<CRHIBuffer> m_pConstantBuffers[gMaxResourceNum];
+
 	uint32_t m_numSrv;
+	uint32_t m_srvStartIndex;
+
 	uint32_t m_numUav;
+	uint32_t m_uavStartIndex;
+
 	uint32_t m_numSampler;
+	uint32_t m_samplerStartIndex;
+
 };
 
 class CRHIVertexShader : public CRHIShader
@@ -115,7 +132,9 @@ private:
 
 class CRHIGraphicsPipelineState
 {
-
+public:
+	CRHIVertexShader* m_pVertexShader;
+	CRHIPixelShader* m_pPixelShader;
 };
 
 
