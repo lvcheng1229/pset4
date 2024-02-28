@@ -61,6 +61,7 @@ void CVulkanDevice::Init(void* windowHandle)
     CreateSyncObjects();
     CreateAmdVulkanMemAllocator();
     CreateDeviceDefaultDepthTexture();
+    CreateDescriptorPool();
     if (m_rdoc)
     {
         m_rdoc->StartFrameCapture(nullptr, nullptr);

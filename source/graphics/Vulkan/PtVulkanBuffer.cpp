@@ -15,6 +15,11 @@ static VkBufferUsageFlags ConvertBufferUsage(EBufferUsage inUsage)
 		retVkUsage |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 	}
 
+	if ((inUsage & RHIBU_CB) != 0)
+	{
+		retVkUsage |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+	}
+	
 	return retVkUsage;
 }
 
@@ -29,7 +34,6 @@ std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInit
 	std::shared_ptr<CVulkanBuffer> pVkBuffer = std::make_shared<CVulkanBuffer>();
 	pVkBuffer->m_elemCount = nElementCount;
 	pVkBuffer->m_elemStride = nStride;
-	pVkBuffer->bInit = true;
 
 	{
 		VkBufferCreateInfo dstBufferInfo = { VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO };

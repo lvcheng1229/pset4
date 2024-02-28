@@ -1,6 +1,7 @@
 #include <string>
 #include <xhash>
 #include <unordered_map>
+#include <assert.h>
 
 #include "PtVkCommon.h"
 #include "PtVulkanDynamicRHI.h"
@@ -90,12 +91,12 @@ VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVer
 			allocInfo.pSetLayouts = &descSetLayout;
 			vkAllocateDescriptorSets(m_device.m_vkDevice, &allocInfo, &vkDescSet);
 			gDescSetMap[hash] = vkDescSet;
-			outDescSet = &gDescSetMap[hash];
+			*outDescSet = gDescSetMap[hash];
 		}
 		else
 		{
 			descSetLayout = iter->second;
-			outDescSet = &gDescSetMap[hash];
+			*outDescSet = gDescSetMap[hash];
 		}
 	}
 

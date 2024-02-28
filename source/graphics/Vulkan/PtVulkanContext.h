@@ -38,17 +38,15 @@ static constexpr uint32_t gMaxVkResourceNum = 4;
 
 struct SVkGraphicsStateCache
 {
-	CRHIVertexShader* m_pVertexShader;
-	CRHIPixelShader* m_pPixelShader;
-
 	SPixelShaderPushConstant m_pixelShaderPushConstant[4];
 	bool m_bPushCtDirty[4] = { 0,0,0,0 };
 
 	SBufferDesc m_bufferDescs[gMaxVkResourceNum];
 	STextureAndSamplerDesc m_texAndSamplerDescs[gMaxVkResourceNum];
 
-	VkPipeline m_pipeline;
-	VkPipelineLayout m_pipelineLayout;
+	CVulkanGraphicsPipelineState* m_pVulkanGraphicsPipelineState;
+	//VkPipeline m_pipeline;
+	//VkPipelineLayout m_pipelineLayout;
 	bool m_bPipelineDirty;
 
 	SVertexBufferStreaming m_vertexStreamings[8];

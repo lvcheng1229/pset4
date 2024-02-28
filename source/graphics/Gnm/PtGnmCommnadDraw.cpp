@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 
+#include "PtGnmDefs.h"
 #include "PtGnmTranslator.h"
 #include "PtGPURegs.h"
 
@@ -214,9 +215,9 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	{
 		for (uint32_t index = 0; index < pVertexShader->m_numCbv; index++)
 		{
-			const uint32_t* cbvDesc = (&GetGpuRegs()->SPI.PS.USER_DATA[pVertexShader->m_cbvStartRegIdnex + index * ShaderConstantDwordSize::kDwordSizeConstantBuffer]);
+			const uint32_t* cbvDesc = reinterpret_cast<uint32_t*>(&GetGpuRegs()->SPI.VS.USER_DATA[pVertexShader->m_cbvStartRegIdnex + index * ShaderConstantDwordSize::kDwordSizeConstantBuffer]);
 			const CBufferResourceDesc* cbDesc = reinterpret_cast<const CBufferResourceDesc*>(cbvDesc);
-			if (pVertexShader->m_pConstantBuffers[index]->bInit)
+			if (pVertexShader->m_pConstantBuffers[index])
 			{
 				RHIUpdateBuffer(pVertexShader->m_pConstantBuffers[index].get(), (uint8_t*)cbDesc->GetBaseAddress(), cbDesc->GetSize());
 			}
@@ -225,9 +226,34 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 				pVertexShader->m_pConstantBuffers[index] = RHICreateBuffer(cbDesc->GetBaseAddress(), cbDesc->GetSize(), 1, RHIBU_CB);
 			}
 			//set buffers
+			gRHICommandList.RHISetConstantBuffer(pVertexShader->m_pConstantBuffers[index].get(), index);
 		}
 	}
 
+	//pixel shader texture
+	if (pPixelShader->m_numSrv > 0)
+	{
+		for (uint32_t index = 0; index < pPixelShader->m_numSrv; index++)
+		{
+			const uint32_t* srvDesc = reinterpret_cast<uint32_t*>(&GetGpuRegs()->SPI.PS.USER_DATA[pPixelShader->m_srvStartIndex + index * ShaderConstantDwordSize::kDwordSizeResource]);
+			const CTextureResourceDesc* srDesc = reinterpret_cast<const CTextureResourceDesc*>(srvDesc);
+			if (pPixelShader->m_pTextures[index].get() == nullptr)
+			{
+				ETileMode tileMode = ETileMode(srDesc->m_imageSrd.word3.bitfields.TILING_INDEX);
+
+				// only support kTileModeDepth_1dThin for now
+				assert(kTileModeDepth_1dThin == kTileModeDepth_1dThin);
+				assert(tileMode != kTileModeDisplay_LinearAligned && tileMode != kTileModeDisplay_LinearGeneral);
+
+				uint32_t imageTexelSize = GetImageDataFormatSizeInByte(PtGfx::IMG_DATA_FORMAT(srDesc->m_imageSrd.word1.bitfields.DATA_FORMAT));
+				uint32_t textureSize = srDesc->GetTextureWidth() * srDesc->GetTextureHeight() * imageTexelSize;
+
+				std::vector<uint8_t> imageData;
+				imageData.resize(textureSize);
+				memcpy(imageData.data(), srDesc->GetBaseAddress(), textureSize);
+			}
+		}
+	}
 	// pixel shader push constant
 	//TODO: which slot
 	if (pPixelShader->m_numPushConst > 0)
@@ -239,13 +265,6 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 			const CBufferResourceDesc* pushConstantDesc = reinterpret_cast<const CBufferResourceDesc*>(pushConstData);
 			gRHICommandList.RHIPixelShaderSetPushConstatnt(index, pushConstantDesc->GetSize(), (uint8_t*)pushConstantDesc->GetBaseAddress());
 		}
-	}
-
-	CGsISAProcessor psIsaProcessor;
-	psIsaProcessor.Init(GetCodeAddress(GetGpuRegs()->SPI.PS.LO, GetGpuRegs()->SPI.PS.HI));
-	int32_t pixPushCtIndex = psIsaProcessor.GetUsageRegisterIndex(EShaderInputUsage::kShaderInputUsageImmConstBuffer);
-	if(pixPushCtIndex != -1)
-	{
 	}
 
 	// depth stencil state
@@ -311,5 +330,11 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 		gRHICommandList.RHIDrawIndexedPrimitive(idxIter->second.get(), param->indexCount, 1, 0, 0, 0);
 	}
 
-	
+
+	static uint32_t dcNum = 0;
+	dcNum++;
+	if (dcNum == 3)
+	{
+		gRHICommandList.RHIEndFrame();
+	}
 }

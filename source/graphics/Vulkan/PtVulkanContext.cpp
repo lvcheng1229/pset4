@@ -67,13 +67,11 @@ void CVulkanContext::RHIEndFrame()
 void CVulkanContext::RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPipelineState> graphicsPso)
 {
 	CVulkanGraphicsPipelineState* vkgGraphicsPso = static_cast<CVulkanGraphicsPipelineState*>(graphicsPso.get());
-	if (m_gfxStateCache.m_pipeline != vkgGraphicsPso->m_vkPipeline)
+	if (m_gfxStateCache.m_pVulkanGraphicsPipelineState != vkgGraphicsPso)
 	{
-		m_gfxStateCache.m_pipeline = vkgGraphicsPso->m_vkPipeline;
-		m_gfxStateCache.m_pipelineLayout = vkgGraphicsPso->m_pipelineLayout;
+		m_gfxStateCache.m_pVulkanGraphicsPipelineState = vkgGraphicsPso;
 		m_gfxStateCache.m_bPipelineDirty = true;
 	}
-	
 }
 
 void CVulkanContext::RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture)
@@ -131,7 +129,6 @@ void CVulkanContext::RHIEndRenderPass()
 		vkCmdEndRenderPass(*m_vkCmdBuffer);
 		m_gfxStateCache.m_bInRenderPass = false;
 	}
-	
 }
 
 void CVulkanContext::RHIPixelShaderSetPushConstatnt(uint32_t index, uint32_t size, uint8_t* pData)
@@ -145,7 +142,7 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 {
 	if (m_gfxStateCache.m_bPipelineDirty)
 	{
-		vkCmdBindPipeline(*m_vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_gfxStateCache.m_pipeline);
+		vkCmdBindPipeline(*m_vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_vkPipeline);
 		m_gfxStateCache.m_bPipelineDirty = false;
 	}
 
@@ -166,7 +163,7 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 	{
 		if (m_gfxStateCache.m_bPushCtDirty[index])
 		{
-			vkCmdPushConstants(*m_vkCmdBuffer, m_gfxStateCache.m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+			vkCmdPushConstants(*m_vkCmdBuffer, m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0,
 				m_gfxStateCache.m_pixelShaderPushConstant[index].m_pushConstantData.size(),
 				m_gfxStateCache.m_pixelShaderPushConstant[index].m_pushConstantData.data());
 			m_gfxStateCache.m_bPushCtDirty[index] = false;
@@ -174,14 +171,48 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 	}
 
 	// update desc set
-	{
-		uint32_t gloablBindingIndex = 0;
+	uint32_t gloablBindingIndex = 0;
 
-		for (uint32_t index = 0; index < m_gfxStateCache.m_pVertexShader->m_numCbv; index++)
+	CRHIVertexShader* m_pVertexShader = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pVertexShader;
+	CRHIPixelShader* m_pPixelShader = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pPixelShader;
+
+	std::vector<VkWriteDescriptorSet> descriptorWrites;
+	{
+		for (uint32_t index = 0; index < m_pVertexShader->m_numCbv; index++)
 		{
+			VkDescriptorBufferInfo bufferInfo{};
+			bufferInfo.buffer = m_gfxStateCache.m_bufferDescs[index].m_buffer;
+			bufferInfo.offset = 0;
+			bufferInfo.range = m_gfxStateCache.m_bufferDescs[index].m_size;
+
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_vkDescSet;
+			descriptorWrite.dstBinding = gloablBindingIndex;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pBufferInfo = &bufferInfo;
+			descriptorWrites.push_back(descriptorWrite);
+
 			gloablBindingIndex++;
 		}
+
+		for (uint32_t index = 0; index < m_pPixelShader->m_numSrv; index++)
+		{
+			assert(false);
+		}
 	}
+
+	if (gloablBindingIndex > 0)
+	{
+		vkUpdateDescriptorSets(m_device->m_vkDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkCmdBindDescriptorSets(*m_vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+			m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineLayout, 0, 1,
+			&m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_vkDescSet, 0, nullptr);
+	}
+
+	
 
 	CVulkanBuffer* pIdxBuffer = static_cast<CVulkanBuffer*>(indexBuffer);
 	vkCmdBindIndexBuffer(*m_vkCmdBuffer, pIdxBuffer->m_buffer, 0, pIdxBuffer->m_elemStride == sizeof(uint16_t) ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);

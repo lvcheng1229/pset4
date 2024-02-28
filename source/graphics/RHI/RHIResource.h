@@ -56,7 +56,6 @@ class CRHIBuffer
 public:
 	uint32_t m_elemCount;
 	uint32_t m_elemStride;
-	bool bInit = false;
 };
 
 static constexpr uint32_t gMaxResourceNum = 8;
@@ -74,6 +73,7 @@ public:
 
 	uint32_t m_numSrv;
 	uint32_t m_srvStartIndex;
+	std::shared_ptr<CRHITexture2D> m_pTextures[gMaxResourceNum];
 
 	uint32_t m_numUav;
 	uint32_t m_uavStartIndex;

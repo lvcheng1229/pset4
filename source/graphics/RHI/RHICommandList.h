@@ -12,7 +12,7 @@ public:
 	inline void RHIPixelShaderSetPushConstatnt(uint32_t index, uint32_t size, uint8_t* pData);
 	
 	inline void RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t index);
-	inline void RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t bufferOffset);
+	inline void RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t size);
 	
 	inline void RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture);
 	inline void RHIEndRenderPass();
@@ -46,7 +46,7 @@ inline void CRHICommnadList::RHIPixelShaderSetPushConstatnt(uint32_t index, uint
 
 inline void CRHICommnadList::RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t index)
 {
-
+	m_gfxCtx->RHISetConstantBuffer(ctBuffer, index);
 }
 
 inline void CRHICommnadList::RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t bufferOffset)

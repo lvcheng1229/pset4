@@ -38,7 +38,7 @@ uint32_t CBufferResourceDesc::GetSize() const
     return stride ? numElements * stride : numElements;
 }
 
-uint32_t GetDataFormatSizeInByte(PtGfx::BUF_DATA_FORMAT dataFormat)
+uint32_t GetBufferDataFormatSizeInByte(PtGfx::BUF_DATA_FORMAT dataFormat)
 {
 	switch (dataFormat)
 	{
@@ -59,4 +59,40 @@ uint32_t GetDataFormatSizeInByte(PtGfx::BUF_DATA_FORMAT dataFormat)
 	default:assert(false);
 	}
 	return 0;
+}
+
+uint32_t GetImageDataFormatSizeInByte(PtGfx::IMG_DATA_FORMAT dataFormat)
+{
+	switch (dataFormat)
+	{
+	case PtGfx::IMG_DATA_FORMAT_8: return 1;
+	case PtGfx::IMG_DATA_FORMAT_16:return 2;
+	case PtGfx::IMG_DATA_FORMAT_8_8:return 2;
+	case PtGfx::IMG_DATA_FORMAT_32:return 4;
+	case PtGfx::IMG_DATA_FORMAT_16_16:return 4;
+	case PtGfx::IMG_DATA_FORMAT_10_11_11:return 4;
+	case PtGfx::IMG_DATA_FORMAT_11_11_10:return 4;
+	case PtGfx::IMG_DATA_FORMAT_10_10_10_2:return 4;
+	case PtGfx::IMG_DATA_FORMAT_2_10_10_10:return 4;
+	case PtGfx::IMG_DATA_FORMAT_8_8_8_8:return 4;
+	case PtGfx::IMG_DATA_FORMAT_32_32:return 8;
+	case PtGfx::IMG_DATA_FORMAT_16_16_16_16:return 8;
+	case PtGfx::IMG_DATA_FORMAT_32_32_32:return 12;
+	case PtGfx::IMG_DATA_FORMAT_32_32_32_32:return 16;
+	default :
+		assert(false);
+		return 0;
+	}
+	return 0;
+}
+
+void* CTextureResourceDesc::GetBaseAddress() const
+{
+	//uintptr_t baseAddr = m_imageSrd.word1.bitfields.BASE_ADDRESS_HI;
+	//baseAddr <<= 32;
+	//baseAddr |= m_imageSrd.word0.bitfields.BASE_ADDRESS;
+
+	uintptr_t baseAddr = m_imageSrd.word0.bitfields.BASE_ADDRESS;
+	baseAddr <<= 8;
+	return (void*)baseAddr;
 }
