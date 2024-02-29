@@ -16,11 +16,20 @@ struct SSpirvHeader
 	uint32_t m_reserved;
 };
 
+struct SSpirvInstruction
+{
+	uint16_t op;
+	uint16_t count;
+};
+
 class CPtSpirvParser
 {
 public:
-	void SetSpvSource(uint8_t* spvSrc);
+	void SetSpvSource(uint8_t* spvSrc, uint32_t size);
+	void ModifyFragmentShaderSpirvSet();
+
 	void Parse();
 private:
 	uint8_t* m_spvSrc;
+	uint32_t m_size;
 };

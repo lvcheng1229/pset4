@@ -11,7 +11,8 @@
 
 
 VkFormat GetVkRenderTargetFormatFromAMDFormat(uint8_t format, uint8_t numberType);
-VkFormat GetVkFormatFromAMDFormat(PtGfx::BUF_DATA_FORMAT dataFormat, PtGfx::BUF_NUM_FORMAT numFormat);
+VkFormat GetVkBufferFormatFromAMDFormat(PtGfx::BUF_DATA_FORMAT dataFormat, PtGfx::BUF_NUM_FORMAT numFormat);
+VkFormat GetVkImgFormatFromAMDFormat(PtGfx::IMG_DATA_FORMAT imgFormat, PtGfx::IMG_NUM_FORMAT numFormat);
 uint32_t GetDataFormatSizeInByte(PtGfx::BUF_DATA_FORMAT dataFormat);
 VkCompareOp GetVkCmpFuncFromAMD(Pal::CompareFunc cmpFunc);
 

@@ -114,7 +114,7 @@ VkFormat GetVkRenderTargetFormatFromAMDFormat(uint8_t format, uint8_t numberType
     return VkFormat();
 }
 
-VkFormat GetVkFormatFromAMDFormat(PtGfx::BUF_DATA_FORMAT dataFormat, PtGfx::BUF_NUM_FORMAT numFormat)
+VkFormat GetVkBufferFormatFromAMDFormat(PtGfx::BUF_DATA_FORMAT dataFormat, PtGfx::BUF_NUM_FORMAT numFormat)
 {
     switch (numFormat)
     {
@@ -233,7 +233,36 @@ VkFormat GetVkFormatFromAMDFormat(PtGfx::BUF_DATA_FORMAT dataFormat, PtGfx::BUF_
     return VkFormat();
 }
 
-
+VkFormat GetVkImgFormatFromAMDFormat(PtGfx::IMG_DATA_FORMAT imgFormat, PtGfx::IMG_NUM_FORMAT numFormat)
+{
+    switch (numFormat)
+    {
+    case PtGfx::IMG_NUM_FORMAT_UNORM:
+    {
+        switch (imgFormat)
+        {
+        case PtGfx::IMG_DATA_FORMAT_8_8_8_8:return VK_FORMAT_R8G8B8A8_UNORM;
+        default:assert(false);
+        }
+    case PtGfx::IMG_NUM_FORMAT_SNORM:
+        switch (imgFormat)
+        {
+        case PtGfx::IMG_DATA_FORMAT_8_8_8_8:return VK_FORMAT_R8G8B8A8_SNORM;
+        default:assert(false);
+        }
+    case PtGfx::IMG_NUM_FORMAT_SRGB:
+        switch (imgFormat)
+        {
+        case PtGfx::IMG_DATA_FORMAT_8_8_8_8:return VK_FORMAT_R8G8B8A8_SRGB;
+        default:assert(false);
+        }
+    default:
+        assert(false);
+        break;
+    };
+    return VkFormat();
+    };
+}
 
 VkCompareOp GetVkCmpFuncFromAMD(Pal::CompareFunc cmpFunc)
 {

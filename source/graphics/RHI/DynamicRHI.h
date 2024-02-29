@@ -8,12 +8,12 @@ class CDynamicRHI
 public:
 	virtual void Init(void* windowHandle) = 0;
 	virtual std::shared_ptr<CRHITexture2D> RHIGetDeviceDefaultTexture(EDeviceDefaultTex deviceDefaultTex) = 0;
-	//virtual std::shared_ptr<CRHITexture2D> RHICreateTexture2D(uint32_t width, uint32_t height, uint8_t format, uint8_t numberType, ETextureCreateFlags* texCreateFlags, uint8_t* texFlags) = 0;
 	virtual std::shared_ptr<CRHIVertexShader> RHICreateVertexShader(const std::vector<uint8_t>& code) = 0;
 	virtual std::shared_ptr<CRHIPixelShader> RHICreatePixelShader(const std::vector<uint8_t>& code) = 0;
 	virtual std::shared_ptr<CRHIGraphicsPipelineState> RHICreateGraphicsPipelineState(const CRHIGraphicsPipelineStateInitDesc& psoInitDesc) = 0;
 	virtual std::shared_ptr<CRHIRenderPass> RHICreateRenderPass(const CRHIRenderPassInfo& renderPass) = 0;
 	virtual std::shared_ptr<CRHIBuffer> RHICreateBuffer(const void* pInitData, uint64_t nElementCount, uint64_t nStride, EBufferUsage bufferUsage) = 0;
+	virtual std::shared_ptr<CRHITexture2D> RHICreateTexture2D(const void* pInitData, uint32_t width, uint32_t height, PtGfx::IMG_DATA_FORMAT dataFormat, PtGfx::IMG_NUM_FORMAT numFormat, ETextureCreateFlags texFlag) = 0;
 	virtual void RHIUpdateBuffer(CRHIBuffer* pBuffer, uint8_t* pData, uint64_t bufferSize) = 0;
 private:
 };
@@ -44,6 +44,11 @@ inline std::shared_ptr<CRHIGraphicsPipelineState> RHICreateGraphicsPipelineState
 inline std::shared_ptr<CRHIRenderPass> RHICreateRenderPass(const CRHIRenderPassInfo& renderPass)
 {
 	return gPlatformRHI->RHICreateRenderPass(renderPass);
+}
+
+inline std::shared_ptr<CRHITexture2D> RHICreateTexture2D(const void* pInitData, uint32_t width, uint32_t height, PtGfx::IMG_DATA_FORMAT dataFormat, PtGfx::IMG_NUM_FORMAT numFormat, ETextureCreateFlags texFlag)
+{
+	return gPlatformRHI->RHICreateTexture2D(pInitData, width, height, dataFormat, numFormat, texFlag);
 }
 
 inline void RHIUpdateBuffer(CRHIBuffer* pBuffer, uint8_t* pData, uint64_t bufferSize)

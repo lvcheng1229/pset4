@@ -5,6 +5,19 @@
 #include "vulkan\vulkan.h"
 #include "graphics\RHI\RHIResource.h"
 
+struct SVulkanPipelineLayouts
+{
+	VkDescriptorSetLayout vtxDescSetLayout;
+	VkDescriptorSetLayout pixDescSetLayout;
+};
+
+struct SVulkanPipelineDescSet
+{
+	bool bVtxHasBind = false;
+	bool bPixHasBind = false;
+	VkDescriptorSet vtxDescSet;
+	VkDescriptorSet pixDescSet;
+};
 
 class CVulkanTexture2D : public CRHITexture2D
 {
@@ -12,6 +25,7 @@ public:
 	VkImage m_image;
 	VkImageView m_view;
 	VmaAllocation m_vmaAlloc;
+	VmaAllocationInfo m_vmaAllocInfo;
 };
 
 class CVulkanBuffer : public CRHIBuffer
@@ -45,7 +59,7 @@ class CVulkanGraphicsPipelineState : public CRHIGraphicsPipelineState
 public:
 
 	VkPipeline m_vkPipeline;
-	VkDescriptorSet m_vkDescSet;
+	SVulkanPipelineDescSet m_pipelineDescSet;
 	VkPipelineLayout m_pipelineLayout;
 };
 

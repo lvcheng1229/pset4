@@ -68,42 +68,26 @@ std::shared_ptr<CRHIBuffer> CVulkanDynamicRHI::RHICreateBuffer(const void* pInit
 		vmaCreateBuffer(m_device.m_vmaAllocator, &srcBufferInfo, &srcAllocInfo, &stageBuffer, &vmaAlloc, &vmaAllocInfo);
 		memcpy(vmaAllocInfo.pMappedData, pInitData, nElementCount * nStride);
 
-		VkCommandBuffer commandBuffer;
-		
-		// TODO: fix me 
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = m_device.m_commandPool;
-		allocInfo.commandBufferCount = 1;
-		vkAllocateCommandBuffers(m_device.m_vkDevice, &allocInfo, &commandBuffer);
-
-		VkCommandBufferBeginInfo beginInfo{};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		vkBeginCommandBuffer(commandBuffer, &beginInfo);
+		VkCommandBuffer commandBuffer = PtBeginImmediateCommandBuffer();
 
 		VkBufferCopy copyRegion{};
 		copyRegion.size = nElementCount * nStride;
 		vkCmdCopyBuffer(commandBuffer, stageBuffer, pVkBuffer->m_buffer, 1, &copyRegion);
 
-		vkEndCommandBuffer(commandBuffer);
-
-		VkSubmitInfo submitInfo{};
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
-
-		vkQueueSubmit(m_device.m_vkQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(m_device.m_vkQueue);
-
-		vkFreeCommandBuffers(m_device.m_vkDevice, m_device.m_commandPool, 1, &commandBuffer);
+		PtEndImmediateCommandBuffer(commandBuffer);
 	}
 
 	return pVkBuffer;
 }
 
+void CVulkanContext::RHISetTexture2D(CRHITexture2D* tex, uint32_t imgIndex)
+{
+	CVulkanTexture2D* vkTexture2D = static_cast<CVulkanTexture2D*>(tex);
+	if (m_gfxStateCache.m_texDesc[imgIndex].m_imgView != vkTexture2D->m_view)
+	{
+		m_gfxStateCache.m_texDesc[imgIndex].m_imgView = vkTexture2D->m_view;
+	}
+}
 
 void CVulkanContext::RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t index)
 {

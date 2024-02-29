@@ -11,9 +11,11 @@ public:
 
 	virtual void RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t bufferOffset) = 0;
 	virtual void RHISetGraphicsPipelineState(std::shared_ptr<CRHIGraphicsPipelineState> graphicsPso) = 0;
+	
 	virtual void RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture) = 0;
 	virtual void RHIEndRenderPass() = 0;
 
+	virtual void RHISetTexture2D(CRHITexture2D* tex, uint32_t imgIndex) = 0;
 	virtual void RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t index) = 0;
 	virtual void RHIPixelShaderSetPushConstatnt(uint32_t index, uint32_t size, uint8_t* pData) = 0;
 	

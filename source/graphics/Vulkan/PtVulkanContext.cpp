@@ -171,12 +171,13 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 	}
 
 	// update desc set
-	uint32_t gloablBindingIndex = 0;
+	
 
 	CRHIVertexShader* m_pVertexShader = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pVertexShader;
 	CRHIPixelShader* m_pPixelShader = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pPixelShader;
 
 	std::vector<VkWriteDescriptorSet> descriptorWrites;
+	uint32_t gloablBindingIndex = 0;
 	{
 		for (uint32_t index = 0; index < m_pVertexShader->m_numCbv; index++)
 		{
@@ -187,7 +188,7 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 
 			VkWriteDescriptorSet descriptorWrite{};
 			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrite.dstSet = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_vkDescSet;
+			descriptorWrite.dstSet = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineDescSet.vtxDescSet;
 			descriptorWrite.dstBinding = gloablBindingIndex;
 			descriptorWrite.dstArrayElement = 0;
 			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -200,19 +201,46 @@ void CVulkanContext::RHIDrawIndexedPrimitive(CRHIBuffer* indexBuffer, uint32_t i
 
 		for (uint32_t index = 0; index < m_pPixelShader->m_numSrv; index++)
 		{
-			assert(false);
+			VkDescriptorImageInfo imageInfo{};
+			imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			imageInfo.imageView = m_gfxStateCache.m_texDesc[index].m_imgView;
+			imageInfo.sampler = m_device->m_vkStaticPointSampler;
+			
+			VkWriteDescriptorSet descriptorWrite{};
+			descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+			descriptorWrite.dstSet = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineDescSet.pixDescSet;
+			descriptorWrite.dstBinding = gloablBindingIndex;
+			descriptorWrite.dstArrayElement = 0;
+			descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			descriptorWrite.descriptorCount = 1;
+			descriptorWrite.pImageInfo = &imageInfo;
+
+			descriptorWrites.push_back(descriptorWrite);
+
+			gloablBindingIndex++;
 		}
+
 	}
 
 	if (gloablBindingIndex > 0)
 	{
 		vkUpdateDescriptorSets(m_device->m_vkDevice, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		vkCmdBindDescriptorSets(*m_vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-			m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineLayout, 0, 1,
-			&m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_vkDescSet, 0, nullptr);
-	}
+		
+		SVulkanPipelineDescSet& pipelineDescSet = m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineDescSet;
+		if (pipelineDescSet.bVtxHasBind)
+		{
+			vkCmdBindDescriptorSets(*m_vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+				m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineLayout, 0, 1,
+				&pipelineDescSet.vtxDescSet, 0, nullptr);
+		}
 
-	
+		if (pipelineDescSet.bPixHasBind)
+		{
+			vkCmdBindDescriptorSets(*m_vkCmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+				m_gfxStateCache.m_pVulkanGraphicsPipelineState->m_pipelineLayout, 1, 1,
+				&pipelineDescSet.pixDescSet, 0, nullptr);
+		}
+	}
 
 	CVulkanBuffer* pIdxBuffer = static_cast<CVulkanBuffer*>(indexBuffer);
 	vkCmdBindIndexBuffer(*m_vkCmdBuffer, pIdxBuffer->m_buffer, 0, pIdxBuffer->m_elemStride == sizeof(uint16_t) ? VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);

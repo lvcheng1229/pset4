@@ -62,6 +62,8 @@ void CVulkanDevice::Init(void* windowHandle)
     CreateAmdVulkanMemAllocator();
     CreateDeviceDefaultDepthTexture();
     CreateDescriptorPool();
+    CreateStaticSampler();
+
     if (m_rdoc)
     {
         m_rdoc->StartFrameCapture(nullptr, nullptr);
@@ -432,5 +434,25 @@ void CVulkanDevice::CreateDescriptorPool()
     poolInfo.maxSets = 128;
 
     VULKAN_VARIFY(vkCreateDescriptorPool(m_vkDevice, &poolInfo, nullptr, &m_descPool));
+}
+
+void CVulkanDevice::CreateStaticSampler()
+{
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_NEAREST;
+    samplerInfo.minFilter = VK_FILTER_NEAREST;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    samplerInfo.anisotropyEnable = VK_FALSE;
+    samplerInfo.maxAnisotropy = 1;
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+
+    vkCreateSampler(m_vkDevice, &samplerInfo, nullptr, &m_vkStaticPointSampler);
 }
 

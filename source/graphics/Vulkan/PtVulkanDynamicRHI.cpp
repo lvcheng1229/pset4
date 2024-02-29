@@ -143,7 +143,7 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
         InputAttributeDescription.binding = psoInitDesc.m_vertexElements[index].binding;
         InputAttributeDescription.location = psoInitDesc.m_vertexElements[index].location;
         InputAttributeDescription.offset = psoInitDesc.m_vertexElements[index].offset;
-        InputAttributeDescription.format = GetVkFormatFromAMDFormat(psoInitDesc.m_vertexElements[index].m_vertexDataFormat, psoInitDesc.m_vertexElements[index].m_vertexNumFormat);
+        InputAttributeDescription.format = GetVkBufferFormatFromAMDFormat(psoInitDesc.m_vertexElements[index].m_vertexDataFormat, psoInitDesc.m_vertexElements[index].m_vertexNumFormat);
         attributeDescriptions.push_back(InputAttributeDescription);
     }
 
@@ -164,8 +164,8 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
     vertexInputInfo.vertexAttributeDescriptionCount = attributeDescriptions.size();
     vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
-    VkDescriptorSet vkDescSet;
-    VkPipelineLayout pipelineLayout = PtCreateVulkanGraphicsPipelineLayout(pVkVertexShader, pVkPixelShader, &vkDescSet);
+    SVulkanPipelineDescSet pipelineDescSet;
+    VkPipelineLayout pipelineLayout = PtCreateVulkanGraphicsPipelineLayout(pVkVertexShader, pVkPixelShader, &pipelineDescSet);
 
     // inputAssembly
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
@@ -269,7 +269,7 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
 
     std::shared_ptr<CVulkanGraphicsPipelineState> ptVkraphicsPipelineState = std::make_shared<CVulkanGraphicsPipelineState>();
     ptVkraphicsPipelineState->m_pipelineLayout = pipelineLayout;
-    ptVkraphicsPipelineState->m_vkDescSet = vkDescSet;
+    ptVkraphicsPipelineState->m_pipelineDescSet = pipelineDescSet;
     ptVkraphicsPipelineState->m_pVertexShader = pVkVertexShader;
     ptVkraphicsPipelineState->m_pPixelShader = pVkPixelShader;
     vkCreateGraphicsPipelines(m_device.m_vkDevice, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &ptVkraphicsPipelineState->m_vkPipeline);
@@ -366,4 +366,39 @@ std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRH
     gRenderPass[hash] = pVulkanRenderPass;
 
     return pVulkanRenderPass;
+}
+
+VkCommandBuffer CVulkanDynamicRHI::PtBeginImmediateCommandBuffer()
+{
+    VkCommandBuffer commandBuffer;
+
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = m_device.m_commandPool;
+    allocInfo.commandBufferCount = 1;
+    vkAllocateCommandBuffers(m_device.m_vkDevice, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+
+void CVulkanDynamicRHI::PtEndImmediateCommandBuffer(VkCommandBuffer vkCmdBuffer)
+{
+    vkEndCommandBuffer(vkCmdBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &vkCmdBuffer;
+
+    vkQueueSubmit(m_device.m_vkQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(m_device.m_vkQueue);
+
+    vkFreeCommandBuffers(m_device.m_vkDevice, m_device.m_commandPool, 1, &vkCmdBuffer);
 }

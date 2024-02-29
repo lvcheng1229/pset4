@@ -13,7 +13,8 @@ public:
 	
 	inline void RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t index);
 	inline void RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t size);
-	
+	inline void RHISetTexture2D(CRHITexture2D* tex, uint32_t imgIndex);
+
 	inline void RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture);
 	inline void RHIEndRenderPass();
 	
@@ -52,6 +53,11 @@ inline void CRHICommnadList::RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t
 inline void CRHICommnadList::RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t bufferOffset)
 {
 	m_gfxCtx->RHISetVertexBuffer(vtxBuffer, bufferSlot, bufferOffset);
+}
+
+inline void CRHICommnadList::RHISetTexture2D(CRHITexture2D* tex, uint32_t imgIndex)
+{
+	m_gfxCtx->RHISetTexture2D(tex, imgIndex);
 }
 
 void CRHICommnadList::RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITexture2D* rtTextures, uint32_t rtNum, CRHITexture2D* dsTexture)

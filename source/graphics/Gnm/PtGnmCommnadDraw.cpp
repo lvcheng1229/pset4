@@ -9,6 +9,8 @@
 #include "PtGnmTranslator.h"
 #include "PtGPURegs.h"
 
+#include "graphics\Spirv\SpirvParser.h"
+
 #include "core\PtUtil.h"
 
 #include "graphics\Gcn\GcnShaderDecoder.h"
@@ -21,6 +23,7 @@
 static std::unordered_map<std::string, std::shared_ptr<CRHIVertexShader>> gRHIVertexShaders;
 static std::unordered_map<std::string, std::shared_ptr<CRHIPixelShader>> gRHIPixelShaders;
 static std::unordered_map<void*, std::shared_ptr<CRHIBuffer>> gRHIBuffers;
+static std::unordered_map<void*, std::shared_ptr<CRHITexture2D>> gRHITextures;
 
 static std::shared_ptr<CRHIVertexShader> CreateVertexShader()
 {
@@ -72,7 +75,13 @@ static std::shared_ptr<CRHIPixelShader> CreatePixelShader()
 		{
 			std::vector<uint8_t> psShaderCode;
 			PtReadFile(fileName, psShaderCode);
+			
+			CPtSpirvParser spvParser;
+			spvParser.SetSpvSource(psShaderCode.data(), psShaderCode.size());
+			spvParser.ModifyFragmentShaderSpirvSet();
+
 			pPixelShader = RHICreatePixelShader(psShaderCode);
+			
 			CGsISAProcessor isaProcessor;
 			isaProcessor.Init(psCodeAddr);
 			pPixelShader->m_numPushConst = isaProcessor.GetUsageRegisterNum(kShaderInputUsageImmConstBuffer);
@@ -237,7 +246,9 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 		{
 			const uint32_t* srvDesc = reinterpret_cast<uint32_t*>(&GetGpuRegs()->SPI.PS.USER_DATA[pPixelShader->m_srvStartIndex + index * ShaderConstantDwordSize::kDwordSizeResource]);
 			const CTextureResourceDesc* srDesc = reinterpret_cast<const CTextureResourceDesc*>(srvDesc);
-			if (pPixelShader->m_pTextures[index].get() == nullptr)
+			void* imgData = srDesc->GetBaseAddress();
+
+			if (gRHITextures[imgData] == nullptr)
 			{
 				ETileMode tileMode = ETileMode(srDesc->m_imageSrd.word3.bitfields.TILING_INDEX);
 
@@ -251,7 +262,10 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 				std::vector<uint8_t> imageData;
 				imageData.resize(textureSize);
 				memcpy(imageData.data(), srDesc->GetBaseAddress(), textureSize);
+
+				gRHITextures[imgData] = RHICreateTexture2D(imageData.data(), srDesc->GetTextureWidth(), srDesc->GetTextureHeight(), PtGfx::IMG_DATA_FORMAT(srDesc->m_imageSrd.word1.bitfields.DATA_FORMAT), PtGfx::IMG_NUM_FORMAT(srDesc->m_imageSrd.word1.bitfields.NUM_FORMAT), TexCreate_ShaderResource);
 			}
+			gRHICommandList.RHISetTexture2D(gRHITextures[imgData].get(), index);
 		}
 	}
 	// pixel shader push constant

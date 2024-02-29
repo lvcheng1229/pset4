@@ -28,10 +28,9 @@ struct SBufferDesc
 	uint32_t m_size;
 };
 
-struct STextureAndSamplerDesc
+struct STextureDesc
 {
 	VkImageView m_imgView;
-	VkSampler m_vkSampler;
 };
 
 static constexpr uint32_t gMaxVkResourceNum = 4;
@@ -42,7 +41,7 @@ struct SVkGraphicsStateCache
 	bool m_bPushCtDirty[4] = { 0,0,0,0 };
 
 	SBufferDesc m_bufferDescs[gMaxVkResourceNum];
-	STextureAndSamplerDesc m_texAndSamplerDescs[gMaxVkResourceNum];
+	STextureDesc m_texDesc[gMaxVkResourceNum];
 
 	CVulkanGraphicsPipelineState* m_pVulkanGraphicsPipelineState;
 	//VkPipeline m_pipeline;
@@ -72,6 +71,7 @@ public:
 
 	virtual void RHIPixelShaderSetPushConstatnt(uint32_t index, uint32_t size, uint8_t* pData)override;
 
+	virtual void RHISetTexture2D(CRHITexture2D* tex, uint32_t imgIndex) override;
 	virtual void RHISetConstantBuffer(CRHIBuffer* ctBuffer, uint32_t index)override;
 	virtual void RHISetVertexBuffer(CRHIBuffer* vtxBuffer, uint32_t bufferSlot, uint32_t bufferOffset)override;
 	

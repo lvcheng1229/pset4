@@ -35,6 +35,8 @@ private:
 	void CreateAmdVulkanMemAllocator();
 	void CreateDeviceDefaultDepthTexture();
 	void CreateDescriptorPool();
+	void CreateStaticSampler();
+
 private:
 	struct GLFWwindow* m_glfwWindow;
 	
@@ -42,6 +44,9 @@ private:
 	VkPhysicalDevice m_vkPhysicalDevice;	
 	VkQueue m_vkQueue;	
 	uint32_t m_queueFamilyIndex;
+
+	// 
+	VkSampler m_vkStaticPointSampler;
 
 	// vulkan descriptor pool
 	VkDescriptorPool m_descPool;
