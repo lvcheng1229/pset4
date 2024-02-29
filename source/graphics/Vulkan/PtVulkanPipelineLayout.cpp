@@ -92,50 +92,50 @@ VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVer
 		auto iter = descSetLayoutHash.find(hash);
 		if (iter == descSetLayoutHash.end())
 		{
-			VkDescriptorSetLayout vtxDescSetLayout;
-			VkDescriptorSetLayoutCreateInfo vtxDescriptorLayoutInfo = {};
-			vtxDescriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			vtxDescriptorLayoutInfo.bindingCount = vtxDescSetLayoutBindings.size();
-			vtxDescriptorLayoutInfo.pBindings = vtxDescSetLayoutBindings.data();
-			vkCreateDescriptorSetLayout(m_device.m_vkDevice, &vtxDescriptorLayoutInfo, nullptr, &vtxDescSetLayout);
-			descSetLayoutHash[hash].vtxDescSetLayout = vtxDescSetLayout;
-			
 			if (vtxbindingIndex > 0)
 			{
+				VkDescriptorSetLayout vtxDescSetLayout;
+				VkDescriptorSetLayoutCreateInfo vtxDescriptorLayoutInfo = {};
+				vtxDescriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+				vtxDescriptorLayoutInfo.bindingCount = vtxDescSetLayoutBindings.size();
+				vtxDescriptorLayoutInfo.pBindings = vtxDescSetLayoutBindings.data();
+				vkCreateDescriptorSetLayout(m_device.m_vkDevice, &vtxDescriptorLayoutInfo, nullptr, &vtxDescSetLayout);
+				descSetLayoutHash[hash].vtxDescSetLayout = vtxDescSetLayout;
 				descSetLayouts.push_back(vtxDescSetLayout);
-			}
 
-			VkDescriptorSetLayout pixDescSetLayout;
-			VkDescriptorSetLayoutCreateInfo pixDescriptorLayoutInfo = {};
-			pixDescriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-			pixDescriptorLayoutInfo.bindingCount = pixDescSetLayoutBindings.size();
-			pixDescriptorLayoutInfo.pBindings = pixDescSetLayoutBindings.data();
-			vkCreateDescriptorSetLayout(m_device.m_vkDevice, &pixDescriptorLayoutInfo, nullptr, &pixDescSetLayout);
-			descSetLayoutHash[hash].pixDescSetLayout = pixDescSetLayout;
+				VkDescriptorSet vtxDescSet;
+				VkDescriptorSetAllocateInfo vtxAllocInfo{};
+				vtxAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+				vtxAllocInfo.descriptorPool = m_device.m_descPool;
+				vtxAllocInfo.descriptorSetCount = 1;
+				vtxAllocInfo.pSetLayouts = &vtxDescSetLayout;
+				vkAllocateDescriptorSets(m_device.m_vkDevice, &vtxAllocInfo, &vtxDescSet);
+				gDescSetMap[hash].vtxDescSet = vtxDescSet;
+				gDescSetMap[hash].bVtxHasBind = true;
+			}
 
 			if (pixbindingIndex > 0)
 			{
+				VkDescriptorSetLayout pixDescSetLayout;
+				VkDescriptorSetLayoutCreateInfo pixDescriptorLayoutInfo = {};
+				pixDescriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+				pixDescriptorLayoutInfo.bindingCount = pixDescSetLayoutBindings.size();
+				pixDescriptorLayoutInfo.pBindings = pixDescSetLayoutBindings.data();
+				vkCreateDescriptorSetLayout(m_device.m_vkDevice, &pixDescriptorLayoutInfo, nullptr, &pixDescSetLayout);
+				descSetLayoutHash[hash].pixDescSetLayout = pixDescSetLayout;
 				descSetLayouts.push_back(pixDescSetLayout);
+
+				VkDescriptorSet pixDescSet;
+				VkDescriptorSetAllocateInfo pixAllocInfo{};
+				pixAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+				pixAllocInfo.descriptorPool = m_device.m_descPool;
+				pixAllocInfo.descriptorSetCount = 1;
+				pixAllocInfo.pSetLayouts = &pixDescSetLayout;
+				vkAllocateDescriptorSets(m_device.m_vkDevice, &pixAllocInfo, &pixDescSet);
+
+				gDescSetMap[hash].pixDescSet = pixDescSet;
+				gDescSetMap[hash].bPixHasBind = true;
 			}
-
-			VkDescriptorSet vtxDescSet;
-			VkDescriptorSetAllocateInfo vtxAllocInfo{};
-			vtxAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-			vtxAllocInfo.descriptorPool = m_device.m_descPool;
-			vtxAllocInfo.descriptorSetCount = 1;
-			vtxAllocInfo.pSetLayouts = &pixDescSetLayout;
-			vkAllocateDescriptorSets(m_device.m_vkDevice, &vtxAllocInfo, &vtxDescSet);
-
-			VkDescriptorSet pixDescSet;
-			VkDescriptorSetAllocateInfo pixAllocInfo{};
-			pixAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-			pixAllocInfo.descriptorPool = m_device.m_descPool;
-			pixAllocInfo.descriptorSetCount = 1;
-			pixAllocInfo.pSetLayouts = &pixDescSetLayout;
-			vkAllocateDescriptorSets(m_device.m_vkDevice, &pixAllocInfo, &pixDescSet);
-
-			gDescSetMap[hash].vtxDescSet = vtxDescSet;
-			gDescSetMap[hash].pixDescSet = pixDescSet;
 
 			*outPipelineDescSet = gDescSetMap[hash];
 		}

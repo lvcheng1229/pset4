@@ -252,9 +252,8 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 			{
 				ETileMode tileMode = ETileMode(srDesc->m_imageSrd.word3.bitfields.TILING_INDEX);
 
-				// only support kTileModeDepth_1dThin for now
-				assert(kTileModeDepth_1dThin == kTileModeDepth_1dThin);
-				assert(tileMode != kTileModeDisplay_LinearAligned && tileMode != kTileModeDisplay_LinearGeneral);
+				bool isTile = tileMode != kTileModeDisplay_LinearAligned && tileMode != kTileModeDisplay_LinearGeneral;
+				assert(isTile);
 
 				uint32_t imageTexelSize = GetImageDataFormatSizeInByte(PtGfx::IMG_DATA_FORMAT(srDesc->m_imageSrd.word1.bitfields.DATA_FORMAT));
 				uint32_t textureSize = srDesc->GetTextureWidth() * srDesc->GetTextureHeight() * imageTexelSize;
@@ -350,5 +349,7 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	if (dcNum == 3)
 	{
 		gRHICommandList.RHIEndFrame();
+		assert(false);
+		//__debugbreak();
 	}
 }
