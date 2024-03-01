@@ -5,6 +5,7 @@
 #include <array>
 #include <vector>
 
+#include "PtGnmDetileTexture.h"
 #include "PtGnmDefs.h"
 #include "PtGnmTranslator.h"
 #include "PtGPURegs.h"
@@ -251,18 +252,14 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 			if (gRHITextures[imgData] == nullptr)
 			{
 				ETileMode tileMode = ETileMode(srDesc->m_imageSrd.word3.bitfields.TILING_INDEX);
-
 				bool isTile = tileMode != kTileModeDisplay_LinearAligned && tileMode != kTileModeDisplay_LinearGeneral;
 				assert(isTile);
 
-				uint32_t imageTexelSize = GetImageDataFormatSizeInByte(PtGfx::IMG_DATA_FORMAT(srDesc->m_imageSrd.word1.bitfields.DATA_FORMAT));
-				uint32_t textureSize = srDesc->GetTextureWidth() * srDesc->GetTextureHeight() * imageTexelSize;
+				std::vector<uint8_t> detiledTexture;
+				CGnmTextureDetiler texDetiler;
+				texDetiler.DeTileTexture(srDesc, detiledTexture);
 
-				std::vector<uint8_t> imageData;
-				imageData.resize(textureSize);
-				memcpy(imageData.data(), srDesc->GetBaseAddress(), textureSize);
-
-				gRHITextures[imgData] = RHICreateTexture2D(imageData.data(), srDesc->GetTextureWidth(), srDesc->GetTextureHeight(), PtGfx::IMG_DATA_FORMAT(srDesc->m_imageSrd.word1.bitfields.DATA_FORMAT), PtGfx::IMG_NUM_FORMAT(srDesc->m_imageSrd.word1.bitfields.NUM_FORMAT), TexCreate_ShaderResource);
+				gRHITextures[imgData] = RHICreateTexture2D(detiledTexture.data(), srDesc->GetTextureWidth(), srDesc->GetTextureHeight(), PtGfx::IMG_DATA_FORMAT(srDesc->m_imageSrd.word1.bitfields.DATA_FORMAT), PtGfx::IMG_NUM_FORMAT(srDesc->m_imageSrd.word1.bitfields.NUM_FORMAT), TexCreate_ShaderResource);
 			}
 			gRHICommandList.RHISetTexture2D(gRHITextures[imgData].get(), index);
 		}
@@ -350,6 +347,5 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	{
 		gRHICommandList.RHIEndFrame();
 		assert(false);
-		//__debugbreak();
 	}
 }
