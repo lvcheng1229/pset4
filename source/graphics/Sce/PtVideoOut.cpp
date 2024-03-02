@@ -1,4 +1,5 @@
 #include <vector>
+#include <Windows.h>
 
 #include "graphics\Vulkan\PtVkDeviceCommand.h"
 #include "graphics\RHI\DynamicRHI.h"
@@ -33,6 +34,17 @@ CPtDisplay::CPtDisplay()
 	InitDynamicRHI(m_glfwWindow);
 }
 
+CPtVideoOut::CPtVideoOut()
+{
+	HANDLE     processHandle = GetCurrentProcess();
+	DWORD      currentProcessId = GetProcessId(processHandle);
+	DWORD pid = GetCurrentProcessId();
+	
+	FILETIME createTime, exitTime, kernelTime, userTime;
+	GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime);
+
+	m_vblankSatus.m_processTime = ;
+}
 
 int AddVideoOut()
 {

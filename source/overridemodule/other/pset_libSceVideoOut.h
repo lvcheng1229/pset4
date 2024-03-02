@@ -27,6 +27,16 @@ struct SSceVideoOutResolutionStatus
 	uint32_t _reserved1[3];
 };
 
+struct SSceVideoOutVblankStatus
+{
+	uint64_t m_count; // count of vblanks after sceVideoOutOpen()
+	uint64_t m_processTime; // processTime of the time of the latest vblank event
+	uint64_t m_timeStampCounter;// Timestamp counter value when the latest vblank executed
+	uint64_t m_reserved;
+	uint8_t m_flags;// SceVideoOutVblankStatusFlags
+	uint8_t m_padding[7];
+};
+
 #define SCE_VIDEO_OUT_REFRESH_RATE_59_94HZ 3
 #define SCE_VIDEO_OUT_RESOLUTION_STATUS_FLAGS_OUTPUT_IN_USE  (0 << 0)
 
@@ -36,6 +46,9 @@ int PSET_SYSV_ABI Pset_sceVideoOutSetBufferAttribute(SSceVideoOutBufferAttribute
 
 int PSET_SYSV_ABI Pset_sceVideoOutOpen(int32_t userId, int32_t type, int32_t index, const void* param);
 int PSET_SYSV_ABI Pset_sceVideoOutGetResolutionStatus(int32_t videoHandle, SSceVideoOutResolutionStatus* status);
+int PSET_SYSV_ABI Pset_sceVideoOutGetVblankStatus(int32_t videoHandle, SSceVideoOutVblankStatus* outVBlankSatus);
+
+
 
 int PSET_SYSV_ABI Pset_sceDbgVideoOutAddOutputModeVr60Privilege(void);
 int PSET_SYSV_ABI Pset_sceDbgVideoOutAddProcessAttribute(void);
@@ -103,7 +116,6 @@ int PSET_SYSV_ABI Pset_sceVideoOutGetHdmiMonitorInfoNoMask_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetPortStatusInfo_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetPortStatusInfoByBusSpecifier_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetStatusForWebcore(void);
-int PSET_SYSV_ABI Pset_sceVideoOutGetVblankStatus(void);
 int PSET_SYSV_ABI Pset_sceVideoOutGetVideoOutModeByBusSpecifier_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutHdmiMonitorInfoIsSupportedHdcpVersion_(void);
 int PSET_SYSV_ABI Pset_sceVideoOutHdmiMonitorInfoIsSupportedVideoOutMode_(void);

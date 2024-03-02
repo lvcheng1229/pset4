@@ -5,8 +5,10 @@
 #include "vulkan\vulkan.h"
 #include "graphics\RHI\RHIResource.h"
 
-struct SVulkanPipelineLayouts
+struct SVulkanPipelineDescSetLayouts
 {
+	bool bVtxHasBind = false;
+	bool bPixHasBind = false;
 	VkDescriptorSetLayout vtxDescSetLayout;
 	VkDescriptorSetLayout pixDescSetLayout;
 };
@@ -59,7 +61,7 @@ class CVulkanGraphicsPipelineState : public CRHIGraphicsPipelineState
 public:
 
 	VkPipeline m_vkPipeline;
-	SVulkanPipelineDescSet m_pipelineDescSet;
+	SVulkanPipelineDescSetLayouts m_pipelineDescLayouts;
 	VkPipelineLayout m_pipelineLayout;
 };
 

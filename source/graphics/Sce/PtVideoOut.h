@@ -9,16 +9,24 @@ public:
 	inline Vec2ui GetDisplaySize() { return m_ptDisplayWidthHeight; }
 
 private:
-	const Vec2ui m_ptDisplayWidthHeight = { 1920 ,1080 };
+	const Vec2ui m_ptDisplayWidthHeight = { 1280 ,720 };
 	GLFWwindow* m_glfwWindow;
+};
+
+struct SVblankStatus
+{
+	uint64_t m_processTime;
+	uint64_t m_timeStampCounter;
 };
 
 class CPtVideoOut
 {
 public:
+	CPtVideoOut();
 	inline Vec2ui GetDisplaySize() { return m_display.GetDisplaySize(); }
 private:
 	CPtDisplay m_display;
+	SVblankStatus m_vblankSatus;
 };
 
 int AddVideoOut();

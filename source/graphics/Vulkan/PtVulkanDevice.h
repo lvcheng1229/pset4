@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+
+#include "PtVulkanDescSetManager.h"
 #include "PtVulkanContext.h"
 #include "PtVulkanResource.h"
 
@@ -34,7 +36,6 @@ private:
 	void CreateSyncObjects();
 	void CreateAmdVulkanMemAllocator();
 	void CreateDeviceDefaultDepthTexture();
-	void CreateDescriptorPool();
 	void CreateStaticSampler();
 
 private:
@@ -48,8 +49,8 @@ private:
 	// 
 	VkSampler m_vkStaticPointSampler;
 
-	// vulkan descriptor pool
-	VkDescriptorPool m_descPool;
+	// vulkan descriptor manager
+	CVulkanDescSetManager m_descManager;
 
 	// renderdoc
 	RENDERDOC_API_1_6_0* m_rdoc;

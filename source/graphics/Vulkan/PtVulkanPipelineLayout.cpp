@@ -6,12 +6,10 @@
 #include "PtVkCommon.h"
 #include "PtVulkanDynamicRHI.h"
 
+static std::unordered_map<uint32_t, SVulkanPipelineDescSetLayouts> descSetLayoutHash;
+static std::unordered_map<uint32_t, VkPipelineLayout> gPipelineLayoutMap;
 
-
-static std::unordered_map<uint32_t, SVulkanPipelineLayouts> descSetLayoutHash;
-static std::unordered_map<uint32_t, SVulkanPipelineDescSet> gDescSetMap;
-
-VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVertexShader* vertexShader, CRHIPixelShader* pixelShader, SVulkanPipelineDescSet* outPipelineDescSet)
+VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVertexShader* vertexShader, CRHIPixelShader* pixelShader, SVulkanPipelineDescSetLayouts* outDescSetLayouts)
 {
 	uint32_t vtxbindingIndex = 0;
 	std::vector<VkDescriptorSetLayoutBinding> vtxDescSetLayoutBindings;
@@ -66,9 +64,9 @@ VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVer
 
 	std::vector<VkDescriptorSetLayout> descSetLayouts;
 	
+	size_t hash = 42;
 	if (bidingCount > 0 || m_pushConstantRages.size() > 0)
 	{
-		size_t hash = 42;
 		if (vtxbindingIndex > 0)
 		{
 			size_t vtxHash = std::hash<std::string>{}(std::string((char*)vtxDescSetLayoutBindings.data(), sizeof(VkDescriptorSetLayoutBinding) * vtxDescSetLayoutBindings.size()));
@@ -89,8 +87,8 @@ VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVer
 			}
 		}
 
-		auto iter = descSetLayoutHash.find(hash);
-		if (iter == descSetLayoutHash.end())
+		auto iter = gPipelineLayoutMap.find(hash);
+		if (iter == gPipelineLayoutMap.end())
 		{
 			if (vtxbindingIndex > 0)
 			{
@@ -101,17 +99,8 @@ VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVer
 				vtxDescriptorLayoutInfo.pBindings = vtxDescSetLayoutBindings.data();
 				vkCreateDescriptorSetLayout(m_device.m_vkDevice, &vtxDescriptorLayoutInfo, nullptr, &vtxDescSetLayout);
 				descSetLayoutHash[hash].vtxDescSetLayout = vtxDescSetLayout;
+				descSetLayoutHash[hash].bVtxHasBind = true;
 				descSetLayouts.push_back(vtxDescSetLayout);
-
-				VkDescriptorSet vtxDescSet;
-				VkDescriptorSetAllocateInfo vtxAllocInfo{};
-				vtxAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-				vtxAllocInfo.descriptorPool = m_device.m_descPool;
-				vtxAllocInfo.descriptorSetCount = 1;
-				vtxAllocInfo.pSetLayouts = &vtxDescSetLayout;
-				vkAllocateDescriptorSets(m_device.m_vkDevice, &vtxAllocInfo, &vtxDescSet);
-				gDescSetMap[hash].vtxDescSet = vtxDescSet;
-				gDescSetMap[hash].bVtxHasBind = true;
 			}
 
 			if (pixbindingIndex > 0)
@@ -123,25 +112,16 @@ VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVer
 				pixDescriptorLayoutInfo.pBindings = pixDescSetLayoutBindings.data();
 				vkCreateDescriptorSetLayout(m_device.m_vkDevice, &pixDescriptorLayoutInfo, nullptr, &pixDescSetLayout);
 				descSetLayoutHash[hash].pixDescSetLayout = pixDescSetLayout;
+				descSetLayoutHash[hash].bPixHasBind = true;
 				descSetLayouts.push_back(pixDescSetLayout);
-
-				VkDescriptorSet pixDescSet;
-				VkDescriptorSetAllocateInfo pixAllocInfo{};
-				pixAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-				pixAllocInfo.descriptorPool = m_device.m_descPool;
-				pixAllocInfo.descriptorSetCount = 1;
-				pixAllocInfo.pSetLayouts = &pixDescSetLayout;
-				vkAllocateDescriptorSets(m_device.m_vkDevice, &pixAllocInfo, &pixDescSet);
-
-				gDescSetMap[hash].pixDescSet = pixDescSet;
-				gDescSetMap[hash].bPixHasBind = true;
 			}
 
-			*outPipelineDescSet = gDescSetMap[hash];
+			*outDescSetLayouts = descSetLayoutHash[hash];
 		}
 		else
 		{
-			*outPipelineDescSet = gDescSetMap[hash];
+			*outDescSetLayouts = descSetLayoutHash[hash];
+			return gPipelineLayoutMap[hash];
 		}
 	}
 
@@ -153,6 +133,7 @@ VkPipelineLayout CVulkanDynamicRHI::PtCreateVulkanGraphicsPipelineLayout(CRHIVer
 	pipelineLayoutCreateInfo.pushConstantRangeCount = pixelShader->m_numPushConst;
 	pipelineLayoutCreateInfo.pPushConstantRanges = m_pushConstantRages.data();
 	VULKAN_VARIFY(vkCreatePipelineLayout(m_device.m_vkDevice, &pipelineLayoutCreateInfo, nullptr, &pipelineLayout));
+	gPipelineLayoutMap[hash] = pipelineLayout;
 	return pipelineLayout;
 }
 

@@ -21,7 +21,7 @@ private:
 
 	VkCommandBuffer PtBeginImmediateCommandBuffer();
 	void PtEndImmediateCommandBuffer(VkCommandBuffer vkCmdBuffer);
-	VkPipelineLayout PtCreateVulkanGraphicsPipelineLayout(CRHIVertexShader* vertexShader, CRHIPixelShader* pixelShader, SVulkanPipelineDescSet* outPipelineDescSet);
+	VkPipelineLayout PtCreateVulkanGraphicsPipelineLayout(CRHIVertexShader* vertexShader, CRHIPixelShader* pixelShader, SVulkanPipelineDescSetLayouts* outDescSetLayouts);
 	
 
 	CVulkanDevice m_device;

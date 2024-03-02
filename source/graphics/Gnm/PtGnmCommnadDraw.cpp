@@ -339,12 +339,5 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 		assert(idxIter != gRHIBuffers.end());
 		gRHICommandList.RHIDrawIndexedPrimitive(idxIter->second.get(), param->indexCount, 1, 0, 0, 0);
 	}
-
-
-	static uint32_t dcNum = 0;
-	dcNum++;
-	if (dcNum == 3)
-	{
-		int test = 1;
-	}
+	
 }

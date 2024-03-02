@@ -53,7 +53,14 @@ void CPtGnmTranslator::ProcessPM4Type3(PM4_PT_TYPE_3_HEADER* pm4Hdr, uint32_t* i
 	{
 	case PtGfx::IT_NOP:
 	case PtGfx::IT_ACQUIRE_MEM:
+		// unimplemtned
+		break;
 	case PtGfx::IT_DMA_DATA:
+		// unimplemented
+		break;
+	case PtGfx::IT_EVENT_WRITE_EOP:
+		// todo: move submit commnad buffer to this scope
+		break;
 	case PtGfx::IT_INDEX_TYPE:
 		onSetIndexType(pm4Hdr, (PtGfx::PM4CMDSETDATA*)itBody);
 		break;
