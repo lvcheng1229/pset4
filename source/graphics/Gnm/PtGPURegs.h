@@ -99,6 +99,7 @@ public:
 	PtGfx::CB_TARGET_MASK TARGET_MASK;
 
 	PtGfx::CB_BLEND0_CONTROL CB_BLEND_CONTROL[8]; // color blend control
+	PtGfx::CB_COLOR_CONTROL CB_COLOR_CONTROL; // pipeline color blend control
 
 	PtGfx::PA_SU_SC_MODE_CNTL SC_MODE_CNTL;	// cull face / poly mode
 	PtGfx::PA_SC_MODE_CNTL_0 SC_MODE_CNTL_0; // msaa

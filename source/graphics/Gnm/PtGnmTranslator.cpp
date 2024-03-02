@@ -8,6 +8,8 @@ void CPtGnmTranslator::TranslateAndDispatchCmd(const void* commandBuffer, uint32
 {
 	gRHICommandList.RHIBeginFrame();
 
+	m_setCtxCount++;
+
 	const PM4_HEADER_COMMON* pm4Hdr = reinterpret_cast<const PM4_HEADER_COMMON*>(commandBuffer);
 	uint32_t processedCmdBufferLen = 0;
 	while (processedCmdBufferLen < commandSize)
@@ -179,7 +181,7 @@ void CPtGnmTranslator::onSetContextRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4
 		SetContextReg(reg, value);
 	}
 
-	m_setCtxCount++;
+	
 }
 
 
@@ -237,6 +239,9 @@ void CPtGnmTranslator::SetContextReg(uint16_t reg, uint32_t value)
 		break;
 	case PtGfx::mmCB_TARGET_MASK:
 		GetGpuRegs()->TARGET_MASK = *(PtGfx::CB_TARGET_MASK*)&value;
+		break;
+	case PtGfx::mmCB_COLOR_CONTROL:
+		GetGpuRegs()->CB_COLOR_CONTROL = *(PtGfx::CB_COLOR_CONTROL*)&value;
 		break;
 	case PtGfx::mmDB_Z_INFO:
 		break;

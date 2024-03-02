@@ -301,6 +301,7 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	graphicsPsoInitDesc.m_pVertexShader = pVertexShader.get();
 	graphicsPsoInitDesc.m_pPixelShader = pPixelShader.get();
 	graphicsPsoInitDesc.m_dsState = depthStencilState;
+	graphicsPsoInitDesc.m_pipelineColorBlendControl = GetGpuRegs()->CB_COLOR_CONTROL;
 
 	for (uint32_t index = 0; index < Pal::MaxColorTargets; index++)
 	{

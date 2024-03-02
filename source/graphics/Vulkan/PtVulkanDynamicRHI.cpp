@@ -22,6 +22,40 @@ static std::unordered_map<std::size_t, std::shared_ptr<CVulkanPixelShader>>gPixe
 static std::unordered_map<std::size_t, std::shared_ptr<CVulkanGraphicsPipelineState>> gPipelineMap;
 static std::unordered_map<std::size_t, std::shared_ptr<CVulkanRenderPass>> gRenderPass;
 
+static VkBlendFactor ConvertToVulkanBlendFactorFromAmd(Pal::BlendOp amdBlendFactor)
+{
+    switch (amdBlendFactor)
+    {
+    case PtGfx::BLEND_ZERO:return VK_BLEND_FACTOR_ZERO;
+    case PtGfx::BLEND_ONE:return VK_BLEND_FACTOR_ONE;
+    case PtGfx::BLEND_SRC_COLOR:return VK_BLEND_FACTOR_SRC_COLOR;
+    case PtGfx::BLEND_ONE_MINUS_SRC_COLOR:return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+    case PtGfx::BLEND_SRC_ALPHA:return VK_BLEND_FACTOR_SRC_ALPHA;
+    case PtGfx::BLEND_ONE_MINUS_SRC_ALPHA:return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    case PtGfx::BLEND_DST_ALPHA:return VK_BLEND_FACTOR_DST_ALPHA;
+    case PtGfx::BLEND_ONE_MINUS_DST_ALPHA:return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+    case PtGfx::BLEND_DST_COLOR:return VK_BLEND_FACTOR_DST_COLOR;
+    default:
+        assert(false);
+    }
+    return VK_BLEND_FACTOR_ZERO;
+}
+
+static VkBlendOp ConvertToVulkanBlendOpFromAmd(Pal::SX_OPT_COMB_FCN amdBlendOp)
+{
+    switch (amdBlendOp)
+    {
+    case PtGfx::COMB_DST_PLUS_SRC: return VK_BLEND_OP_ADD;
+    case PtGfx::COMB_SRC_MINUS_DST:return VK_BLEND_OP_SUBTRACT;
+    case PtGfx::COMB_MIN_DST_SRC:return VK_BLEND_OP_MIN;
+    case PtGfx::COMB_MAX_DST_SRC:return VK_BLEND_OP_MAX;
+    case PtGfx::COMB_DST_MINUS_SRC:return VK_BLEND_OP_REVERSE_SUBTRACT;
+    default:assert(false);
+    }
+    return VK_BLEND_OP_ADD;
+}
+
+
 
 CVulkanDynamicRHI::CVulkanDynamicRHI()
 {
@@ -211,16 +245,32 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
     for (int32_t index = 0; index < Pal::MaxColorTargets; index++)
     {
         blendStates[index] = {};
+
+        //todo: fixme
         //blendStates[index].blendEnable = psoInitDesc.m_colorBelndControls[index].bitfields.ENABLE ? VK_TRUE : VK_FALSE;
-        blendStates[index].blendEnable = VK_FALSE;
-        blendStates[index].srcColorBlendFactor = VkBlendFactor(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_SRCBLEND));
-        blendStates[index].dstColorBlendFactor= VkBlendFactor(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_DESTBLEND));
-        blendStates[index].colorBlendOp = VkBlendOp(Pal::SX_OPT_COMB_FCN(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_COMB_FCN));;
-        blendStates[index].srcAlphaBlendFactor = VkBlendFactor(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.ALPHA_SRCBLEND));
-        blendStates[index].dstAlphaBlendFactor = VkBlendFactor(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.ALPHA_DESTBLEND));
-        blendStates[index].alphaBlendOp = VkBlendOp(Pal::SX_OPT_COMB_FCN(psoInitDesc.m_colorBelndControls[index].bitfields.ALPHA_COMB_FCN));;
+        
+        blendStates[index].blendEnable =  VK_TRUE ;
+        blendStates[index].srcColorBlendFactor = ConvertToVulkanBlendFactorFromAmd(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_SRCBLEND));
+        blendStates[index].dstColorBlendFactor = ConvertToVulkanBlendFactorFromAmd(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_DESTBLEND));
+        blendStates[index].colorBlendOp = ConvertToVulkanBlendOpFromAmd(Pal::SX_OPT_COMB_FCN(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_COMB_FCN));;
+        if (psoInitDesc.m_colorBelndControls[index].bitfields.SEPARATE_ALPHA_BLEND == 0)
+        {
+            blendStates[index].srcAlphaBlendFactor = blendStates[index].srcColorBlendFactor;
+            blendStates[index].dstAlphaBlendFactor = blendStates[index].dstColorBlendFactor;
+            blendStates[index].alphaBlendOp = blendStates[index].colorBlendOp;
+        }
+        else
+        {
+            blendStates[index].srcAlphaBlendFactor = ConvertToVulkanBlendFactorFromAmd(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.ALPHA_SRCBLEND));
+            blendStates[index].dstAlphaBlendFactor = ConvertToVulkanBlendFactorFromAmd(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.ALPHA_DESTBLEND));
+            blendStates[index].alphaBlendOp = ConvertToVulkanBlendOpFromAmd(Pal::SX_OPT_COMB_FCN(psoInitDesc.m_colorBelndControls[index].bitfields.ALPHA_COMB_FCN));;
+        }
+        
         blendStates[index].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     }
+
+    PtGfx::CBMode cbMode = PtGfx::CBMode(uint32_t(psoInitDesc.m_pipelineColorBlendControl.bitfields.MODE));
+    psoInitDesc.m_pipelineColorBlendControl.bitfields.ROP3;
 
     // color blending
     VkPipelineColorBlendStateCreateInfo colorBlending{};
@@ -313,7 +363,7 @@ std::shared_ptr<CRHIRenderPass> CVulkanDynamicRHI::RHICreateRenderPass(const CRH
         attachmentDesc[index] = {};
         attachmentDesc[index].format = GetVkRenderTargetFormatFromAMDFormat(rhiRenderPassInfo.renderTargets[index].INFO.bitfields.FORMAT, rhiRenderPassInfo.renderTargets[index].INFO.bitfields.NUMBER_TYPE);
         attachmentDesc[index].samples = VK_SAMPLE_COUNT_1_BIT;
-        //todo
+        //todo: fixme
         //attachmentDesc[index].loadOp = rhiRenderPassInfo.renderTargets[index].INFO.bitfields.FAST_CLEAR != 0 ? VK_ATTACHMENT_LOAD_OP_CLEAR : VK_ATTACHMENT_LOAD_OP_LOAD;
         attachmentDesc[index].loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
         attachmentDesc[index].storeOp = VK_ATTACHMENT_STORE_OP_STORE;

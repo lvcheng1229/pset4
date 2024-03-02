@@ -121,6 +121,8 @@ public:
 	// render target format
 	uint32_t m_rtNum;
 	PtGfx::CB_BLEND0_CONTROL m_colorBelndControls[Pal::MaxColorTargets];
+	PtGfx::CB_COLOR_CONTROL m_pipelineColorBlendControl; // todo: remove this member
+
 	SRenderTarget renderTargets[Pal::MaxColorTargets];
 	
 	// depth stencil state

@@ -17,12 +17,14 @@ struct SVblankStatus
 {
 	uint64_t m_processTime;
 	uint64_t m_timeStampCounter;
+	uint64_t m_timeStampStartCounter;
 };
 
 class CPtVideoOut
 {
 public:
 	CPtVideoOut();
+	inline SVblankStatus& GetBlankStatus() { return m_vblankSatus; };
 	inline Vec2ui GetDisplaySize() { return m_display.GetDisplaySize(); }
 private:
 	CPtDisplay m_display;

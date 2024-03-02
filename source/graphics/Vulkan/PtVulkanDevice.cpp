@@ -34,7 +34,6 @@ CPtRenderDocAPI::CPtRenderDocAPI()
 
     pRENDERDOC_GetAPI getApi = nullptr;
     getApi = (pRENDERDOC_GetAPI)GetProcAddress(module, "RENDERDOC_GetAPI");
-
     if (getApi == nullptr)
     {
         return;

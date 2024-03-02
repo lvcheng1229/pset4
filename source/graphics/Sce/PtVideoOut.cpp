@@ -37,13 +37,15 @@ CPtDisplay::CPtDisplay()
 CPtVideoOut::CPtVideoOut()
 {
 	HANDLE     processHandle = GetCurrentProcess();
-	DWORD      currentProcessId = GetProcessId(processHandle);
-	DWORD pid = GetCurrentProcessId();
-	
 	FILETIME createTime, exitTime, kernelTime, userTime;
-	GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime);
+	GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime); //ms
 
-	m_vblankSatus.m_processTime = ;
+	m_vblankSatus.m_processTime = *(uint64_t*)(&userTime);
+
+	uint64_t lpPerformanceCount;
+	QueryPerformanceCounter((LARGE_INTEGER*)&lpPerformanceCount);
+	m_vblankSatus.m_timeStampCounter = lpPerformanceCount;
+	m_vblankSatus.m_timeStampStartCounter = lpPerformanceCount;
 }
 
 int AddVideoOut()

@@ -1,4 +1,5 @@
 #include "pset_libSceGnmDriverImpl.h"
+#include "graphics\Sce\PtVideoOut.h"
 #include "graphics\Gnm\PtGnmDriver.h"
 
 
@@ -91,6 +92,18 @@ int PSET_SYSV_ABI Pset_sceGnmSubmitAndFlipCommandBuffers(uint32_t count, void* d
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitAndFlipCommandBuffers");
 	GetPtGnmDriver()->SubmitAndFlipCommandBuffers(count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
+	
+	HANDLE     processHandle = GetCurrentProcess();
+	FILETIME createTime, exitTime, kernelTime, userTime;
+	GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime); //ms
+
+	uint64_t lpPerformanceCount;
+	QueryPerformanceCounter((LARGE_INTEGER*)&lpPerformanceCount);
+	
+	SVblankStatus& blankStatus =  GetVideoOut(videoOutHandle)->GetBlankStatus();
+	blankStatus.m_processTime = *(uint64_t*)(&userTime);
+	blankStatus.m_timeStampCounter = lpPerformanceCount;
+	
 	return PSET_OK;
 }
 
