@@ -210,7 +210,8 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
     for (int32_t index = 0; index < Pal::MaxColorTargets; index++)
     {
         blendStates[index] = {};
-        blendStates[index].blendEnable = psoInitDesc.m_colorBelndControls[index].bitfields.ENABLE ? VK_TRUE : VK_FALSE;
+        //blendStates[index].blendEnable = psoInitDesc.m_colorBelndControls[index].bitfields.ENABLE ? VK_TRUE : VK_FALSE;
+        blendStates[index].blendEnable = VK_FALSE;
         blendStates[index].srcColorBlendFactor = VkBlendFactor(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_SRCBLEND));
         blendStates[index].dstColorBlendFactor= VkBlendFactor(Pal::BlendOp(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_DESTBLEND));
         blendStates[index].colorBlendOp = VkBlendOp(Pal::SX_OPT_COMB_FCN(psoInitDesc.m_colorBelndControls[index].bitfields.COLOR_COMB_FCN));;
@@ -223,7 +224,7 @@ std::shared_ptr<CRHIGraphicsPipelineState> CVulkanDynamicRHI::RHICreateGraphicsP
     // color blending
     VkPipelineColorBlendStateCreateInfo colorBlending{};
     colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.logicOpEnable = VK_FALSE; // todo:
     colorBlending.logicOp = VK_LOGIC_OP_COPY;
     colorBlending.attachmentCount = psoInitDesc.m_rtNum;
     colorBlending.pAttachments = blendStates;

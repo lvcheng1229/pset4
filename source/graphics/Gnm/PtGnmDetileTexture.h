@@ -11,5 +11,6 @@ public:
 	void DeTileTexture(const CTextureResourceDesc* texDesc, std::vector<uint8_t>& outData);
 private:
 	void LoadThin1dThin(const CTextureResourceDesc* texDesc, std::vector<uint8_t>& outData);
+	void LoadLinear(const CTextureResourceDesc* texDesc, std::vector<uint8_t>& outData);
 	
 };

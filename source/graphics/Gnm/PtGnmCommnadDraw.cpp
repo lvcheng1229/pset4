@@ -345,7 +345,6 @@ void CPtGnmTranslator::ProcessGnmPrivateOpDrawIndex(PM4_PT_TYPE_3_HEADER* pm4Hdr
 	dcNum++;
 	if (dcNum == 3)
 	{
-		gRHICommandList.RHIEndFrame();
-		assert(false);
+		int test = 1;
 	}
 }

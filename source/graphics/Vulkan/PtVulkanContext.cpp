@@ -107,9 +107,9 @@ void CVulkanContext::RHIBeginRenderPass(CRHIRenderPass* rhiRenderPass, CRHITextu
 	{
 		VkViewport viewport{};
 		viewport.x = 0.0f;
-		viewport.y = 0.0f;
+		viewport.y = (float)m_device->m_height;
 		viewport.width = (float)m_device->m_width;
-		viewport.height = (float)m_device->m_height;
+		viewport.height = -(float)m_device->m_height;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 		vkCmdSetViewport(*m_vkCmdBuffer, 0, 1, &viewport);

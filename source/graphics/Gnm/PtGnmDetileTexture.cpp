@@ -61,7 +61,7 @@ struct STiler1D
 		uint32_t sliceOffset = (z / m_tileThickness) * m_tilesPerSlice * m_tileBytes;
 
 		uint32_t tileRowIndex = y / kMicroTileHeight;
-		uint32_t tileColIndex = y / kMicroTileWidth;
+		uint32_t tileColIndex = x / kMicroTileWidth;
 		uint32_t tileOffset = (tileRowIndex * m_tilesPerRow + tileColIndex) * m_tileBytes;
 
 		uint32_t elementOffset = elementIndex * m_bitsPerElement;
@@ -87,6 +87,11 @@ void CGnmTextureDetiler::DeTileTexture(const CTextureResourceDesc* texDesc, std:
 	case kTileModeDepth_1dThin:
 	{
 		LoadThin1dThin(texDesc, outData);
+		return;
+	}
+	case kTileModeDisplay_2dThin:
+	{
+		LoadLinear(texDesc, outData);
 		return;
 	}
 	default:
@@ -139,10 +144,21 @@ void CGnmTextureDetiler::LoadThin1dThin(const CTextureResourceDesc* texDesc, std
 				uint32_t  bitOffset = tiler.GetTiledElementBitOffset(x, y, z);
 				uint32_t byteIndex = bitOffset / 8;
 
-				uint8_t src = srcData[byteIndex];
+				uint8_t* src = &srcData[byteIndex];
 				uint32_t destByteIndex = (z * sliceSize + y * tiler.m_linearWidth + x) * bytesPerElement;
-				outData[destByteIndex] = src;
+				memcpy(&outData[destByteIndex], src, bytesPerElement);
 			}
 		}
 	}
+}
+
+void CGnmTextureDetiler::LoadLinear(const CTextureResourceDesc* texDesc, std::vector<uint8_t>& outData)
+{
+	assert(texDesc->m_imageSrd.word3.bitfields.TILING_INDEX != 8);
+	uint32_t linearWidth = texDesc->m_imageSrd.word2.bitfields.WIDTH + 1u;
+	uint32_t linearHeight = texDesc->m_imageSrd.word2.bitfields.HEIGHT + 1u;
+	uint32_t byteNum = GetImageDataFormatSizeInByte(PtGfx::IMG_DATA_FORMAT(texDesc->m_imageSrd.word1.bitfields.DATA_FORMAT));
+	uint32_t texSize = linearWidth * linearHeight * byteNum;
+	outData.resize(texSize);
+	memcpy(outData.data(), texDesc->GetBaseAddress(), texSize);
 }
