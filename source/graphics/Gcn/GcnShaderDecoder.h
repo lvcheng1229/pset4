@@ -42,6 +42,7 @@ public:
 	inline uint64_t ReadU64() { uint64_t value = *(uint64_t*)m_ptr; m_ptr += 2; return value; };
 	inline bool IsEnd() { return m_ptr >= m_end; };
 	inline uintptr_t GetPos() { return uintptr_t(m_ptr); };
+	inline const uint32_t* GetPtr() { return m_ptr; };
 	inline uintptr_t GetBeg() { return uintptr_t(m_beg); };
 private:
 	const uint32_t* m_beg = nullptr;

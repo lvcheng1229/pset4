@@ -59,10 +59,16 @@ void CVulkanContext::RHIEndFrame()
 	VULKAN_VARIFY(vkEndCommandBuffer(*m_vkCmdBuffer));
 	m_device->Present();
 
+	static uint32_t dcIndex = 0;
+	dcIndex++;
 	if (m_device->GetRenderDocAPI())
 	{
 		m_device->GetRenderDocAPI()->EndFrameCapture(nullptr, nullptr);
-		assert(false);
+
+		if (dcIndex == 3)
+		{
+			assert(false);
+		}
 	}
 	PSET_LOG_INFO("end rdc capture");
 }

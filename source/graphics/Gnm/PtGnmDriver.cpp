@@ -1,5 +1,6 @@
 #include <assert.h>
 #include "PtGnmDriver.h"
+#include "GLFW\glfw3.h"
 static CPtGnmDriver* gPtGnmDriver = nullptr;
 CPtGnmDriver* GetPtGnmDriver()
 {
@@ -14,4 +15,9 @@ void CPtGnmDriver::SubmitAndFlipCommandBuffers(uint32_t count, void* dcbGpuAddrs
 {
 	assert(count == 1);
 	m_ptGnmTranslator.TranslateAndDispatchCmd(dcbGpuAddrs[0], dcbSizesInBytes[0]);
+}
+
+void CPtGnmDriver::Submitdone()
+{
+	glfwPollEvents();
 }

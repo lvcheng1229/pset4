@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <string>
 #include "GcnShaderDecoder.h"
 #include "graphics\AMD\PtChip.h"
 
@@ -105,9 +106,48 @@ uint32_t CGsISAProcessor::ParseSize(const void* startp, bool bStePc)
 			}
 		}
 	}
-	
-	uint32_t codeSize = m_codeReader.GetPos() - m_codeReader.GetBeg();
-	uint32_t dis = uintptr_t(m_shaderInfo) - m_codeReader.GetPos();
+
+	int aa = sizeof(SShaderBinaryInfo);//28
+
+	//264
+	uint32_t codeSize = m_codeReader.GetPos() - m_codeReader.GetBeg();//56
+
+	uint8_t m_signature[8] = { "OrbShdr" };
+	const char* searchPtr = (const char*)m_codeReader.GetPtr();
+	const char debugPptr0 = searchPtr[205];
+	const char debugPptr1 = searchPtr[206];
+	const char debugPptr2 = searchPtr[207];
+	const char debugPptr3 = searchPtr[208];
+	const char debugPptr4 = searchPtr[209];
+
+	const char debugPptr20 = searchPtr[178];
+	const char debugPptr21 = searchPtr[179];
+	const char debugPptr22 = searchPtr[180];
+	const char debugPptr23 = searchPtr[181];
+	const char debugPptr24 = searchPtr[182];
+	for (uint32_t index = 0; index < (256 + 7) * 4; index++)
+	{
+		searchPtr = searchPtr + index;
+		bool bMatch = true; 
+		for (uint32_t subIndex = 0; subIndex < 7; subIndex++)
+		{
+			if (searchPtr[subIndex] != m_signature[subIndex])
+			{
+				bMatch = false;
+			}
+		}
+
+		if (bMatch)
+		{
+			break;
+		}
+	}
+
+	std::string srcDataStr((const char*)m_codeReader.GetPtr(), (256 + 7) * 4);
+	std::string findStr((const char*)m_shaderInfo, sizeof(SShaderBinaryInfo));
+	size_t pos = srcDataStr.find(findStr);
+
+	uint32_t dis = uintptr_t(m_shaderInfo) - m_codeReader.GetPos();//4284
 	if ((dis < 256 + 7) && dis > 0)
 	{
 		codeSize += (dis + sizeof(SShaderBinaryInfo));

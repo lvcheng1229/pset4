@@ -10,10 +10,12 @@
 #include "PtGnmTranslator.h"
 #include "PtGPURegs.h"
 
+
 #include "graphics\Spirv\SpirvParser.h"
 
 #include "core\PtUtil.h"
 
+#include "graphics\Gcn\PtGcnDumpShader.h"
 #include "graphics\Gcn\GcnShaderDecoder.h"
 #include "graphics\Gcn\GcnDefs.h"
 
@@ -39,6 +41,7 @@ static std::shared_ptr<CRHIVertexShader> CreateVertexShader()
 	}
 	else
 	{
+		SaveGcnVS();
 		std::string fileName = std::string(PSET_ROOT_DIR) + "/save/o_" + vsShaderName + ".spv";
 		if (std::filesystem::exists(fileName))
 		{
@@ -71,6 +74,7 @@ static std::shared_ptr<CRHIPixelShader> CreatePixelShader()
 	}
 	else
 	{
+		
 		std::string fileName = std::string(PSET_ROOT_DIR) + "/save/o_" + psShaderName + ".spv";
 		if (std::filesystem::exists(fileName))
 		{

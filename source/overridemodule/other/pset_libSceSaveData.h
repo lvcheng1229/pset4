@@ -1,5 +1,70 @@
 #pragma once
-#include "PsetLibraryCommon.h" 
+#include "overridemodule/PsetLibraryCommon.h" 
+
+
+//PSceSaveDataMount2 = ^ SceSaveDataMount2;
+//SceSaveDataMount2 = packed record
+//userId : Integer;
+//align1:Integer;
+//dirName:PSceSaveDataDirName;
+//blocks:QWORD;
+//mountMode:DWORD;
+//reserved:array[0..31] of Byte;
+//align2:Integer;
+//end;
+
+#define SCE_SAVE_DATA_TITLE_ID_DATA_SIZE 10
+#define SCE_SAVE_DATA_FINGERPRINT_DATA_SIZE 65
+
+#define SCE_SAVE_DATA_TITLE_MAXSIZE 128
+#define SCE_SAVE_DATA_SUBTITLE_MAXSIZE 128
+#define SCE_SAVE_DATA_DETAIL_MAXSIZE 1024
+
+#define SCE_SAVE_DATA_DIRNAME_DATA_MAXSIZE 32
+#define SCE_SAVE_DATA_MOUNT_POINT_DATA_MAXSIZE  16
+#define SCE_SAVE_DATA_MOUNT_STATUS_CREATED 0x00000001
+
+//struct  SSceSaveDataFingerprint
+//{
+//	uint8_t data[SCE_SAVE_DATA_FINGERPRINT_DATA_SIZE];
+//	uint8_t padding[15];
+//};
+
+struct SSceSaveDataDirName
+{
+	char data[SCE_SAVE_DATA_DIRNAME_DATA_MAXSIZE];
+};
+struct SSceSaveDataMount2
+{
+	int32_t userId;
+	int32_t align1;
+	
+	SSceSaveDataDirName* pSceSaveDataDirName;
+
+	uint64_t blocks;
+	uint64_t mountMode;
+	uint8_t reserved[32];
+	int32_t align2;
+};
+
+struct SSceSaveDataMountPoint
+{
+	char SceSaveDataMountPoint[SCE_SAVE_DATA_MOUNT_POINT_DATA_MAXSIZE];
+};
+
+struct SSceSaveDataMountResult
+{
+	SSceSaveDataMountPoint sceSaveDataMountPoint;
+	uint32_t requiredBlocks;
+	uint64_t unused;
+	uint64_t mountStatus;
+	uint8_t reserved[28];
+	int32_t align1;
+};
+
+int PSET_SYSV_ABI Pset_sceSaveDataMount2(SSceSaveDataMount2* pMount, SSceSaveDataMountResult* pMountResult);
+
+
 int PSET_SYSV_ABI Pset_sceSaveDataAbort(void);
 int PSET_SYSV_ABI Pset_sceSaveDataBackup(void);
 int PSET_SYSV_ABI Pset_sceSaveDataBindPsnAccount(void);
@@ -62,7 +127,6 @@ int PSET_SYSV_ABI Pset_sceSaveDataIsDeletingUsbDb(void);
 int PSET_SYSV_ABI Pset_sceSaveDataIsMounted(void);
 int PSET_SYSV_ABI Pset_sceSaveDataLoadIcon(void);
 int PSET_SYSV_ABI Pset_sceSaveDataMount(void);
-int PSET_SYSV_ABI Pset_sceSaveDataMount2(void);
 int PSET_SYSV_ABI Pset_sceSaveDataMount5(void);
 int PSET_SYSV_ABI Pset_sceSaveDataMountInternal(void);
 int PSET_SYSV_ABI Pset_sceSaveDataMountSys(void);

@@ -5,6 +5,7 @@
 class CPtGnmDriver
 {
 public:
+	void Submitdone();
 	void SubmitAndFlipCommandBuffers(
 		uint32_t count, void* dcbGpuAddrs[], uint32_t* dcbSizesInBytes,
 		void* ccbGpuAddrs[], uint32_t* ccbSizesInBytes, uint32_t videoOutHandle,

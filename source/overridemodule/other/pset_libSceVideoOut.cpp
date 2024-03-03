@@ -41,45 +41,75 @@ int PSET_SYSV_ABI Pset_sceVideoOutGetResolutionStatus(int32_t videoHandle, SSceV
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceVideoOutGetVblankStatus(int32_t videoHandle, SSceVideoOutVblankStatus* outVBlankSatus)
+#define POW10_7                 10000000
+#define POW10_9                 1000000000
+
+//https://github.com/ldx/winpthreads/blob/master/src/clock.c
+static uint64_t timePassedUnits(uint64_t originalTimeStampCounter)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceVideoOutGetVblankStatus");
-	static constexpr uint64_t hz = 60;
-	static constexpr uint64_t frameTime = 1000000 / hz;
-
-	SVblankStatus blankStatus = GetVideoOut(videoHandle)->GetBlankStatus();
-
-	HANDLE     processHandle = GetCurrentProcess();
-	FILETIME createTime, exitTime, kernelTime, userTime;
-	GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime); //ms
-
-	uint64_t processTime = *(uint64_t*)(&userTime);
-	processTime = processTime - blankStatus.m_processTime;
-	processTime = processTime - processTime % frameTime;
-	processTime = processTime + blankStatus.m_processTime;
-
 	uint64_t lpPerformanceCount;
 	uint64_t lpFrequency;
 
 	QueryPerformanceCounter((LARGE_INTEGER*)&lpPerformanceCount);
 	QueryPerformanceFrequency((LARGE_INTEGER*)&lpFrequency);
+
+	if (lpPerformanceCount > originalTimeStampCounter)
+	{
+		lpPerformanceCount -= originalTimeStampCounter;
+	}
 	
-	uint64_t timeGap = (lpPerformanceCount - blankStatus.m_timeStampStartCounter) / lpFrequency;
-	uint64_t eLap = timeGap / frameTime + 10;
+	uint64_t us0 = uint64_t(uint32_t(lpPerformanceCount >> 00) * POW10_7) / lpFrequency;
+	uint64_t us1 = uint64_t(uint32_t(lpPerformanceCount >> 32) * POW10_7) / lpFrequency;
+	return us0 + (us1 << 32);
+}
 
-	lpFrequency = lpFrequency / hz;
+int PSET_SYSV_ABI Pset_sceVideoOutGetVblankStatus(int32_t videoHandle, SSceVideoOutVblankStatus* outVBlankSatus)
+{
 
-	lpPerformanceCount = lpPerformanceCount - blankStatus.m_timeStampCounter;
-	lpPerformanceCount = lpPerformanceCount - lpPerformanceCount % lpFrequency;
-	lpPerformanceCount = lpPerformanceCount + blankStatus.m_timeStampCounter;
+	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceVideoOutGetVblankStatus");
+
+	
+
+	static const uint64_t hz = 60;
+	static const uint64_t frameTime = 1000000 / hz;
+
+	uint64_t elap = timePassedUnits(0);
+	elap = (elap + 9) / 10;
+	uint64_t count = elap / frameTime;
+
+	//SVblankStatus blankStatus = GetVideoOut(videoHandle)->GetBlankStatus();
+	//
+	//HANDLE     processHandle = GetCurrentProcess();
+	//FILETIME createTime, exitTime, kernelTime, userTime;
+	//GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime); //ms
+	//
+	//uint64_t processTime = *(uint64_t*)(&userTime);
+	//processTime = processTime - blankStatus.m_processTime;
+	//processTime = processTime - processTime % frameTime;
+	//processTime = processTime + blankStatus.m_processTime;
+	//
+	//uint64_t lpPerformanceCount;
+	//uint64_t lpFrequency;
+	//
+	//QueryPerformanceCounter((LARGE_INTEGER*)&lpPerformanceCount);
+	//QueryPerformanceFrequency((LARGE_INTEGER*)&lpFrequency);
+	//
+	//lpFrequency = lpFrequency / hz;
+	//
+	//lpPerformanceCount = lpPerformanceCount - blankStatus.m_timeStampCounter;
+	//lpPerformanceCount = lpPerformanceCount - lpPerformanceCount % lpFrequency;
+	//lpPerformanceCount = lpPerformanceCount + blankStatus.m_timeStampCounter;
 
 	*outVBlankSatus = SSceVideoOutVblankStatus();
-	outVBlankSatus->m_count = eLap;
-	outVBlankSatus->m_processTime = processTime;
-	outVBlankSatus->m_timeStampCounter = lpPerformanceCount;
+	outVBlankSatus->m_count = count;
+	//outVBlankSatus->m_processTime = processTime;
+	//outVBlankSatus->m_timeStampCounter = lpPerformanceCount;
+	outVBlankSatus->m_processTime = 0;
+	outVBlankSatus->m_timeStampCounter = 0;
 	outVBlankSatus->m_flags = 0;
 
-	return PSET_OK;
+	return 0;
+	//return PSET_OK;
 }
 
 int PSET_SYSV_ABI Pset_sceDbgVideoOutAddOutputModeVr60Privilege(void)

@@ -16,6 +16,34 @@
 #define SCE_KERNEL_O_DSYNC         O_DSYNC
 #define SCE_KERNEL_O_DIRECTORY     O_DIRECTORY
 
+static std::string PathCast(const char* path)
+{
+	std::string app0Dir = GetPtApplication()->GetApp0Dir();
+	std::string unMappedPath = path;
+
+	std::string retString = unMappedPath;
+	
+	if (unMappedPath.find("/app0") != std::string::npos)
+	{
+		retString.replace(0, sizeof("/app0"), app0Dir.c_str());
+	}
+	else if (unMappedPath.find("/app1") != std::string::npos)
+	{
+		retString.replace(0, sizeof("/app1"), app0Dir.c_str());
+	}
+	else if (unMappedPath.find("/savedata") != std::string::npos )
+	{
+		retString.replace(0, sizeof("/savedata"), PSET_SAVFE_DIR);
+	}
+	else
+	{
+		PSET_LOG_ERROR(std::format("PathCast Failed: file path:{},mapped path:{}", path, retString.c_str()));
+		retString = "";
+	}
+	PSET_LOG_INFO(std::format("PathCast: file path:{},mapped path:{}", path, retString.c_str()));
+	return retString;
+}
+
 int PSET_SYSV_ABI Pset_sceKernelOpen(const char* path, int flags, uint16_t mode)
 {
 	assert(flags  == 0); // temporary code
@@ -34,11 +62,19 @@ int PSET_SYSV_ABI Pset_sceKernelOpen(const char* path, int flags, uint16_t mode)
 		pmode = _S_IREAD;
 	}
 
-	std::string mappedPath = GetPtApplication()->MapPs4Path(std::string(path));
-	PSET_LOG_IMPLEMENTED(std::format("implemented function: Pset_sceKernelOpen: file path:{},mapped path:{}", path, mappedPath));
+	//std::string mappedPath = GetPtApplication()->MapPs4Path(std::string(path));
 
-	int fd = _open(mappedPath.c_str(), oflag, pmode);
-	return fd;
+	std::string mappedPath = PathCast(path);
+	if (mappedPath == "")
+	{
+		return -1;
+	}
+	else
+	{
+		int fd = _open(mappedPath.c_str(), oflag, pmode);
+		return fd;
+	}
+	
 }
 
 int PSET_SYSV_ABI Pset_sceKernelClose(int fileHandle)
@@ -56,12 +92,17 @@ int64_t PSET_SYSV_ABI Pset_sceKernelLseek(int fileHandle, int64_t offset, int or
 
 int64_t  PSET_SYSV_ABI Pset_sceKernelRead(int fileHandle, void* destBuffer, size_t maxCharCount)
 {
-	//PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelRead");
 	return _read(fileHandle, destBuffer, maxCharCount);
 }
 
 int PSET_SYSV_ABI Pset_sceKernelWrite(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelWrite");
+	return PSET_OK;
+}
+
+int PSET_SYSV_ABI Pset_sceKernelMkdir(char* path, int32_t mode)
+{
+	_mkdir(PathCast(std::string(std::string("/savedata") + path).c_str()).c_str());
 	return PSET_OK;
 }

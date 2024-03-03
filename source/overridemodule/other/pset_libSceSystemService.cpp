@@ -142,8 +142,17 @@ int PSET_SYSV_ABI Pset_sceSystemServiceReceiveEvent(void)
 	return PSET_OK;
 }
 
-
-
+int PSET_SYSV_ABI Pset_sceSystemServiceGetStatus(SceSystemServiceStatus* status)
+{
+	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceSystemServiceGetStatus");
+	status->eventNum = 0;
+	status->isSystemUiOverlaid = false;
+	status->isInBackgroundExecution = false;
+	status->isCpuMode7CpuNormal = true;
+	status->isGameLiveStreamingOnAir = false;
+	status->isOutOfVrPlayArea = false;
+	return PSET_OK;
+}
 
 
 
@@ -2207,12 +2216,6 @@ int PSET_SYSV_ABI Pset_sceSystemServiceGetPSButtonEvent(void)
 int PSET_SYSV_ABI Pset_sceSystemServiceGetRenderingMode(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceSystemServiceGetRenderingMode");
-	return PSET_OK;
-}
-
-int PSET_SYSV_ABI Pset_sceSystemServiceGetStatus(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceSystemServiceGetStatus");
 	return PSET_OK;
 }
 

@@ -77,11 +77,11 @@ void CPtApplication::Run()
 	psetThread.Run();
 }
 
-std::string CPtApplication::MapPs4Path(const std::string& ps4Path)
-{
-	std::string retString = ps4Path;
-	return retString.replace(0, sizeof("/app0"), m_app0Dir.c_str());
-}
+//std::string CPtApplication::MapPs4Path(const std::string& ps4Path)
+//{
+//	std::string retString = ps4Path;
+//	return retString.replace(0, sizeof("/app0"), m_app0Dir.c_str());
+//}
 
 void CPtApplication::LoadAndInitEbootModule()
 {

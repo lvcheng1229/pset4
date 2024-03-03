@@ -1,7 +1,9 @@
 #include "pset_libSceGnmDriverImpl.h"
 #include "graphics\Sce\PtVideoOut.h"
 #include "graphics\Gnm\PtGnmDriver.h"
+#include <Windows.h>
 
+static HANDLE gIdleEvent;
 
 int PSET_SYSV_ABI Pset_sceGnmDrawInitDefaultHardwareState350(int32_t* cmdBuffer, int32_t numDwords)
 {
@@ -93,22 +95,27 @@ int PSET_SYSV_ABI Pset_sceGnmSubmitAndFlipCommandBuffers(uint32_t count, void* d
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitAndFlipCommandBuffers");
 	GetPtGnmDriver()->SubmitAndFlipCommandBuffers(count, dcbGpuAddrs, dcbSizesInBytes, ccbGpuAddrs, ccbSizesInBytes, videoOutHandle, displayBufferIndex, flipMode, flipArg);
 	
-	HANDLE     processHandle = GetCurrentProcess();
-	FILETIME createTime, exitTime, kernelTime, userTime;
-	GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime); //ms
-
-	uint64_t lpPerformanceCount;
-	QueryPerformanceCounter((LARGE_INTEGER*)&lpPerformanceCount);
+	//gIdleEvent = CreateEventA(nullptr, true, true, nullptr);
+	//ResetEvent(gIdleEvent);
 	
-	SVblankStatus& blankStatus =  GetVideoOut(videoOutHandle)->GetBlankStatus();
-	blankStatus.m_processTime = *(uint64_t*)(&userTime);
-	blankStatus.m_timeStampCounter = lpPerformanceCount;
+	//HANDLE     processHandle = GetCurrentProcess();
+	//FILETIME createTime, exitTime, kernelTime, userTime;
+	//GetProcessTimes(processHandle, &createTime, &exitTime, &kernelTime, &userTime); //ms
+	//
+	//uint64_t lpPerformanceCount;
+	//QueryPerformanceCounter((LARGE_INTEGER*)&lpPerformanceCount);
+	//
+	//SVblankStatus& blankStatus =  GetVideoOut(videoOutHandle)->GetBlankStatus();
+	//blankStatus.m_processTime = *(uint64_t*)(&userTime);
+	//blankStatus.m_timeStampCounter = lpPerformanceCount;
 	
 	return PSET_OK;
 }
 
 int PSET_SYSV_ABI Pset_sceGnmSubmitDone(void)
 {
+	GetPtGnmDriver()->Submitdone();
+	//WaitForSingleObject(gIdleEvent,);
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceGnmSubmitDone");
 	return PSET_OK;
 }

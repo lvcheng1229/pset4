@@ -1,6 +1,20 @@
 #pragma once
 #include "overridemodule/PsetLibraryCommon.h" 
+
+struct SceSystemServiceStatus
+{
+	int32_t	eventNum;
+	bool isSystemUiOverlaid;
+	bool isInBackgroundExecution;
+	bool isCpuMode7CpuNormal;
+	bool isGameLiveStreamingOnAir;
+	bool isOutOfVrPlayArea;
+	uint8_t reserved[125];
+};
+
+
 int PSET_SYSV_ABI Pset_sceSystemServiceParamGetInt(int32_t paramId, int32_t* pointer);
+int PSET_SYSV_ABI Pset_sceSystemServiceGetStatus(SceSystemServiceStatus* status);
 
 int PSET_SYSV_ABI Pset_sceAppMessagingClearEventFlag(void);
 int PSET_SYSV_ABI Pset_sceAppMessagingReceiveMsg(void);
@@ -344,7 +358,6 @@ int PSET_SYSV_ABI Pset_sceSystemServiceGetParentSocket(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceGetParentSocketForPsmKit(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceGetPSButtonEvent(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceGetRenderingMode(void);
-int PSET_SYSV_ABI Pset_sceSystemServiceGetStatus(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceGetTitleWorkaroundInfo(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceGetVersionNumberOfCameraCalibrationData(void);
 int PSET_SYSV_ABI Pset_sceSystemServiceHideSplashScreen(void);

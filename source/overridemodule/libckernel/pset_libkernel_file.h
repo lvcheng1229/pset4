@@ -49,3 +49,4 @@ int PSET_SYSV_ABI Pset_sceKernelClose(int fileHandle);
 int64_t PSET_SYSV_ABI Pset_sceKernelLseek(int fileHandle, int64_t offset, int origin);
 int64_t PSET_SYSV_ABI Pset_sceKernelRead(int fileHandle, void* destBuffer, size_t maxCharCount);
 int PSET_SYSV_ABI Pset_sceKernelWrite(void);
+int PSET_SYSV_ABI Pset_sceKernelMkdir(char* path,int32_t mode);

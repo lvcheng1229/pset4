@@ -1,5 +1,6 @@
 #pragma once
 #include "overridemodule\PsetLibraryCommon.h" 
+#include "pset_libkernel_impl.h"
 #include "pset_libkernel_memory.h"
 #include "pset_libkernel_pthread.h"
 #include "pset_libkernel_file.h"
@@ -682,7 +683,6 @@ int PSET_SYSV_ABI Pset_sceKernelMemoryPoolDecommit(void);
 int PSET_SYSV_ABI Pset_sceKernelMemoryPoolExpand(void);
 int PSET_SYSV_ABI Pset_sceKernelMemoryPoolGetBlockStats(void);
 int PSET_SYSV_ABI Pset_sceKernelMemoryPoolReserve(void);
-int PSET_SYSV_ABI Pset_sceKernelMkdir(void);
 int PSET_SYSV_ABI Pset_sceKernelMlock(void);
 int PSET_SYSV_ABI Pset_sceKernelMlockall(void);
 int PSET_SYSV_ABI Pset_sceKernelMmap(void);
@@ -777,7 +777,6 @@ int PSET_SYSV_ABI Pset_sceKernelUnlink(void);
 int PSET_SYSV_ABI Pset_sceKernelUtimes(void);
 int PSET_SYSV_ABI Pset_sceKernelUuidCreate(void);
 int PSET_SYSV_ABI Pset_sceKernelVirtualQuery(void);
-int PSET_SYSV_ABI Pset_sceKernelWaitEqueue(void);
 int PSET_SYSV_ABI Pset_sceKernelWaitEventFlag(void);
 int PSET_SYSV_ABI Pset_sceKernelWaitSema(void);
 int PSET_SYSV_ABI Pset_sceKernelWriteSdkEventLog(void);

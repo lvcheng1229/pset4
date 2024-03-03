@@ -2,6 +2,8 @@
 #include <fstream>
 #include <assert.h>
 
+#include "PtGcnDumpShader.h"
+
 #include "graphics\Gnm\GnmStructure.h"
 #include "graphics\Gnm\PtGPURegs.h"
 
@@ -104,20 +106,22 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, uint32_t* USER
 		}
 		case 2:
 		{
-			void* buffer = GetFetchAddress(dataUsage.data[index], dataUsage.data[index + 1]);
+			void* buffer = *reinterpret_cast<void**>(&GetGpuRegs()->SPI.VS.USER_DATA[index]);
 			if (buffer != nullptr)
 			{
 				uint32_t size = isaProcessor.ParseSize(buffer,true);
 				WriteBlock(file, REG + index, buffer, size);
 			}
+			break;
 		}
 		case 3:
 		{
-			void* buffer = GetFetchAddress(dataUsage.data[index], dataUsage.data[index + 1]);
+			void* buffer = reinterpret_cast<void*>(&dataUsage.data[index]);
 			if (buffer != nullptr)
 			{
 				WriteBlock(file, REG + index, buffer, 256);
 			}
+			break;
 		}
 		}
 	}
@@ -125,17 +129,11 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, uint32_t* USER
 
 void SaveGcnVS()
 {
-	return;
 	void* base = GetCodeAddress(GetGpuRegs()->SPI.VS.LO, GetGpuRegs()->SPI.VS.HI);
 	if (base != nullptr)
 	{
-		size_t hashSeed = 42;
-		THashCombine(hashSeed, GetShaderInfo(base)->m_length);
-		THashCombine(hashSeed, GetShaderInfo(base)->m_shaderHash0);
-		THashCombine(hashSeed, GetShaderInfo(base)->m_crc32);
-
 		
-		std::string filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(hashSeed) + ".dump";
+		std::string filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(GetShaderInfo(base)->m_crc32) + ".dump";
 
 		if (std::filesystem::exists(filePath))
 		{
@@ -162,14 +160,7 @@ void SaveGcnVS()
 		WriteBlock(file, PtGfx::mmSPI_SHADER_POS_FORMAT, &GetGpuRegs()->SPI.VS.POS_FORMAT, sizeof(uint32_t));
 		WriteBlock(file, PtGfx::mmPA_CL_VS_OUT_CNTL, &GetGpuRegs()->SPI.VS.OUT_CNTL, sizeof(uint32_t));
 
-		uint32_t USER_DATA[16];
-		memset(USER_DATA, 0, sizeof(uint32_t) * 16);
-		USER_DATA[0] = 1073741924;
-		USER_DATA[1] = 9;
-		USER_DATA[2] = 3238057276;
-		USER_DATA[3] = 8;
-		//WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_VS_0, GetGpuRegs()->SPI.VS.USER_DATA);
-		WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_VS_0, USER_DATA, isaProcessor);
+		WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_VS_0, GetGpuRegs()->SPI.VS.USER_DATA, isaProcessor);
 
 		WriteBlock(file, PtGfx::mmVGT_NUM_INSTANCES, &GetGpuRegs()->VGT_NUM_INSTANCES, sizeof(uint32_t));
 		file.close();
@@ -178,4 +169,52 @@ void SaveGcnVS()
 
 void SaveGcnPS()
 {
+	void* base = GetCodeAddress(GetGpuRegs()->SPI.PS.LO, GetGpuRegs()->SPI.PS.HI);
+	if (base != nullptr)
+	{
+
+		std::string filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(GetShaderInfo(base)->m_crc32) + ".dump";
+
+		if (std::filesystem::exists(filePath))
+		{
+			return;
+		}
+		std::string fileDir = std::string(PSET_ROOT_DIR) + "/save";
+
+		if (!std::filesystem::exists(fileDir))
+		{
+			std::filesystem::create_directory(fileDir);
+		}
+
+		std::ofstream file(filePath, std::ios::binary);
+
+		CGsISAProcessor isaProcessor;
+		isaProcessor.Init(base);
+		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_LO_PS, base, isaProcessor.ParseSize(base));
+
+		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_RSRC1_PS, &GetGpuRegs()->SPI.PS.RSRC1, sizeof(uint32_t));
+		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_RSRC2_PS, &GetGpuRegs()->SPI.PS.RSRC2, sizeof(uint32_t));
+		WriteBlock(file, PtGfx::mmSPI_SHADER_PGM_RSRC3_PS, &GetGpuRegs()->SPI.PS.RSRC3, sizeof(uint32_t));
+
+		WriteBlock(file, PtGfx::mmSPI_SHADER_Z_FORMAT, &GetGpuRegs()->SPI.PS.Z_FORMAT, sizeof(uint32_t));
+		WriteBlock(file, PtGfx::mmSPI_SHADER_COL_FORMAT, &GetGpuRegs()->SPI.PS.COL_FORMAT, sizeof(uint32_t));
+
+		WriteBlock(file, PtGfx::mmSPI_PS_INPUT_ENA, &GetGpuRegs()->SPI.PS.INPUT_ENA, sizeof(uint32_t));
+		WriteBlock(file, PtGfx::mmSPI_PS_INPUT_ADDR, &GetGpuRegs()->SPI.PS.INPUT_ADDR, sizeof(uint32_t));
+		WriteBlock(file, PtGfx::mmSPI_PS_IN_CONTROL, &GetGpuRegs()->SPI.PS.IN_CONTROL, sizeof(uint32_t));
+
+		WriteBlock(file, PtGfx::mmSPI_BARYC_CNTL, &GetGpuRegs()->SPI.PS.BARYC_CNTL, sizeof(uint32_t));
+		WriteBlock(file, PtGfx::mmDB_SHADER_CONTROL, &GetGpuRegs()->SPI.PS.SHADER_CONTROL, sizeof(uint32_t));
+		WriteBlock(file, PtGfx::mmCB_SHADER_MASK, &GetGpuRegs()->SPI.PS.SHADER_MASK, sizeof(uint32_t));
+
+		WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_PS_0, GetGpuRegs()->SPI.PS.USER_DATA, isaProcessor);
+		WriteBlock(file, PtGfx::mmSPI_PS_INPUT_CNTL_0 + 0, GetGpuRegs()->SPI.PS.INPUT_CNTL[i], sizeof(uint32_t));
+		For i : = 0 to 31 do
+			begin
+			WriteBlock(file, mmSPI_PS_INPUT_CNTL_0 + i, @GPU_REGS.SPI.PS.INPUT_CNTL[i], SizeOf(DWORD));
+		end;
+
+		WriteBlock(file, PtGfx::mmVGT_NUM_INSTANCES, &GetGpuRegs()->VGT_NUM_INSTANCES, sizeof(uint32_t));
+		file.close();
+	}
 }
