@@ -33,3 +33,5 @@
 
 /build/*
 #/save/*
+
+!/thirdparty/fpcs/*.exe
