@@ -74,7 +74,7 @@ static std::shared_ptr<CRHIPixelShader> CreatePixelShader()
 	}
 	else
 	{
-		
+		SaveGcnPS();
 		std::string fileName = std::string(PSET_ROOT_DIR) + "/save/o_" + psShaderName + ".spv";
 		if (std::filesystem::exists(fileName))
 		{

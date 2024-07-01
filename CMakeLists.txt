@@ -67,3 +67,11 @@ add_definitions(-DPSET_SAVFE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/savedata")
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${SOURCE_FILES_CC} ${SOURCE_FILES_C})
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/tools/SceModuleGenerator)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        "${PSET4_ROOT_DIR}/thirdparty/glfw/bin/glfw3d.dll"
+        "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+        message(STATUS "COPY ST_DLL glfw3d.dll")
+
+
