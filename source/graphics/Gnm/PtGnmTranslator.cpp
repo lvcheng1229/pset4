@@ -229,6 +229,11 @@ void CPtGnmTranslator::SetContextReg(uint16_t reg, uint32_t value)
 		GetGpuRegs()->CB_BLEND_CONTROL[reg - PtGfx::mmCB_BLEND0_CONTROL] = *(PtGfx::CB_BLEND0_CONTROL*)&value;
 	}
 
+	if (reg >= PtGfx::mmSPI_PS_INPUT_CNTL_0 && reg <= PtGfx::mmSPI_PS_INPUT_CNTL_31)
+	{
+		GetGpuRegs()->SPI.PS.INPUT_CNTL[reg - PtGfx::mmSPI_PS_INPUT_CNTL_0] = *(PtGfx::SPI_PS_INPUT_CNTL_0*)&value;
+	}
+
 	switch (reg)
 	{
 	case PtGfx::mmPA_SU_SC_MODE_CNTL:

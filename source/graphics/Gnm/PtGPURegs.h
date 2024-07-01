@@ -40,6 +40,8 @@ struct SSPIPS
 	PtGfx::CB_SHADER_MASK SHADER_MASK;
 
 	uint32_t USER_DATA[16];
+
+	PtGfx::SPI_PS_INPUT_CNTL_0 INPUT_CNTL[32];
 };
 
 struct SShaderProcessorInput
@@ -99,6 +101,8 @@ public:
 	PtGfx::CB_TARGET_MASK TARGET_MASK;
 
 	PtGfx::CB_BLEND0_CONTROL CB_BLEND_CONTROL[8]; // color blend control
+	
+
 	PtGfx::CB_COLOR_CONTROL CB_COLOR_CONTROL; // pipeline color blend control
 
 	PtGfx::PA_SU_SC_MODE_CNTL SC_MODE_CNTL;	// cull face / poly mode

@@ -208,13 +208,12 @@ void SaveGcnPS()
 		WriteBlock(file, PtGfx::mmCB_SHADER_MASK, &GetGpuRegs()->SPI.PS.SHADER_MASK, sizeof(uint32_t));
 
 		WriteUserData(file, base, PtGfx::mmSPI_SHADER_USER_DATA_PS_0, GetGpuRegs()->SPI.PS.USER_DATA, isaProcessor);
-		//WriteBlock(file, PtGfx::mmSPI_PS_INPUT_CNTL_0 + 0, GetGpuRegs()->SPI.PS.INPUT_CNTL[i], sizeof(uint32_t));
-		//For i : = 0 to 31 do
-		//	begin
-		//	WriteBlock(file, mmSPI_PS_INPUT_CNTL_0 + i, @GPU_REGS.SPI.PS.INPUT_CNTL[i], SizeOf(DWORD));
-		//end;
 
-		WriteBlock(file, PtGfx::mmVGT_NUM_INSTANCES, &GetGpuRegs()->VGT_NUM_INSTANCES, sizeof(uint32_t));
+		for (int i = 0; i < 32; i++)
+		{
+			WriteBlock(file, PtGfx::mmSPI_PS_INPUT_CNTL_0 + i, &GetGpuRegs()->SPI.PS.INPUT_CNTL[i], sizeof(uint32_t));
+		}
+		
 		file.close();
 	}
 }
