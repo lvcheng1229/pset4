@@ -49,14 +49,15 @@ SUSER_DATA_USEAGE GetUsage(void* data, uint32_t* USER_DATA)
 	{
 		for (uint32_t index = 0; index < GetShaderInfo(data)->m_numInputUsageSlots; index++)
 		{
-			switch (slots[index].m_usageType)
+			SInputUsageSlot slot_debug = slots[index];
+			switch (slot_debug.m_usageType)
 			{
 			case kShaderInputUsageSubPtrFetchShader:
 			{
 				uint8_t r = slots[index].m_startRegister;
 				assert(r < 15);
 				dataUsage.data[r] = 2;
-				dataUsage.data[r + 1] = 1;
+				dataUsage.data[r + 1] = 1; //TODO
 				break;
 			}
 			case kShaderInputUsagePtrResourceTable:
@@ -101,12 +102,13 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, uint32_t* USER
 		{
 		case 0:
 		{
-			WriteBlock(file, REG + index, &dataUsage.data[index], sizeof(uint32_t));
+			WriteBlock(file, REG + index, &USER_DATA[index], sizeof(uint32_t));
 			break;
 		}
 		case 2:
 		{
-			void* buffer = *reinterpret_cast<void**>(&GetGpuRegs()->SPI.VS.USER_DATA[index]);
+			void* buffer = GetFetchAddress(USER_DATA[index], USER_DATA[index + 1]);
+			//void* buffer = *reinterpret_cast<void**>(&GetGpuRegs()->SPI.VS.USER_DATA[index]);
 			if (buffer != nullptr)
 			{
 				uint32_t size = isaProcessor.ParseSize(buffer,true);
@@ -116,7 +118,7 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, uint32_t* USER
 		}
 		case 3:
 		{
-			void* buffer = reinterpret_cast<void*>(&dataUsage.data[index]);
+			void* buffer = GetBufferddress(USER_DATA[index], USER_DATA[index+1]);
 			if (buffer != nullptr)
 			{
 				WriteBlock(file, REG + index, buffer, 256);
@@ -127,13 +129,12 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, uint32_t* USER
 	}
 }
 
-void SaveGcnVS()
+void SaveGcnVS(std::string& filePath)
 {
 	void* base = GetCodeAddress(GetGpuRegs()->SPI.VS.LO, GetGpuRegs()->SPI.VS.HI);
 	if (base != nullptr)
 	{
-		
-		std::string filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(GetShaderInfo(base)->m_crc32) + ".dump";
+		filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(GetShaderInfo(base)->m_crc32) + ".dump";
 
 		if (std::filesystem::exists(filePath))
 		{
@@ -167,13 +168,12 @@ void SaveGcnVS()
 	}
 }
 
-void SaveGcnPS()
+void SaveGcnPS(std::string& filePath)
 {
 	void* base = GetCodeAddress(GetGpuRegs()->SPI.PS.LO, GetGpuRegs()->SPI.PS.HI);
 	if (base != nullptr)
 	{
-
-		std::string filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(GetShaderInfo(base)->m_crc32) + ".dump";
+		filePath = std::string(PSET_ROOT_DIR) + "/save/" + std::to_string(GetShaderInfo(base)->m_crc32) + ".dump";
 
 		if (std::filesystem::exists(filePath))
 		{

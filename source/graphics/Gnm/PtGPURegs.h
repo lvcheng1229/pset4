@@ -134,6 +134,7 @@ uint32_t GetBufferDataFormatSizeInByte(PtGfx::BUF_DATA_FORMAT dataFormat);
 uint32_t GetImageDataFormatSizeInByte(PtGfx::IMG_DATA_FORMAT dataFormat);
 
 inline void* GetFetchAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 32 | (uintptr_t(lo) & ~(0x3u))); };
+inline void* GetBufferddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 32 | (uintptr_t(lo) & ~(0x1u))); };
 inline void* GetCodeAddress(uint32_t lo, uint32_t hi) { return (void*)(uintptr_t(hi) << 40 | uintptr_t(lo) << 8); }
 
 

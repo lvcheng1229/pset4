@@ -158,7 +158,8 @@ uint32_t CGsISAProcessor::ParseSize(const void* startp, bool bStePc)
 SInputUsageSlot* CGsISAProcessor::GetShaderSlot()
 {
 	SInputUsageSlot* inputUsageSlot = nullptr;
-	if (GetShaderInfo(m_base)->m_numInputUsageSlots > 0)
+	uint8_t InputUsageSlotsNum = GetShaderInfo(m_base)->m_numInputUsageSlots;
+	if (InputUsageSlotsNum > 0)
 	{
 		uint8_t* usageMasks = (uint8_t*)GetShaderInfo(m_base) - (GetShaderInfo(m_base)->m_chunkUsageBaseOffsetInDW * 4);
 		inputUsageSlot = (SInputUsageSlot*)usageMasks - (GetShaderInfo(m_base)->m_numInputUsageSlots);

@@ -4,12 +4,13 @@
 #include <assert.h>
 #include <array>
 #include <vector>
+#include <Windows.h>
+#include <fstream>
 
 #include "PtGnmDetileTexture.h"
 #include "PtGnmDefs.h"
 #include "PtGnmTranslator.h"
 #include "PtGPURegs.h"
-
 
 #include "graphics\Spirv\SpirvParser.h"
 
@@ -41,12 +42,35 @@ static std::shared_ptr<CRHIVertexShader> CreateVertexShader()
 	}
 	else
 	{
-		SaveGcnVS();
+		std::string deumFilePath;
+		SaveGcnVS(deumFilePath);
 		std::string fileName = std::string(PSET_ROOT_DIR) + "/save/o_" + vsShaderName + ".spv";
+		std::string compilerExePath = std::string(PSET_ROOT_DIR) + "/thirdparty/fpcs/pssl-spirv.exe";
+		if (!std::filesystem::exists(fileName))
+		{
+			std::ofstream oFile;
+			oFile.open(fileName, std::ios::app);
+			oFile.close();
+
+			STARTUPINFO si;
+			memset(&si, 0, sizeof(STARTUPINFO));
+			si.cb = sizeof(STARTUPINFO);
+			si.dwFlags = STARTF_USESHOWWINDOW;
+			si.wShowWindow = SW_SHOW;
+			PROCESS_INFORMATION pi;
+
+			std::string commandLine = compilerExePath + " " + deumFilePath + " -i -p -a -b " + fileName;
+			BOOL result = CreateProcessA(NULL, commandLine.data(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+			assert(result != 0);
+			Sleep(1 * 1000);
+			CloseHandle(pi.hProcess);
+		}
+
 		if (std::filesystem::exists(fileName))
 		{
 			std::vector<uint8_t> vsShaderCode;
 			PtReadFile(fileName, vsShaderCode);
+			assert(vsShaderCode.size() != 0);
 			pVertexShader = RHICreateVertexShader(vsShaderCode);
 			CGsISAProcessor isaProcessor;
 			isaProcessor.Init(vsCodeAddr);
@@ -74,13 +98,36 @@ static std::shared_ptr<CRHIPixelShader> CreatePixelShader()
 	}
 	else
 	{
-		SaveGcnPS();
+		std::string deumFilePath;
+		SaveGcnPS(deumFilePath);
 		std::string fileName = std::string(PSET_ROOT_DIR) + "/save/o_" + psShaderName + ".spv";
+		std::string compilerExePath = std::string(PSET_ROOT_DIR) + "/thirdparty/fpcs/pssl-spirv.exe";
+		if (!std::filesystem::exists(fileName))
+		{
+			std::ofstream oFile;
+			oFile.open(fileName, std::ios::app);
+			oFile.close();
+
+			STARTUPINFO si;
+			memset(&si, 0,sizeof(STARTUPINFO)); 
+			si.cb = sizeof(STARTUPINFO);
+			si.dwFlags = STARTF_USESHOWWINDOW;
+			si.wShowWindow = SW_SHOW;
+			PROCESS_INFORMATION pi;
+
+			std::string commandLine = compilerExePath + " " + deumFilePath + " -i -p -a -b " + fileName;
+			BOOL result = CreateProcessA(NULL, commandLine.data(), NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+			assert(result != 0);
+			Sleep(1 * 1000);
+			CloseHandle(pi.hProcess);
+		}
+
 		if (std::filesystem::exists(fileName))
 		{
 			std::vector<uint8_t> psShaderCode;
 			PtReadFile(fileName, psShaderCode);
-			
+			assert(psShaderCode.size() != 0);
+
 			CPtSpirvParser spvParser;
 			spvParser.SetSpvSource(psShaderCode.data(), psShaderCode.size());
 			spvParser.ModifyFragmentShaderSpirvSet();
