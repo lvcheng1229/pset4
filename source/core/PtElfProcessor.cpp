@@ -28,6 +28,15 @@ void CPtElfProcessor::LoadRawData(std::vector<uint8_t>& outRawData)
 	fin.close();
 }
 
+static void ValidateSELFStructure(SSegStructureSelf* pSegStructureSelfs,int numSegments)
+{
+	for (uint32_t index = 0; index < numSegments; index++)
+	{
+		SSegStructureSelf& pSegStructureSelf = pSegStructureSelfs[index];
+		PSET_EXIT_AND_LOG_IF((pSegStructureSelf.m_flags == uint64_t(ESegFlags::SF_ENCR) || pSegStructureSelf.m_flags == uint64_t(ESegFlags::SF_DFLG)), "unsupport format");
+	}
+}
+
 static void ValidateElf(elf64_hdr* elf64)
 {
 	Elf64_Half elfType = elf64->e_type;
@@ -86,22 +95,14 @@ void CPtElfProcessor::MapSelfToElf(std::vector<uint8_t>& selfRawData)
 		uint16_t numSegments = *(uint16_t*)(&pHeaderSelf->m_numberOfSegments);
 
 		SSegStructureSelf* pSegStructureSelfs = (SSegStructureSelf*)((uint8_t*)pHeaderSelf + sizeof(SHeaderSelf));
-		for (uint32_t index = 0; index < numSegments; index++)
-		{
-			SSegStructureSelf& pSegStructureSelf = pSegStructureSelfs[index];
-			PSET_EXIT_AND_LOG_IF((pSegStructureSelf.m_flags == uint64_t(ESegFlags::SF_ENCR) || pSegStructureSelf.m_flags == uint64_t(ESegFlags::SF_DFLG)), "unsupport format");
-		}
-
 		elf64_hdr* elf64Header = (elf64_hdr*)(pSegStructureSelfs + numSegments);
+		
+		ValidateSELFStructure(pSegStructureSelfs, numSegments);
 		ValidateElf(elf64Header);
 
-		m_module->m_self64Ehdr = *elf64Header;
-
-		elf64_phdr* elf64ProgramHeader = (elf64_phdr*)(elf64Header + 1);
-
+		// Output elf header information
 		std::string typeString = GetELFTypeString(elf64Header->e_type);
 		std::string machineString = GetELFMachineString(elf64Header->e_machine);
-
 		PSET_LOG_INFO("ELF Header Information:");
 		PSET_LOG_INFO("FilePath:" + m_elfPath);
 		PSET_LOG_INFO(std::format("Type:{}", typeString.c_str()));
@@ -117,6 +118,10 @@ void CPtElfProcessor::MapSelfToElf(std::vector<uint8_t>& selfRawData)
 		PSET_LOG_INFO(std::format("Size of section headers:{:d}", uint32_t(elf64Header->e_shentsize)));
 		PSET_LOG_INFO(std::format("Number of section headers:{:d}", uint32_t(elf64Header->e_shnum)));
 		PSET_LOG_INFO(std::format("Section header string table index:{:d}", uint32_t(elf64Header->e_shstrndx)));
+
+		m_module->m_self64Ehdr = *elf64Header;
+
+		elf64_phdr* elf64ProgramHeader = (elf64_phdr*)(elf64Header + 1);
 
 		m_module->m_aSegmentHeaders.resize(elf64Header->e_phnum);
 		for (uint32_t index = 0; index < elf64Header->e_phnum; index++)
