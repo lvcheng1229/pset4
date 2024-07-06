@@ -1,4 +1,5 @@
 #pragma once
+
 #if PSET_DEBUG
 #include "spdlog/spdlog.h"
 #include "spdlog/fmt/ostr.h"

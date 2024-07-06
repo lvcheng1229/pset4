@@ -108,7 +108,6 @@ void WriteUserData(std::ofstream& file, void* data, uint16_t REG, uint32_t* USER
 		case 2:
 		{
 			void* buffer = GetFetchAddress(USER_DATA[index], USER_DATA[index + 1]);
-			//void* buffer = *reinterpret_cast<void**>(&GetGpuRegs()->SPI.VS.USER_DATA[index]);
 			if (buffer != nullptr)
 			{
 				uint32_t size = isaProcessor.ParseSize(buffer,true);

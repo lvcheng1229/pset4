@@ -19,7 +19,6 @@ struct SPtModuleInfo
 	SMemoryChrunk m_mappedMemory;
 
 	// ParseProgramHeaders
-	void* m_pInterProgram;
 	void* m_pDynamicEntry;
 	uint32_t m_nDynamicEntryCount;
 	SMemoryChrunk m_pSceDynamicLib;

@@ -43,6 +43,36 @@ static uint32_t FlagsId(uint64_t flag)
 	return (flag >> 20) & 0xFFF;
 }
 
+std::string GetELFTypeString(Elf64_Half value)
+{
+	switch (value)
+	{
+	case 0xFE00:
+		return std::string("ET_SCE_EXEC");
+	case 0xFE01:
+		return std::string("ET_SCE_REPLAY_EXEC");
+	case 0XFE04:
+		return std::string("ET_SCE_RELEXEC");
+	case 0xFE0C:
+		return std::string("ET_SCE_STUBLIB");
+	case 0xFE10:
+		return std::string("ET_SCE_DYNEXEC");
+	case 0xFE18:
+		return std::string("ET_SCE_DYNAMIC");
+	}
+	return std::string("Unknown");
+}
+
+std::string GetELFMachineString(Elf64_Half machine)
+{
+	switch (machine)
+	{
+	case 0x3E:
+		return std::string("AMD x86-64");
+	}
+	return std::string("Unknown");
+}
+
 void CPtElfProcessor::MapSelfToElf(std::vector<uint8_t>& selfRawData)
 {
 	SHeaderSelf* pHeaderSelf = (SHeaderSelf*)selfRawData.data();
@@ -68,6 +98,25 @@ void CPtElfProcessor::MapSelfToElf(std::vector<uint8_t>& selfRawData)
 		m_module->m_self64Ehdr = *elf64Header;
 
 		elf64_phdr* elf64ProgramHeader = (elf64_phdr*)(elf64Header + 1);
+
+		std::string typeString = GetELFTypeString(elf64Header->e_type);
+		std::string machineString = GetELFMachineString(elf64Header->e_machine);
+
+		PSET_LOG_INFO("ELF Header Information:");
+		PSET_LOG_INFO("FilePath:" + m_elfPath);
+		PSET_LOG_INFO(std::format("Type:{}", typeString.c_str()));
+		PSET_LOG_INFO(std::format("Machine:{}", machineString.c_str()));
+		PSET_LOG_INFO(std::format("Version:{}", std::to_string(elf64Header->e_version).c_str()));
+		PSET_LOG_INFO(std::format("Entry point address:{:X}", elf64Header->e_entry));
+		PSET_LOG_INFO(std::format("Start of program header:{:d}", uint32_t(elf64Header->e_phoff)));
+		PSET_LOG_INFO(std::format("Start of section header:{:d}", uint32_t(elf64Header->e_shoff)));
+		PSET_LOG_INFO(std::format("Flags:{:d}", uint32_t(elf64Header->e_flags)));
+		PSET_LOG_INFO(std::format("Size of this header:{:d}", uint32_t(elf64Header->e_ehsize)));
+		PSET_LOG_INFO(std::format("Size of program headers:{:d}", uint32_t(elf64Header->e_phentsize)));
+		PSET_LOG_INFO(std::format("Number of program headers:{:d}", uint32_t(elf64Header->e_phnum)));
+		PSET_LOG_INFO(std::format("Size of section headers:{:d}", uint32_t(elf64Header->e_shentsize)));
+		PSET_LOG_INFO(std::format("Number of section headers:{:d}", uint32_t(elf64Header->e_shnum)));
+		PSET_LOG_INFO(std::format("Section header string table index:{:d}", uint32_t(elf64Header->e_shstrndx)));
 
 		m_module->m_aSegmentHeaders.resize(elf64Header->e_phnum);
 		for (uint32_t index = 0; index < elf64Header->e_phnum; index++)
@@ -128,9 +177,6 @@ void CPtElfProcessor::ParseProgramHeaders()
 			break;
 		case PT_SCE_PROCPARAM:
 			moduleInfo.m_nProcParamOffset = pElfpHdr[index].p_paddr;
-			break;
-		case PT_INTERP:
-			moduleInfo.m_pInterProgram = m_module->m_elfData.data() + pElfpHdr[index].p_offset;
 			break;
 		case PT_DYNAMIC:
 			moduleInfo.m_pDynamicEntry = m_module->m_elfData.data() + pElfpHdr[index].p_offset;
