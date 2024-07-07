@@ -247,7 +247,7 @@ void CPtElfProcessor::ParseDynamicSegment()
 			char* fileName = (char*)&sceStrTable[elf64Dyn.d_un.d_ptr];
 			m_module->m_neededFiles.push_back(fileName);
 
-			PSET_LOG_INFO(std::string("DT_NEEDED:") + fileName);
+			//PSET_LOG_INFO(std::string("DT_NEEDED:") + fileName);
 			break;
 		}
 
@@ -257,6 +257,7 @@ void CPtElfProcessor::ParseDynamicSegment()
 			SSPtModuleValue moduleValue;
 			moduleValue.value = elf64Dyn.d_un.d_val;
 			m_module->m_id2ModuleNameMap.emplace(std::make_pair(moduleValue.id, (const char*)(&sceStrTable[moduleValue.name_offset])));
+			//PSET_LOG_INFO(std::string("DT_MODULE NAME:") + (const char*)(&sceStrTable[moduleValue.name_offset]));
 			break;
 		}
 
@@ -266,6 +267,7 @@ void CPtElfProcessor::ParseDynamicSegment()
 			SPtLibraryValue libValue;
 			libValue.m_value = elf64Dyn.d_un.d_val;
 			m_module->m_id2LibraryNameMap.emplace(std::make_pair(libValue.id, (const char*)(&sceStrTable[libValue.name_offset])));
+			PSET_LOG_INFO(std::string("DT_LIB NAME:") + (const char*)(&sceStrTable[libValue.name_offset]));
 			break;
 		}
 
@@ -452,34 +454,24 @@ void CPtElfProcessor::RelocateNativeLocalSymbol(Elf64_Rela* pReallocateTable, ui
 		Elf64_Sym& symbol = pSymTable[nSymIdx];
 		
 		uint64_t symAddend = pRela->r_addend;
-		uint64_t symValue = symbol.st_value;
-		
-		void* symAddress = nullptr;
-		switch (bindType)
-		{
-		case R_X86_64_RELATIVE:
-		{
-			symAddress = pCodeAddress + symAddend;
-			break;
-		}
-		case R_X86_64_JUMP_SLOT:
-		case R_X86_64_GLOB_DAT:
-		{
-			symAddress = pCodeAddress + symValue;
-			break;
-		}
-		case R_X86_64_64:
-		{
-			symAddress = pCodeAddress + symValue + symAddend;
-			break;
-		}
-		}
-
 		int nBinding = ELF64_ST_BIND(symbol.st_info);
 		if (nBinding == STB_LOCAL)
 		{
+			void* symAddress = nullptr;
+			switch (bindType)
+			{
+			case R_X86_64_RELATIVE:
+			{
+				symAddress = pCodeAddress + symAddend;
+				break;
+			}
+			default:
+			{
+				//todo:
+			}
+			}
+			
 			*(uint64_t*)(pCodeAddress + pRela->r_offset) = reinterpret_cast<uint64_t>(symAddress);
 		}
 	}
-
 }
