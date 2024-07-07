@@ -29,7 +29,6 @@ private:
 	using SLib2FuncTableMap = std::unordered_map < std::string, SNid2FunctionMap>;
 	using SStr2ModuleMap = std::unordered_map < std::string, SLib2FuncTableMap>;
 
-	SNid2FunctionMap m_nid2FunctionMap;
 	SLib2FuncTableMap m_lib2FunctionTableMap;
 	SStr2ModuleMap m_str2ModuleMap;
 
