@@ -1,7 +1,6 @@
 #include <vector>
 #include <Windows.h>
 
-#include "graphics\Vulkan\PtVkDeviceCommand.h"
 #include "graphics\RHI\DynamicRHI.h"
 
 #define GLFW_INCLUDE_VULKAN

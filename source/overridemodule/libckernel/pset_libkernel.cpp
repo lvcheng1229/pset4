@@ -6,6 +6,8 @@
 #include <Windows.h>
 #include <iostream>
 
+static unsigned long long __stack_chk_guard = 0xdeadbeefa55a857;
+
 SSceProcParam* PSET_SYSV_ABI Pset_sceKernelGetProcParam(void)
 {
 	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelGetProcParam");
@@ -56,6 +58,20 @@ int PSET_SYSV_ABI Pset_scePthreadYield(void)
 	PSET_LOG_IMPLEMENTED("implemented function: Pset_scePthreadYield");
 	return PSET_OK;
 }
+
+void* PSET_SYSV_ABI Pset_sceKernelGetSanitizerNewReplaceExternal(void)
+{
+	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelGetSanitizerNewReplaceExternal");
+	return nullptr;
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -120,14 +136,10 @@ int PSET_SYSV_ABI Pset___sceKernelGetGPI(void)
 int PSET_SYSV_ABI Pset___stack_chk_fail(void)
 {
 	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset___stack_chk_fail");
+	DebugBreak();;
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset___stack_chk_guard(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset___stack_chk_guard");
-	return PSET_OK;
-}
 
 int PSET_SYSV_ABI Pset___sys_debug_init(void)
 {
@@ -3302,11 +3314,7 @@ int PSET_SYSV_ABI Pset_sceKernelGetSanitizerNewReplace(void)
 	return PSET_OK;
 }
 
-int PSET_SYSV_ABI Pset_sceKernelGetSanitizerNewReplaceExternal(void)
-{
-	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelGetSanitizerNewReplaceExternal");
-	return PSET_OK;
-}
+
 
 int PSET_SYSV_ABI Pset_sceKernelGetSocPowerConsumption(void)
 {
@@ -5989,7 +5997,7 @@ static const SPSET_LIB_EXPORT_SYSMBOL gSymTable_libkernel_libkernel[] =
  { 0x91BC385071D2632D,"Pset___pthread_cxa_finalize", (void*)Pset___pthread_cxa_finalize },
  { 0xDC96219222079097,"Pset___sceKernelGetGPI", (void*)Pset___sceKernelGetGPI },
  { 0x3AEDE22F569BBE78,"Pset___stack_chk_fail", (void*)Pset___stack_chk_fail },
- { 0x7FBB8EC58F663355,"Pset___stack_chk_guard", (void*)Pset___stack_chk_guard },
+ { 0x7FBB8EC58F663355,"Pset___stack_chk_guard", &__stack_chk_guard },
  { 0xCDD685E4DFD77B63,"Pset___sys_debug_init", (void*)Pset___sys_debug_init },
  { 0x61B02E9EBB62FB9E,"Pset___sys_dl_get_info", (void*)Pset___sys_dl_get_info },
  { 0x5EE8E88F2A706187,"Pset___sys_dl_get_list", (void*)Pset___sys_dl_get_list },

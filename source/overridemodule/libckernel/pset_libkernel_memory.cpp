@@ -109,20 +109,6 @@ void* CLibKernelMemoryManager::AllocateImpl(void* addrIn, uint64_t length, int p
 			continue;
 		}
 
-		//if (reinterpret_cast<size_t>(retAddress) >= SCE_KERNEL_SYS_MANAGE_AREA_START_ADDR &&
-		//	reinterpret_cast<size_t>(retAddress) + length <= SCE_KERNEL_SYS_MANAGE_AREA_END_ADDR)
-		//{
-		//	addrOut = retAddress;
-		//	break;
-		//}
-		//
-		//if (reinterpret_cast<size_t>(retAddress) >= SCE_KERNEL_APP_MAP_AREA_START_ADDR &&
-		//	reinterpret_cast<size_t>(retAddress) + length <= SCE_KERNEL_APP_MAP_AREA_END_ADDR)
-		//{
-		//	addrOut = retAddress;
-		//	break;
-		//}
-
 		addrOut = retAddress;
 		if (addrOut == nullptr) 
 		{ 
@@ -144,7 +130,7 @@ size_t PSET_SYSV_ABI Pset_sceKernelGetDirectMemorySize(void)
 
 int PSET_SYSV_ABI Pset_sceKernelAllocateDirectMemory(int64_t searchStart, int64_t searchEnd, uint64_t length, uint64_t alignment, int memoryType, uint64_t* physicalAddrDest)
 {
-	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelAllocateDirectMemory");
+ 	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelAllocateDirectMemory");
 	gLibKernelMemoryManager.AllocDirectMemory(searchStart, searchEnd, length, alignment, memoryType, physicalAddrDest);
 	return PSET_OK;
 }

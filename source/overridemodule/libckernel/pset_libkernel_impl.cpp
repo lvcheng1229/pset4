@@ -8,7 +8,6 @@ int PSET_SYSV_ABI Pset_sceKernelWaitEqueue(SSceKernelEqueue* sceKernalEqueue, Sc
 {
 	PSET_LOG_IMPLEMENTED("implemented function: Pset_sceKernelWaitEqueue");
 
-
 	SceKernelEvent debugEvent = *sceKernelEvent;
 	sceKernelEvent->flags = 1;
 	sceKernelEvent->filter = 1;

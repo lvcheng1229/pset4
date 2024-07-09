@@ -35,7 +35,6 @@ struct SSceKernelEqueue_t
 
 int PSET_SYSV_ABI Pset_sceKernelCreateEqueue(SSceKernelEqueue_t* pSceKernelEqueue_t,const char* name);
 int PSET_SYSV_ABI Pset_clock_gettime(int32_t clk_id, timespec* tp);
-void* PSET_SYSV_ABI Pset_sceKernelGetSanitizerNewReplaceExternal(void);
 
 
 int PSET_SYSV_ABI Pset___elf_phdr_match_addr(void);

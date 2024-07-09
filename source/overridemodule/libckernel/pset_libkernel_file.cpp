@@ -103,6 +103,7 @@ int PSET_SYSV_ABI Pset_sceKernelWrite(void)
 
 int PSET_SYSV_ABI Pset_sceKernelMkdir(char* path, int32_t mode)
 {
-	_mkdir(PathCast(std::string(std::string("/savedata") + path).c_str()).c_str());
+	//_mkdir(PathCast(std::string(std::string("/savedata") + path).c_str()).c_str());
+	PSET_LOG_UNIMPLEMENTED("unimplemented function: Pset_sceKernelMkdir");
 	return PSET_OK;
 }
