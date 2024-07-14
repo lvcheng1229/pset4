@@ -171,8 +171,6 @@ void CPtGnmTranslator::OnSetUConfigRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4
 void CPtGnmTranslator::onSetContextRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)
 {
 	constexpr uint32_t CONTEXT_REG_BASE = 0xA000;
-	constexpr uint32_t CONTEXT_REG_END = 0xA400;
-	constexpr uint32_t CONTEXT_REG_SIZE = CONTEXT_REG_END - CONTEXT_REG_BASE;
 	uint32_t count = pm4Hdr->count;
 	for (uint32_t index = 0; index < count; index++)
 	{
@@ -180,19 +178,12 @@ void CPtGnmTranslator::onSetContextRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4
 		uint32_t value = *((uint32_t*)(itBody + 1 + index));
 		SetContextReg(reg, value);
 	}
-
-	
 }
 
 
 void CPtGnmTranslator::OnSetShRegs(PM4_PT_TYPE_3_HEADER* pm4Hdr, PtGfx::PM4CMDSETDATA* itBody)
 {
 	constexpr uint32_t SH_REG_BASE = 0x2C00;
-	constexpr uint32_t SH_REG_END = 0x3000;
-	constexpr uint32_t SH_REG_SIZE = SH_REG_END - SH_REG_BASE;
-
-	// if count == 2, the type of cmd data is pointer sotred with 2 user data slot
-
 	uint32_t count = pm4Hdr->count;
 	for (uint32_t index = 0; index < count; index++)
 	{

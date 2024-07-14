@@ -17,7 +17,8 @@ const SShaderBinaryInfo* GetShaderInfo(const void* code)
 {
 	const uint32_t* base = reinterpret_cast<const uint32_t*>(code);
 	assert(base[0] == 0xBEEB03FF);
-	return reinterpret_cast<const SShaderBinaryInfo*>(base + (base[1] + 1) * 2);
+	uint32_t base_offset = (base[1] + 1) * 2;
+	return reinterpret_cast<const SShaderBinaryInfo*>(base + base_offset);
 }
 
 void UpdateMaxBrach(uint16_t SIMM16, CGsCodeReader codeReader, uintptr_t& maxBranch)
@@ -107,24 +108,12 @@ uint32_t CGsISAProcessor::ParseSize(const void* startp, bool bStePc)
 		}
 	}
 
-	int aa = sizeof(SShaderBinaryInfo);//28
 
 	//264
 	uint32_t codeSize = m_codeReader.GetPos() - m_codeReader.GetBeg();//56
 
 	uint8_t m_signature[8] = { "OrbShdr" };
 	const char* searchPtr = (const char*)m_codeReader.GetPtr();
-	const char debugPptr0 = searchPtr[205];
-	const char debugPptr1 = searchPtr[206];
-	const char debugPptr2 = searchPtr[207];
-	const char debugPptr3 = searchPtr[208];
-	const char debugPptr4 = searchPtr[209];
-
-	const char debugPptr20 = searchPtr[178];
-	const char debugPptr21 = searchPtr[179];
-	const char debugPptr22 = searchPtr[180];
-	const char debugPptr23 = searchPtr[181];
-	const char debugPptr24 = searchPtr[182];
 	for (uint32_t index = 0; index < (256 + 7) * 4; index++)
 	{
 		searchPtr = searchPtr + index;
@@ -145,7 +134,6 @@ uint32_t CGsISAProcessor::ParseSize(const void* startp, bool bStePc)
 
 	std::string srcDataStr((const char*)m_codeReader.GetPtr(), (256 + 7) * 4);
 	std::string findStr((const char*)m_shaderInfo, sizeof(SShaderBinaryInfo));
-	size_t pos = srcDataStr.find(findStr);
 
 	uint32_t dis = uintptr_t(m_shaderInfo) - m_codeReader.GetPos();//4284
 	if ((dis < 256 + 7) && dis > 0)
@@ -161,7 +149,8 @@ SInputUsageSlot* CGsISAProcessor::GetShaderSlot()
 	uint8_t InputUsageSlotsNum = GetShaderInfo(m_base)->m_numInputUsageSlots;
 	if (InputUsageSlotsNum > 0)
 	{
-		uint8_t* usageMasks = (uint8_t*)GetShaderInfo(m_base) - (GetShaderInfo(m_base)->m_chunkUsageBaseOffsetInDW * 4);
+		uint8_t chunkUsageBaseOffsetInDW = GetShaderInfo(m_base)->m_chunkUsageBaseOffsetInDW;
+		uint8_t* usageMasks = (uint8_t*)GetShaderInfo(m_base) - (chunkUsageBaseOffsetInDW * 4);
 		inputUsageSlot = (SInputUsageSlot*)usageMasks - (GetShaderInfo(m_base)->m_numInputUsageSlots);
 	}
 	return inputUsageSlot;
@@ -173,7 +162,7 @@ int32_t CGsISAProcessor::GetUsageRegisterIndex(EShaderInputUsage usgae)
 	if (usageSlot != nullptr)
 	{
 		int32_t numUsageSlot = GetShaderInfo(m_base)->m_numInputUsageSlots;
-		for (uint32_t index = 0; index < GetShaderInfo(m_base)->m_numInputUsageSlots; index++)
+		for (uint32_t index = 0; index < numUsageSlot; index++)
 		{
 			if (usgae == usageSlot[index].m_usageType) { return usageSlot[index].m_startRegister; };
 		}
